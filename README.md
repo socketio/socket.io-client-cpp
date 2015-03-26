@@ -1,6 +1,6 @@
 # SIO Client
 This SIO client is depends on [websocket++](https://github.com/zaphoyd/websocketpp) and [rapidjson](https://github.com/miloyip/rapidjson), it provides another C++ client implementation for [Socket.IO](https://github.com/Automattic/socket.io).
-This library is able to connect to a Socket.IO server 1.0, and its inspired by the [socket.io-clientpp](https://github.com/ebshimizu/socket.io-clientpp) project but I've rewrite 90% of the code.
+This library is able to connect to a Socket.IO server 1.0, and the initial thought of writing it is inspired by the [socket.io-clientpp](https://github.com/ebshimizu/socket.io-clientpp) project.
 
 ## Socket.IO 1.0+ protocol has been implemented!
 The code is compatible with 1.0+ protocol only, not with prior protocols.
