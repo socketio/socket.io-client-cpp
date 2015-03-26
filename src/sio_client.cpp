@@ -6,10 +6,25 @@
 
 #include "sio_client.h"
 
-#ifndef _WEBSOCKETPP_CPP11_STL_
-#define _WEBSOCKETPP_CPP11_STL_ 1
+#ifndef _WEBSOCKETPP_CPP11_THREAD_
+#define _WEBSOCKETPP_CPP11_THREAD_ 1
 #endif
 
+#ifndef _WEBSOCKETPP_CPP11_MEMORY_
+#define _WEBSOCKETPP_CPP11_MEMORY_ 1
+#endif
+
+#ifndef _WEBSOCKETPP_CPP11_SYSTEM_ERROR_
+#define _WEBSOCKETPP_CPP11_SYSTEM_ERROR_ 1
+#endif
+
+#ifdef WIN32
+#define _WEBSOCKETPP_NO_CPP11_FUNCTIONAL_
+#define INTIALIZER(__TYPE__) 
+#else
+#define _WEBSOCKETPP_CPP11_FUNCTIONAL_ 1
+#define INTIALIZER(__TYPE__) (__TYPE__)
+#endif
 #include <websocketpp/client.hpp>
 #if _DEBUG || DEBUG
 #include <websocketpp/config/debug_asio_no_tls.hpp>
@@ -41,7 +56,7 @@ using std::stringstream;
 
 namespace sio
 {
-    typedef client<client_config> client_type;
+    typedef websocketpp::client<client_config> client_type;
     
     class client::impl {
     protected:
@@ -362,15 +377,15 @@ void set_##__FIELD__(__TYPE__ const& l) \
         
         // Bind the clients we are using
         using websocketpp::lib::placeholders::_1;
-        using websocketpp::lib::bind;
-        m_client.set_open_client(bind(&client::impl::on_open,this,::_1));
-        m_client.set_close_client(bind(&client::impl::on_close,this,::_1));
-        m_client.set_fail_client(bind(&client::impl::on_fail,this,::_1));
-        m_client.set_message_client(bind(&client::impl::on_message,this,::_1,::_2));
+		using websocketpp::lib::placeholders::_2;
+        m_client.set_open_handler(lib::bind(&client::impl::on_open,this,::_1));
+        m_client.set_close_handler(lib::bind(&client::impl::on_close,this,::_1));
+        m_client.set_fail_handler(lib::bind(&client::impl::on_fail,this,::_1));
+        m_client.set_message_handler(lib::bind(&client::impl::on_message,this,::_1,::_2));
         
-        m_packet_mgr.set_decode_callback(bind(&client::impl::on_decode,this,::_1));
+        m_packet_mgr.set_decode_callback(lib::bind(&client::impl::on_decode,this,::_1));
         
-        m_packet_mgr.set_encode_callback(bind(&client::impl::on_encode,this,::_1,::_2));
+        m_packet_mgr.set_encode_callback(lib::bind(&client::impl::on_encode,this,::_1,::_2));
     }
     
     client::impl::~impl()
@@ -768,7 +783,7 @@ void set_##__FIELD__(__TYPE__ const& l) \
         }
         else
         {
-            message_queue_element element = (message_queue_element){.opcode = opcode,.payload_ptr = payload_ptr};
+            message_queue_element element = INTIALIZER(message_queue_element){opcode,payload_ptr};
             m_message_queue.push(element);
         }
     }

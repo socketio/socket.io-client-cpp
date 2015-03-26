@@ -38,41 +38,49 @@ namespace sio
         virtual int64_t get_int() const
         {
             assert(false);
+			return 0;
         }
         
         virtual double get_double() const
         {
             assert(false);
+			return 0;
         }
         
         virtual string const& get_string() const
         {
             assert(false);
+			return string();
         }
         
         virtual shared_ptr<const string> const& get_binary() const
         {
             assert(false);
+			return make_shared<string>();
         }
         
         virtual const vector<ptr>& get_vector() const
         {
             assert(false);
+			return vector<ptr>();
         }
 
         virtual vector<ptr>& get_vector()
         {
             assert(false);
+			return vector<ptr>();
         }
         
         virtual const map<string,message::ptr>& get_map() const
         {
             assert(false);
+			return map<string,message::ptr>();
         }
         
         virtual map<string,message::ptr>& get_map()
         {
             assert(false);
+			return map<string,message::ptr>();
         }
     private:
         flag _flag;

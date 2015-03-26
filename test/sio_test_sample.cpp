@@ -4,7 +4,7 @@
 //  Created by Melo Yao on 3/24/15.
 //
 
-#include "sio_client.h"
+#include "../src/sio_client.h"
 
 #include <functional>
 #include <iostream>
@@ -49,7 +49,7 @@ public:
         });
         
     }
-    void on_close(handler::close_reason const& reason)
+    void on_close(client::close_reason const& reason)
     {
         std::cout<<"Listener1:sio closed "<<std::endl;
     }
@@ -97,7 +97,7 @@ public:
     }
 };
 
-int main(int argc ,const char* args[])
+int test(int argc ,const char* args[])
 {
     sio::client h;
     connection_listener l(h);
@@ -117,5 +117,6 @@ int main(int argc ,const char* args[])
     h.reconnect("http://127.0.0.1:3000");
     std::this_thread::sleep_for(std::chrono::seconds(10));
     h.clear_con_listeners();
+	return 0;
 }
 

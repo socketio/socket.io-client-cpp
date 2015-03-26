@@ -6,7 +6,8 @@
 
 #include "sio_packet.h"
 #include <rapidjson/document.h>
-#include <rapidjson/stringwriter.h>
+#include <rapidjson/encodedstream.h>
+#include <rapidjson/writer.h>
 #include <cassert>
 namespace sio
 {
@@ -332,11 +333,16 @@ namespace sio
         {
             ss<<_pack_id;
         }
-        if (hasMessage) {
-            StreamWriter<ostringstream> writer(ss);
-            doc.Accept(writer);
-        }
+        
         payload_ptr.append(ss.str());
+		if (hasMessage) {
+			StringBuffer buffer;
+			EncodedOutputStream<UTF8<>,StringBuffer> eos(buffer);
+			Writer<EncodedOutputStream<UTF8<>,StringBuffer> > writer(eos);
+            doc.Accept(writer);
+			payload_ptr.append(buffer.GetString(),buffer.GetSize());
+        }
+		
         return hasBinary;
     }
     
