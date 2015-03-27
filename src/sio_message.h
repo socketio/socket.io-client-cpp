@@ -50,39 +50,50 @@ namespace sio
         virtual string const& get_string() const
         {
             assert(false);
-			return string();
+            s_empty_string.clear();
+            return s_empty_string;
         }
         
         virtual shared_ptr<const string> const& get_binary() const
         {
             assert(false);
-			return make_shared<string>();
+            s_empty_binary = nullptr;
+			return s_empty_binary;
         }
         
         virtual const vector<ptr>& get_vector() const
         {
             assert(false);
-			return vector<ptr>();
+            s_empty_vector.clear();
+			return s_empty_vector;
         }
 
         virtual vector<ptr>& get_vector()
         {
             assert(false);
-			return vector<ptr>();
+            s_empty_vector.clear();
+            return s_empty_vector;
         }
         
         virtual const map<string,message::ptr>& get_map() const
         {
             assert(false);
-			return map<string,message::ptr>();
+            s_empty_map.clear();
+            return s_empty_map;
         }
         
         virtual map<string,message::ptr>& get_map()
         {
             assert(false);
-			return map<string,message::ptr>();
+            s_empty_map.clear();
+			return s_empty_map;
         }
     private:
+        static string s_empty_string;
+        static shared_ptr<const string> s_empty_binary;
+        static vector<ptr> s_empty_vector;
+        static map<string,message::ptr> s_empty_map;
+        
         flag _flag;
         
     protected:

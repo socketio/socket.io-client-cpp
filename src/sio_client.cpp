@@ -378,14 +378,14 @@ void set_##__FIELD__(__TYPE__ const& l) \
         // Bind the clients we are using
         using websocketpp::lib::placeholders::_1;
 		using websocketpp::lib::placeholders::_2;
-        m_client.set_open_handler(lib::bind(&client::impl::on_open,this,::_1));
-        m_client.set_close_handler(lib::bind(&client::impl::on_close,this,::_1));
-        m_client.set_fail_handler(lib::bind(&client::impl::on_fail,this,::_1));
-        m_client.set_message_handler(lib::bind(&client::impl::on_message,this,::_1,::_2));
+        m_client.set_open_handler(lib::bind(&client::impl::on_open,this,_1));
+        m_client.set_close_handler(lib::bind(&client::impl::on_close,this,_1));
+        m_client.set_fail_handler(lib::bind(&client::impl::on_fail,this,_1));
+        m_client.set_message_handler(lib::bind(&client::impl::on_message,this,_1,_2));
         
-        m_packet_mgr.set_decode_callback(lib::bind(&client::impl::on_decode,this,::_1));
+        m_packet_mgr.set_decode_callback(lib::bind(&client::impl::on_decode,this,_1));
         
-        m_packet_mgr.set_encode_callback(lib::bind(&client::impl::on_encode,this,::_1,::_2));
+        m_packet_mgr.set_encode_callback(lib::bind(&client::impl::on_encode,this,_1,_2));
     }
     
     client::impl::~impl()
