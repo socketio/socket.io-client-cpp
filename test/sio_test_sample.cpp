@@ -42,8 +42,12 @@ public:
             std::cout<<"Listener1:test ack:"<<std::endl;
             if(ack_data)
             {
-                if (ack_data->get_flag() == message::flag_string) {
-                    std::cout<<ack_data->get_string()<<std::endl;
+                if (ack_data->get_flag() == message::flag_array) {
+                    message::ptr ack_msg = ack_data->get_vector()[0];
+                    if(ack_msg->get_flag() == message::flag_string)
+                    {
+                        std::cout<<ack_msg->get_string()<<std::endl;
+                    }
                 }
             }
         });

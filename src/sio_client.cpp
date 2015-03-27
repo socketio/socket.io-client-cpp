@@ -572,7 +572,10 @@ void set_##__FIELD__(__TYPE__ const& l) \
                                 this->on_socketio_event(p.get_pack_id(),name_ptr->get_string(), value_ptr);
                             }
                         }
-                        
+                        else
+                        {
+                            this->on_socketio_event(p.get_pack_id(),std::string(), ptr);//no name, pass th e full pack
+                        }
                         break;
                     }
                         // Ack
@@ -581,20 +584,6 @@ void set_##__FIELD__(__TYPE__ const& l) \
                     {
                         LOG("Received Message type (ACK)"<<std::endl);
                         const message::ptr ptr = p.get_message();
-                        if(ptr->get_flag() == message::flag_array)
-                        {
-                            const array_message* array_ptr = static_cast<const array_message*>(ptr.get());
-                            if(array_ptr->get_vector().size() >= 1&&array_ptr->get_vector()[0]->get_flag() == message::flag_string)
-                            {
-                                message::ptr value_ptr;
-                                if(array_ptr->get_vector().size()>1)
-                                {
-                                    value_ptr = array_ptr->get_vector()[1];
-                                }
-                                this->on_socketio_ack(p.get_pack_id(), value_ptr);
-                                break;
-                            }
-                        }
                         this->on_socketio_ack(p.get_pack_id(),ptr);
                         break;
                     }
@@ -796,7 +785,6 @@ void set_##__FIELD__(__TYPE__ const& l) \
     
     void client::impl::__connect(const std::string& uri)
     {
-        
         do{
             websocketpp::uri uo(uri);
             std::ostringstream ss;
@@ -897,10 +885,13 @@ void set_##__FIELD__(__TYPE__ const& l) \
     void client::impl::on_socketio_event(int msgId,const std::string& name, message::ptr const& message)
     {
         event_listener *functor_ptr = &(m_default_event_listener);
-        auto it = m_event_binding.find(name);
-        if(it!=m_event_binding.end())
+        if(name.size()>0)
         {
-            functor_ptr = &(it->second);
+            auto it = m_event_binding.find(name);
+            if(it!=m_event_binding.end())
+            {
+                functor_ptr = &(it->second);
+            }
         }
         bool needAck = msgId >= 0;
         
