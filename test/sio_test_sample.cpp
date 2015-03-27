@@ -43,7 +43,7 @@ public:
             if(ack_data)
             {
                 if (ack_data->get_flag() == message::flag_string) {
-                    std::cout<<static_cast<string_message*>(ack_data.get())->get_string()<<std::endl;
+                    std::cout<<ack_data->get_string()<<std::endl;
                 }
             }
         });

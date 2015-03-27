@@ -305,7 +305,7 @@ namespace sio
             accept_message(*_message, doc, doc, buffers);
             hasMessage = true;
         }
-        bool hasBinary = _buffers.size()>0;
+        bool hasBinary = buffers.size()>0;
         _type = _type&(~type_undetermined);
         if(_type == type_event)
         {
@@ -319,7 +319,7 @@ namespace sio
         ss.precision(8);
         ss<<_type;
         if (hasBinary) {
-            ss<<_buffers.size()<<"-";
+            ss<<buffers.size()<<"-";
         }
         if(_nsp.size()>0 && _nsp!="/")
         {
@@ -337,8 +337,7 @@ namespace sio
         payload_ptr.append(ss.str());
 		if (hasMessage) {
 			StringBuffer buffer;
-			EncodedOutputStream<UTF8<>,StringBuffer> eos(buffer);
-			Writer<EncodedOutputStream<UTF8<>,StringBuffer> > writer(eos);
+			Writer<StringBuffer> writer(buffer);
             doc.Accept(writer);
 			payload_ptr.append(buffer.GetString(),buffer.GetSize());
         }
