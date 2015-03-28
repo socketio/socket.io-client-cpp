@@ -140,8 +140,8 @@ namespace sio
         else if(value.IsObject())
         {
              //binary placeholder
-			auto mem_it = value.FindMember(kBIN_PLACE_HOLDER);
-			if (mem_it!=value.MemberEnd() && mem_it->value.GetBool()) {
+            auto mem_it = value.FindMember(kBIN_PLACE_HOLDER);
+            if (mem_it!=value.MemberEnd() && mem_it->value.GetBool()) {
                
                 int num = value["num"].GetInt();
                 if(num > 0 && num < buffers.size())
