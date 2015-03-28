@@ -50,20 +50,23 @@ namespace sio
         virtual string const& get_string() const
         {
             assert(false);
-            s_empty_string.clear();
+            static string s_empty_string;
+			s_empty_string.clear();
             return s_empty_string;
         }
         
         virtual shared_ptr<const string> const& get_binary() const
         {
             assert(false);
-            s_empty_binary = nullptr;
+            static shared_ptr<const string> s_empty_binary;
+			s_empty_binary = nullptr;
 			return s_empty_binary;
         }
         
         virtual const vector<ptr>& get_vector() const
         {
             assert(false);
+			static vector<ptr> s_empty_vector;
             s_empty_vector.clear();
 			return s_empty_vector;
         }
@@ -71,6 +74,7 @@ namespace sio
         virtual vector<ptr>& get_vector()
         {
             assert(false);
+			static vector<ptr> s_empty_vector;
             s_empty_vector.clear();
             return s_empty_vector;
         }
@@ -78,6 +82,7 @@ namespace sio
         virtual const map<string,message::ptr>& get_map() const
         {
             assert(false);
+			static map<string,message::ptr> s_empty_map;
             s_empty_map.clear();
             return s_empty_map;
         }
@@ -85,21 +90,16 @@ namespace sio
         virtual map<string,message::ptr>& get_map()
         {
             assert(false);
-            s_empty_map.clear();
+            static map<string,message::ptr> s_empty_map;
+			s_empty_map.clear();
 			return s_empty_map;
         }
     private:
-        static string s_empty_string;
-        static shared_ptr<const string> s_empty_binary;
-        static vector<ptr> s_empty_vector;
-        static map<string,message::ptr> s_empty_map;
-        
-        flag _flag;
+		flag _flag;
         
     protected:
         message(flag f):_flag(f){}
     };
-    
     
     class int_message : public message
     {

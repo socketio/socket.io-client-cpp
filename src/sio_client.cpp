@@ -6,23 +6,14 @@
 
 #include "sio_client.h"
 
-#ifndef _WEBSOCKETPP_CPP11_THREAD_
-#define _WEBSOCKETPP_CPP11_THREAD_ 1
-#endif
-
-#ifndef _WEBSOCKETPP_CPP11_MEMORY_
-#define _WEBSOCKETPP_CPP11_MEMORY_ 1
-#endif
-
-#ifndef _WEBSOCKETPP_CPP11_SYSTEM_ERROR_
-#define _WEBSOCKETPP_CPP11_SYSTEM_ERROR_ 1
-#endif
-
 #ifdef WIN32
+#define _WEBSOCKETPP_CPP11_THREAD_
+#define BOOST_ALL_NO_LIB
+//#define _WEBSOCKETPP_CPP11_RANDOM_DEVICE_
 #define _WEBSOCKETPP_NO_CPP11_FUNCTIONAL_
 #define INTIALIZER(__TYPE__) 
 #else
-#define _WEBSOCKETPP_CPP11_FUNCTIONAL_ 1
+#define _WEBSOCKETPP_CPP11_STL_ 1
 #define INTIALIZER(__TYPE__) (__TYPE__)
 #endif
 #include <websocketpp/client.hpp>
@@ -378,14 +369,14 @@ void set_##__FIELD__(__TYPE__ const& l) \
         // Bind the clients we are using
         using websocketpp::lib::placeholders::_1;
 		using websocketpp::lib::placeholders::_2;
-        m_client.set_open_handler(lib::bind(&client::impl::on_open,this,_1));
-        m_client.set_close_handler(lib::bind(&client::impl::on_close,this,_1));
-        m_client.set_fail_handler(lib::bind(&client::impl::on_fail,this,_1));
-        m_client.set_message_handler(lib::bind(&client::impl::on_message,this,_1,_2));
+        m_client.set_open_handler(lib::bind(&client::impl::on_open,this,::_1));
+        m_client.set_close_handler(lib::bind(&client::impl::on_close,this,::_1));
+        m_client.set_fail_handler(lib::bind(&client::impl::on_fail,this,::_1));
+        m_client.set_message_handler(lib::bind(&client::impl::on_message,this,::_1,::_2));
         
-        m_packet_mgr.set_decode_callback(lib::bind(&client::impl::on_decode,this,_1));
+        m_packet_mgr.set_decode_callback(lib::bind(&client::impl::on_decode,this,::_1));
         
-        m_packet_mgr.set_encode_callback(lib::bind(&client::impl::on_encode,this,_1,_2));
+        m_packet_mgr.set_encode_callback(lib::bind(&client::impl::on_encode,this,::_1,::_2));
     }
     
     client::impl::~impl()
@@ -572,10 +563,7 @@ void set_##__FIELD__(__TYPE__ const& l) \
                                 this->on_socketio_event(p.get_pack_id(),name_ptr->get_string(), value_ptr);
                             }
                         }
-                        else
-                        {
-                            this->on_socketio_event(p.get_pack_id(),std::string(), ptr);//no name, pass th e full pack
-                        }
+                        
                         break;
                     }
                         // Ack
@@ -584,6 +572,20 @@ void set_##__FIELD__(__TYPE__ const& l) \
                     {
                         LOG("Received Message type (ACK)"<<std::endl);
                         const message::ptr ptr = p.get_message();
+                        if(ptr->get_flag() == message::flag_array)
+                        {
+                            const array_message* array_ptr = static_cast<const array_message*>(ptr.get());
+                            if(array_ptr->get_vector().size() >= 1&&array_ptr->get_vector()[0]->get_flag() == message::flag_string)
+                            {
+                                message::ptr value_ptr;
+                                if(array_ptr->get_vector().size()>1)
+                                {
+                                    value_ptr = array_ptr->get_vector()[1];
+                                }
+                                this->on_socketio_ack(p.get_pack_id(), value_ptr);
+                                break;
+                            }
+                        }
                         this->on_socketio_ack(p.get_pack_id(),ptr);
                         break;
                     }
@@ -785,6 +787,7 @@ void set_##__FIELD__(__TYPE__ const& l) \
     
     void client::impl::__connect(const std::string& uri)
     {
+        
         do{
             websocketpp::uri uo(uri);
             std::ostringstream ss;
@@ -885,13 +888,10 @@ void set_##__FIELD__(__TYPE__ const& l) \
     void client::impl::on_socketio_event(int msgId,const std::string& name, message::ptr const& message)
     {
         event_listener *functor_ptr = &(m_default_event_listener);
-        if(name.size()>0)
+        auto it = m_event_binding.find(name);
+        if(it!=m_event_binding.end())
         {
-            auto it = m_event_binding.find(name);
-            if(it!=m_event_binding.end())
-            {
-                functor_ptr = &(it->second);
-            }
+            functor_ptr = &(it->second);
         }
         bool needAck = msgId >= 0;
         
