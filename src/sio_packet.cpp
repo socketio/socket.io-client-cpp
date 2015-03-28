@@ -9,6 +9,9 @@
 #include <rapidjson/encodedstream.h>
 #include <rapidjson/writer.h>
 #include <cassert>
+
+#define kBIN_PLACE_HOLDER "_placeholder"
+
 namespace sio
 {
     using namespace rapidjson;
@@ -36,7 +39,7 @@ namespace sio
         val.SetObject();
         Value boolVal;
         boolVal.SetBool(true);
-        val.AddMember("_placeholder", boolVal, doc.GetAllocator());
+        val.AddMember(kBIN_PLACE_HOLDER, boolVal, doc.GetAllocator());
         Value numVal;
         numVal.SetInt((int)buffers.size());
         val.AddMember("num", numVal, doc.GetAllocator());
@@ -137,7 +140,8 @@ namespace sio
         else if(value.IsObject())
         {
              //binary placeholder
-            if (value.HasMember("_placeholder") && value["_placeholder"].GetBool()) {
+			auto mem_it = value.FindMember(kBIN_PLACE_HOLDER);
+			if (mem_it!=value.MemberEnd() && mem_it->value.GetBool()) {
                
                 int num = value["num"].GetInt();
                 if(num > 0 && num < buffers.size())
