@@ -25,4 +25,20 @@ I'll do further compatibility efforts on demand.
 3. Include `sio_client.h` where you want to use it.
 4. Use `message` and its derived classes to compose complex text/binary messages.
 
+## Boost build instructions
+Only a subset of boost is needed for this project.You can setup your boost environment as following:
+1. Download boost from [boost.org](http://www.boost.org/).(suppose we downloaded boost 1.55.0)
+2. Unpack boost to some place.(such as D:\boost_1_55_0).
+3. Run either .\bootstrap.bat (on Windows), or ./bootstrap.sh (on other operating systems) under boost folder(D:\boost_1_55_0).
+4. Run ./b2 install --prefix=PREFIX
+where PREFIX is a directory where you want Boost.Build to be installed.
+5. Optionally, add PREFIX/bin to your PATH environment variable.
+6. Build needed boost modules, with following command line as an example:
+For Windows:
+	bjam stage --toolset=msvc --with-system --with-date_time --with-thread --with-regex --with-serialization --with-random --stagedir="D:\boost_1_55_0\boost_build\release" link=static runtime-link=shared threading=multi release
+For iOS
+	bjam -j16 --with-system --with-date_time --with-thread --with-regex --with-serialization --with-random --build-dir=iphone-build --stagedir=iphone-build/stage --prefix=$PREFIXDIR toolset=darwin architecture=arm target-os=iphone macosx-version=iphone-`${IPHONE_SDKVERSION}` define=_LITTLE_ENDIAN link=static stage
+For Mac OSX
+	b2 -j16 --with-system --with-date_time --with-thread --with-regex --with-serialization --with-random --build-dir=osx-build --stagedir=osx-build/stage toolset=clang cxxflags="-std=c++11 -stdlib=libc++ -arch i386 -arch x86_64" linkflags="-stdlib=libc++" link=static threading=multi stage
+7. Add boost source folder to `header search path`, and add static libs to link option.
 sio client specific source is released under the BSD license.
