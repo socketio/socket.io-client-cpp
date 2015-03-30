@@ -2,8 +2,7 @@
 //  CRViewController.h
 //  ChatRoom
 //
-//  Created by Melo Yao on 3/27/14.
-//  Copyright (c) 2014 AutoNavi. All rights reserved.
+//  Created by Melo Yao on 3/30/15.
 //
 
 #import <UIKit/UIKit.h>
