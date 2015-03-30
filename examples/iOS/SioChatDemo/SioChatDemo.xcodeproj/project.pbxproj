@@ -1,0 +1,696 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		CE3B3B401AC8F365003CEB94 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = CE3B3B3F1AC8F365003CEB94 /* main.m */; };
+		CE3B3B431AC8F365003CEB94 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = CE3B3B421AC8F365003CEB94 /* AppDelegate.m */; };
+		CE3B3B4B1AC8F365003CEB94 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CE3B3B4A1AC8F365003CEB94 /* Images.xcassets */; };
+		CE3B3B4E1AC8F365003CEB94 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = CE3B3B4C1AC8F365003CEB94 /* LaunchScreen.xib */; };
+		CE3B3B5A1AC8F365003CEB94 /* SioChatDemoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CE3B3B591AC8F365003CEB94 /* SioChatDemoTests.m */; };
+		CE3B3B651AC8F385003CEB94 /* CRViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = CE3B3B641AC8F385003CEB94 /* CRViewController.mm */; };
+		CE3B3B751AC8F438003CEB94 /* libsioclient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CE3B3B6A1AC8F438003CEB94 /* libsioclient.a */; };
+		CE3B3E661AC8F4FD003CEB94 /* sio_client.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE3B3B821AC8F4AF003CEB94 /* sio_client.cpp */; };
+		CE3B3E671AC8F4FD003CEB94 /* sio_packet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE3B3B851AC8F4AF003CEB94 /* sio_packet.cpp */; };
+		CE3B3E691AC8F520003CEB94 /* sio_client.h in Headers */ = {isa = PBXBuildFile; fileRef = CE3B3B831AC8F4AF003CEB94 /* sio_client.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		CE3B3E6A1AC8F520003CEB94 /* sio_message.h in Headers */ = {isa = PBXBuildFile; fileRef = CE3B3B841AC8F4AF003CEB94 /* sio_message.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		CE3B3E6D1AC8FE59003CEB94 /* libsioclient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CE3B3B6A1AC8F438003CEB94 /* libsioclient.a */; };
+		CE3B3E6F1AC9139B003CEB94 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CE3B3E6E1AC9139B003CEB94 /* Main.storyboard */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		CE3B3B541AC8F365003CEB94 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CE3B3B321AC8F365003CEB94 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CE3B3B391AC8F365003CEB94;
+			remoteInfo = SioChatDemo;
+		};
+		CE3B3B761AC8F438003CEB94 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CE3B3B321AC8F365003CEB94 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CE3B3B691AC8F438003CEB94;
+			remoteInfo = sioclient;
+		};
+		CE3B3E6B1AC8FE54003CEB94 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CE3B3B321AC8F365003CEB94 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CE3B3B691AC8F438003CEB94;
+			remoteInfo = sioclient;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		CE3B3B681AC8F438003CEB94 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/$(PRODUCT_NAME)";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		CE3B3B3A1AC8F365003CEB94 /* SioChatDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SioChatDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		CE3B3B3E1AC8F365003CEB94 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		CE3B3B3F1AC8F365003CEB94 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		CE3B3B411AC8F365003CEB94 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		CE3B3B421AC8F365003CEB94 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		CE3B3B4A1AC8F365003CEB94 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		CE3B3B4D1AC8F365003CEB94 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
+		CE3B3B531AC8F365003CEB94 /* SioChatDemoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SioChatDemoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		CE3B3B581AC8F365003CEB94 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		CE3B3B591AC8F365003CEB94 /* SioChatDemoTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SioChatDemoTests.m; sourceTree = "<group>"; };
+		CE3B3B631AC8F385003CEB94 /* CRViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CRViewController.h; sourceTree = "<group>"; };
+		CE3B3B641AC8F385003CEB94 /* CRViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CRViewController.mm; sourceTree = "<group>"; };
+		CE3B3B6A1AC8F438003CEB94 /* libsioclient.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libsioclient.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		CE3B3B741AC8F438003CEB94 /* sioclientTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = sioclientTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		CE3B3B7A1AC8F438003CEB94 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		CE3B3B821AC8F4AF003CEB94 /* sio_client.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sio_client.cpp; sourceTree = "<group>"; };
+		CE3B3B831AC8F4AF003CEB94 /* sio_client.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sio_client.h; sourceTree = "<group>"; };
+		CE3B3B841AC8F4AF003CEB94 /* sio_message.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sio_message.h; sourceTree = "<group>"; };
+		CE3B3B851AC8F4AF003CEB94 /* sio_packet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sio_packet.cpp; sourceTree = "<group>"; };
+		CE3B3B861AC8F4AF003CEB94 /* sio_packet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sio_packet.h; sourceTree = "<group>"; };
+		CE3B3E6E1AC9139B003CEB94 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		CE3B3B371AC8F365003CEB94 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CE3B3E6D1AC8FE59003CEB94 /* libsioclient.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CE3B3B501AC8F365003CEB94 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CE3B3B671AC8F438003CEB94 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CE3B3B711AC8F438003CEB94 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CE3B3B751AC8F438003CEB94 /* libsioclient.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		CE3B3B311AC8F365003CEB94 = {
+			isa = PBXGroup;
+			children = (
+				CE3B3B3C1AC8F365003CEB94 /* SioChatDemo */,
+				CE3B3B561AC8F365003CEB94 /* SioChatDemoTests */,
+				CE3B3B6B1AC8F438003CEB94 /* sioclient */,
+				CE3B3B781AC8F438003CEB94 /* sioclientTests */,
+				CE3B3B3B1AC8F365003CEB94 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		CE3B3B3B1AC8F365003CEB94 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CE3B3B3A1AC8F365003CEB94 /* SioChatDemo.app */,
+				CE3B3B531AC8F365003CEB94 /* SioChatDemoTests.xctest */,
+				CE3B3B6A1AC8F438003CEB94 /* libsioclient.a */,
+				CE3B3B741AC8F438003CEB94 /* sioclientTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		CE3B3B3C1AC8F365003CEB94 /* SioChatDemo */ = {
+			isa = PBXGroup;
+			children = (
+				CE3B3E6E1AC9139B003CEB94 /* Main.storyboard */,
+				CE3B3B411AC8F365003CEB94 /* AppDelegate.h */,
+				CE3B3B421AC8F365003CEB94 /* AppDelegate.m */,
+				CE3B3B631AC8F385003CEB94 /* CRViewController.h */,
+				CE3B3B641AC8F385003CEB94 /* CRViewController.mm */,
+				CE3B3B4A1AC8F365003CEB94 /* Images.xcassets */,
+				CE3B3B4C1AC8F365003CEB94 /* LaunchScreen.xib */,
+				CE3B3B3D1AC8F365003CEB94 /* Supporting Files */,
+			);
+			path = SioChatDemo;
+			sourceTree = "<group>";
+		};
+		CE3B3B3D1AC8F365003CEB94 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				CE3B3B3E1AC8F365003CEB94 /* Info.plist */,
+				CE3B3B3F1AC8F365003CEB94 /* main.m */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		CE3B3B561AC8F365003CEB94 /* SioChatDemoTests */ = {
+			isa = PBXGroup;
+			children = (
+				CE3B3B591AC8F365003CEB94 /* SioChatDemoTests.m */,
+				CE3B3B571AC8F365003CEB94 /* Supporting Files */,
+			);
+			path = SioChatDemoTests;
+			sourceTree = "<group>";
+		};
+		CE3B3B571AC8F365003CEB94 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				CE3B3B581AC8F365003CEB94 /* Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		CE3B3B6B1AC8F438003CEB94 /* sioclient */ = {
+			isa = PBXGroup;
+			children = (
+				CE3B3B811AC8F4AF003CEB94 /* src */,
+			);
+			path = sioclient;
+			sourceTree = "<group>";
+		};
+		CE3B3B781AC8F438003CEB94 /* sioclientTests */ = {
+			isa = PBXGroup;
+			children = (
+				CE3B3B791AC8F438003CEB94 /* Supporting Files */,
+			);
+			path = sioclientTests;
+			sourceTree = "<group>";
+		};
+		CE3B3B791AC8F438003CEB94 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				CE3B3B7A1AC8F438003CEB94 /* Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		CE3B3B811AC8F4AF003CEB94 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				CE3B3B821AC8F4AF003CEB94 /* sio_client.cpp */,
+				CE3B3B831AC8F4AF003CEB94 /* sio_client.h */,
+				CE3B3B841AC8F4AF003CEB94 /* sio_message.h */,
+				CE3B3B851AC8F4AF003CEB94 /* sio_packet.cpp */,
+				CE3B3B861AC8F4AF003CEB94 /* sio_packet.h */,
+			);
+			name = src;
+			path = ../../../../src;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		CE3B3E681AC8F511003CEB94 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CE3B3E691AC8F520003CEB94 /* sio_client.h in Headers */,
+				CE3B3E6A1AC8F520003CEB94 /* sio_message.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		CE3B3B391AC8F365003CEB94 /* SioChatDemo */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CE3B3B5D1AC8F365003CEB94 /* Build configuration list for PBXNativeTarget "SioChatDemo" */;
+			buildPhases = (
+				CE3B3B361AC8F365003CEB94 /* Sources */,
+				CE3B3B371AC8F365003CEB94 /* Frameworks */,
+				CE3B3B381AC8F365003CEB94 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				CE3B3E6C1AC8FE54003CEB94 /* PBXTargetDependency */,
+			);
+			name = SioChatDemo;
+			productName = SioChatDemo;
+			productReference = CE3B3B3A1AC8F365003CEB94 /* SioChatDemo.app */;
+			productType = "com.apple.product-type.application";
+		};
+		CE3B3B521AC8F365003CEB94 /* SioChatDemoTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CE3B3B601AC8F365003CEB94 /* Build configuration list for PBXNativeTarget "SioChatDemoTests" */;
+			buildPhases = (
+				CE3B3B4F1AC8F365003CEB94 /* Sources */,
+				CE3B3B501AC8F365003CEB94 /* Frameworks */,
+				CE3B3B511AC8F365003CEB94 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				CE3B3B551AC8F365003CEB94 /* PBXTargetDependency */,
+			);
+			name = SioChatDemoTests;
+			productName = SioChatDemoTests;
+			productReference = CE3B3B531AC8F365003CEB94 /* SioChatDemoTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		CE3B3B691AC8F438003CEB94 /* sioclient */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CE3B3B7B1AC8F438003CEB94 /* Build configuration list for PBXNativeTarget "sioclient" */;
+			buildPhases = (
+				CE3B3B661AC8F438003CEB94 /* Sources */,
+				CE3B3B671AC8F438003CEB94 /* Frameworks */,
+				CE3B3B681AC8F438003CEB94 /* CopyFiles */,
+				CE3B3E681AC8F511003CEB94 /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = sioclient;
+			productName = sioclient;
+			productReference = CE3B3B6A1AC8F438003CEB94 /* libsioclient.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		CE3B3B731AC8F438003CEB94 /* sioclientTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CE3B3B7E1AC8F438003CEB94 /* Build configuration list for PBXNativeTarget "sioclientTests" */;
+			buildPhases = (
+				CE3B3B701AC8F438003CEB94 /* Sources */,
+				CE3B3B711AC8F438003CEB94 /* Frameworks */,
+				CE3B3B721AC8F438003CEB94 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				CE3B3B771AC8F438003CEB94 /* PBXTargetDependency */,
+			);
+			name = sioclientTests;
+			productName = sioclientTests;
+			productReference = CE3B3B741AC8F438003CEB94 /* sioclientTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		CE3B3B321AC8F365003CEB94 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0610;
+				ORGANIZATIONNAME = "Melo Yao";
+				TargetAttributes = {
+					CE3B3B391AC8F365003CEB94 = {
+						CreatedOnToolsVersion = 6.1.1;
+					};
+					CE3B3B521AC8F365003CEB94 = {
+						CreatedOnToolsVersion = 6.1.1;
+						TestTargetID = CE3B3B391AC8F365003CEB94;
+					};
+					CE3B3B691AC8F438003CEB94 = {
+						CreatedOnToolsVersion = 6.1.1;
+					};
+					CE3B3B731AC8F438003CEB94 = {
+						CreatedOnToolsVersion = 6.1.1;
+					};
+				};
+			};
+			buildConfigurationList = CE3B3B351AC8F365003CEB94 /* Build configuration list for PBXProject "SioChatDemo" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = CE3B3B311AC8F365003CEB94;
+			productRefGroup = CE3B3B3B1AC8F365003CEB94 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				CE3B3B391AC8F365003CEB94 /* SioChatDemo */,
+				CE3B3B521AC8F365003CEB94 /* SioChatDemoTests */,
+				CE3B3B691AC8F438003CEB94 /* sioclient */,
+				CE3B3B731AC8F438003CEB94 /* sioclientTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		CE3B3B381AC8F365003CEB94 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CE3B3E6F1AC9139B003CEB94 /* Main.storyboard in Resources */,
+				CE3B3B4E1AC8F365003CEB94 /* LaunchScreen.xib in Resources */,
+				CE3B3B4B1AC8F365003CEB94 /* Images.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CE3B3B511AC8F365003CEB94 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CE3B3B721AC8F438003CEB94 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		CE3B3B361AC8F365003CEB94 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CE3B3B431AC8F365003CEB94 /* AppDelegate.m in Sources */,
+				CE3B3B401AC8F365003CEB94 /* main.m in Sources */,
+				CE3B3B651AC8F385003CEB94 /* CRViewController.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CE3B3B4F1AC8F365003CEB94 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CE3B3B5A1AC8F365003CEB94 /* SioChatDemoTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CE3B3B661AC8F438003CEB94 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CE3B3E661AC8F4FD003CEB94 /* sio_client.cpp in Sources */,
+				CE3B3E671AC8F4FD003CEB94 /* sio_packet.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CE3B3B701AC8F438003CEB94 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		CE3B3B551AC8F365003CEB94 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = CE3B3B391AC8F365003CEB94 /* SioChatDemo */;
+			targetProxy = CE3B3B541AC8F365003CEB94 /* PBXContainerItemProxy */;
+		};
+		CE3B3B771AC8F438003CEB94 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = CE3B3B691AC8F438003CEB94 /* sioclient */;
+			targetProxy = CE3B3B761AC8F438003CEB94 /* PBXContainerItemProxy */;
+		};
+		CE3B3E6C1AC8FE54003CEB94 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = CE3B3B691AC8F438003CEB94 /* sioclient */;
+			targetProxy = CE3B3E6B1AC8FE54003CEB94 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		CE3B3B4C1AC8F365003CEB94 /* LaunchScreen.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				CE3B3B4D1AC8F365003CEB94 /* Base */,
+			);
+			name = LaunchScreen.xib;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		CE3B3B5B1AC8F365003CEB94 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		CE3B3B5C1AC8F365003CEB94 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		CE3B3B5E1AC8F365003CEB94 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				INFOPLIST_FILE = SioChatDemo/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		CE3B3B5F1AC8F365003CEB94 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				INFOPLIST_FILE = SioChatDemo/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		CE3B3B611AC8F365003CEB94 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = SioChatDemoTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SioChatDemo.app/SioChatDemo";
+			};
+			name = Debug;
+		};
+		CE3B3B621AC8F365003CEB94 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = SioChatDemoTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SioChatDemo.app/SioChatDemo";
+			};
+			name = Release;
+		};
+		CE3B3B7C1AC8F438003CEB94 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					"$(SIOROOT)/lib/websocketpp",
+					"$(SIOROOT)/lib/rapidjson/include",
+					"$(SRCROOT)/boost/ios/prefix/include",
+				);
+				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/boost/ios/build/$(CURRENT_ARCH)/";
+				OTHER_LDFLAGS = "-ObjC";
+				OTHER_LIBTOOLFLAGS = "-lboost_random -lboost_date_time -lboost_system";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SIOROOT = "$(SRCROOT)/../../../";
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		CE3B3B7D1AC8F438003CEB94 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					"$(SIOROOT)/lib/websocketpp",
+					"$(SIOROOT)/lib/rapidjson/include",
+					"$(SRCROOT)/boost/ios/prefix/include",
+				);
+				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/boost/ios/build/$(CURRENT_ARCH)/";
+				OTHER_LDFLAGS = "-ObjC";
+				OTHER_LIBTOOLFLAGS = "-lboost_random -lboost_date_time -lboost_system";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SIOROOT = "$(SRCROOT)/../../../";
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+		CE3B3B7F1AC8F438003CEB94 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = sioclientTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		CE3B3B801AC8F438003CEB94 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = sioclientTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		CE3B3B351AC8F365003CEB94 /* Build configuration list for PBXProject "SioChatDemo" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CE3B3B5B1AC8F365003CEB94 /* Debug */,
+				CE3B3B5C1AC8F365003CEB94 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CE3B3B5D1AC8F365003CEB94 /* Build configuration list for PBXNativeTarget "SioChatDemo" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CE3B3B5E1AC8F365003CEB94 /* Debug */,
+				CE3B3B5F1AC8F365003CEB94 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		CE3B3B601AC8F365003CEB94 /* Build configuration list for PBXNativeTarget "SioChatDemoTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CE3B3B611AC8F365003CEB94 /* Debug */,
+				CE3B3B621AC8F365003CEB94 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		CE3B3B7B1AC8F438003CEB94 /* Build configuration list for PBXNativeTarget "sioclient" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CE3B3B7C1AC8F438003CEB94 /* Debug */,
+				CE3B3B7D1AC8F438003CEB94 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		CE3B3B7E1AC8F438003CEB94 /* Build configuration list for PBXNativeTarget "sioclientTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CE3B3B7F1AC8F438003CEB94 /* Debug */,
+				CE3B3B801AC8F438003CEB94 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = CE3B3B321AC8F365003CEB94 /* Project object */;
+}
