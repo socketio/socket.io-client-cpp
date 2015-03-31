@@ -55,7 +55,7 @@ public:
 
 int participants = -1;
 
-int test(int argc ,const char* args[])
+int main(int argc ,const char* args[])
 {
 
     sio::client h;
@@ -80,7 +80,7 @@ int test(int argc ,const char* args[])
         _lock.lock();
         participants = data->get_map()["numUsers"]->get_int();
         bool plural = participants !=1;
-        HIGHLIGHT("Welcome to Socket.IO Chat-\nthere"<<(plural?" are ":"'s ")<< participants<<(plural?" participants":"participant"));
+        HIGHLIGHT("Welcome to Socket.IO Chat-\nthere"<<(plural?" are ":"'s ")<< participants<<(plural?" participants":" participant"));
         _cond.notify_all();
         _lock.unlock();
         h.unbind_event("login");
@@ -109,7 +109,7 @@ int test(int argc ,const char* args[])
                      bool plural = participants !=1;
                      
                      //     abc "
-                     HIGHLIGHT(user<<" joined"<<"\nthere"<<(plural?" are ":"'s ")<< participants<<(plural?" participants":"participant"));
+                     HIGHLIGHT(user<<" joined"<<"\nthere"<<(plural?" are ":"'s ")<< participants<<(plural?" participants":" participant"));
                      _lock.unlock();
                  });
     h.bind_event("user left", [&](string const& name, message::ptr const& data, bool isAck,message::ptr &ack_resp)
@@ -118,7 +118,7 @@ int test(int argc ,const char* args[])
                      string user = data->get_map()["username"]->get_string();
                      participants  = data->get_map()["numUsers"]->get_int();
                      bool plural = participants !=1;
-                     HIGHLIGHT(user<<" left"<<"\nthere"<<(plural?" are ":"'s ")<< participants<<(plural?" participants":"participant"));
+                     HIGHLIGHT(user<<" left"<<"\nthere"<<(plural?" are ":"'s ")<< participants<<(plural?" participants":" participant"));
                      _lock.unlock();
                  });
     HIGHLIGHT("Start to chat, type '$exit' to exit");
