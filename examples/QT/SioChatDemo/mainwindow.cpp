@@ -40,7 +40,7 @@ void MainWindow::SendBtnClicked()
     QString text = messageEdit->text();
     if(text.length()>0)
     {
-        QByteArray bytes = m_name.toUtf8();
+        QByteArray bytes = text.toUtf8();
         std::string msg(bytes.data(),bytes.length());
         _io->emit("new message",msg);
         text.append(":You");
@@ -71,29 +71,46 @@ void MainWindow::LoginClicked()
     }
 }
 
+void MainWindow::TypingStop()
+{
+    _timer.reset();
+    _io->emit("stop typing","");
+}
+
 void MainWindow::TypingChanged()
 {
-
+    if(_timer&&_timer->isActive())
+    {
+        _timer->stop();
+    }
+    else
+    {
+        _io->emit("typing","");
+    }
+    _timer.reset(new QTimer(this));
+    connect(_timer.get(),SIGNAL(timeout()),this,SLOT(TypingStop()));
+    _timer->setSingleShot(true);
+    _timer->start(1000);
 }
 
 void MainWindow::AddListItem(QListWidgetItem* item)
 {
-     this->findChild<QListWidget*>("listView")->addItem(item);
+    this->findChild<QListWidget*>("listView")->addItem(item);
 }
 
 void MainWindow::OnNewMessage(std::string const& name,message::ptr const& data,bool hasAck,message::ptr &ack_resp)
 {
 
-       if(data->get_flag() == message::flag_object)
-       {
-           std::string msg = data->get_map()["message"]->get_string();
-           std::string name = data->get_map()["username"]->get_string();
-           QString label = QString::fromUtf8(name.data(),name.length());
-           label.append(':');
-           label.append(QString::fromUtf8(msg.data(),msg.length()));
-            QListWidgetItem *item= new QListWidgetItem(label);
-            Q_EMIT RequestAddListItem(item);
-       }
+    if(data->get_flag() == message::flag_object)
+    {
+        std::string msg = data->get_map()["message"]->get_string();
+        std::string name = data->get_map()["username"]->get_string();
+        QString label = QString::fromUtf8(name.data(),name.length());
+        label.append(':');
+        label.append(QString::fromUtf8(msg.data(),msg.length()));
+        QListWidgetItem *item= new QListWidgetItem(label);
+        Q_EMIT RequestAddListItem(item);
+    }
 }
 
 void MainWindow::OnUserJoined(std::string const& name,message::ptr const& data,bool hasAck,message::ptr &ack_resp)
@@ -103,7 +120,9 @@ void MainWindow::OnUserJoined(std::string const& name,message::ptr const& data,b
         std::string name = data->get_map()["username"]->get_string();
         int numUser = data->get_map()["numUsers"]->get_int();
         QString label = QString::fromUtf8(name.data(),name.length());
+        bool plural = numUser != 1;
         label.append(" joined\n");
+        label.append(plural?"there are ":"there's ");
         QString digits;
         while(numUser>=10)
         {
@@ -112,7 +131,7 @@ void MainWindow::OnUserJoined(std::string const& name,message::ptr const& data,b
         }
         digits.insert(0,QChar(numUser+'0'));
         label.append(digits);
-        label.append(" participants");
+        label.append(plural?" participants":"participant");
         QListWidgetItem *item= new QListWidgetItem(label);
         item->setTextAlignment(Qt::AlignHCenter);
         QFont font;
@@ -130,7 +149,9 @@ void MainWindow::OnUserLeft(std::string const& name,message::ptr const& data,boo
         std::string name = data->get_map()["username"]->get_string();
         int numUser = data->get_map()["numUsers"]->get_int();
         QString label = QString::fromUtf8(name.data(),name.length());
+        bool plural = numUser != 1;
         label.append(" left\n");
+        label.append(plural?"there are ":"there's ");
         QString digits;
         while(numUser>=10)
         {
@@ -139,8 +160,8 @@ void MainWindow::OnUserLeft(std::string const& name,message::ptr const& data,boo
         }
         digits.insert(0,QChar(numUser+'0'));
         label.append(digits);
-        label.append(" participants");
-        QListWidgetItem *item = new QListWidgetItem(label);
+        label.append(plural?" participants":"participant");
+        QListWidgetItem *item= new QListWidgetItem(label);
         item->setTextAlignment(Qt::AlignHCenter);
         QFont font;
         font.setPointSize(9);
@@ -151,12 +172,12 @@ void MainWindow::OnUserLeft(std::string const& name,message::ptr const& data,boo
 
 void MainWindow::OnTyping(std::string const& name,message::ptr const& data,bool hasAck,message::ptr &ack_resp)
 {
-
+//Not implemented
 }
 
 void MainWindow::OnStopTyping(std::string const& name,message::ptr const& data,bool hasAck,message::ptr &ack_resp)
 {
-
+//Not implemented
 }
 
 void MainWindow::OnLogin(std::string const& name,message::ptr const& data,bool hasAck,message::ptr &ack_resp)
@@ -165,13 +186,16 @@ void MainWindow::OnLogin(std::string const& name,message::ptr const& data,bool h
     int numUser = data->get_map()["numUsers"]->get_int();
 
     QString digits;
+    bool plural = numUser !=1;
     while(numUser>=10)
     {
         digits.insert(0,QChar((numUser%10)+'0'));
         numUser/=10;
     }
+
     digits.insert(0,QChar(numUser+'0'));
-    digits.append(" participants");
+    digits.insert(0,plural?"there are ":"there's ");
+    digits.append(plural? " participants":" participant");
     QListWidgetItem *item = new QListWidgetItem(digits);
     item->setTextAlignment(Qt::AlignHCenter);
     QFont font;

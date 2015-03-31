@@ -25,6 +25,8 @@ HEADERS  += mainwindow.h \
 
 FORMS    += mainwindow.ui
 
+CONFIG(debug, debug|release):DEFINES +=DEBUG=1
+
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../iOS/SioChatDemo/boost/osx/build/x86_64/release/ -lboost
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../iOS/SioChatDemo/boost/osx/build/x86_64/debug/ -lboost
 else:unix: LIBS += -L$$PWD/../../iOS/SioChatDemo/boost/osx/build/x86_64/ -lboost

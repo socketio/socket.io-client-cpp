@@ -5,6 +5,7 @@
 #include <QListWidget>
 #include <QPushButton>
 #include <QPlainTextEdit>
+#include <QTimer>
 #include <sio_client.h>
 namespace Ui {
 class MainWindow;
@@ -34,6 +35,7 @@ Q_SIGNALS:
 private Q_SLOTS:
     void AddListItem(QListWidgetItem *item);
     void ToggleInputs(bool loginOrNot);
+    void TypingStop();
 private:
     void OnNewMessage(std::string const& name,message::ptr const& data,bool hasAck,message::ptr &ack_resp);
     void OnUserJoined(std::string const& name,message::ptr const& data,bool hasAck,message::ptr &ack_resp);
@@ -50,6 +52,8 @@ private:
     std::unique_ptr<client> _io;
 
     QString m_name;
+
+    std::unique_ptr<QTimer> _timer;
 };
 
 #endif // MAINWINDOW_H

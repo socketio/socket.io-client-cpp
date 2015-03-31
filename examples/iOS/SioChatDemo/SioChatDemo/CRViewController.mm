@@ -8,9 +8,16 @@
 #import "CRViewController.h"
 #include "sio_client.h"
 
+typedef enum MessageFlag
+{
+    Message_System,
+    Message_Other,
+    Message_You
+};
+
 @interface MessageItem : NSObject
 @property NSString* message;
-@property BOOL isSelf;
+@property MessageFlag flag; //0 system info, 1 other message, 2 your message
 @end
 
 @implementation MessageItem
@@ -53,7 +60,7 @@
 
 -(void)onDisconnected;
 
--(void) updateUserCount:(NSInteger) num;
+-(void) updateUser:(NSString*)user count:(NSInteger) num joinOrLeft:(BOOL) isJoin;
 
 @end
 
@@ -219,8 +226,8 @@ void OnClose(CFTypeRef ctrl,sio::client::close_reason const& reason)
 {
     MessageItem *item = [[MessageItem alloc] init];
 
-    item.isSelf = [name isEqualToString:_name];
-    item.message = item.isSelf? [NSString stringWithFormat:@"%@:%@",message,name]:[NSString stringWithFormat:@"%@:%@",name,message];
+    item.flag = [name isEqualToString:_name]?Message_You:Message_Other;
+    item.message = item.flag == Message_You? [NSString stringWithFormat:@"%@:%@",message,name]:[NSString stringWithFormat:@"%@:%@",name,message];
     [_receivedMessage addObject:item];
     [_tableView reloadData];
     
@@ -232,22 +239,16 @@ void OnClose(CFTypeRef ctrl,sio::client::close_reason const& reason)
 
 -(void)onUserJoined:(NSString*)user participants:(NSInteger) num
 {
-    _infoLabel.text = [NSString stringWithFormat:@"%@ joined",user];
     _userCount = num;
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        [self updateUserCount:_userCount];
-    });
+    [self updateUser:user count:num joinOrLeft:YES];
 }
 
 -(void)onUserLeft:(NSString*) user participants:(NSInteger) num
 {
     [_typingUsers removeObject:user];//protective removal.
     [self updateTyping];
-    _infoLabel.text = [NSString stringWithFormat:@"%@ left",user];
     _userCount = num;
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        [self updateUserCount:_userCount];
-    });
+    [self updateUser:user count:num joinOrLeft:NO];
 }
 
 -(void)onUserTyping:(NSString*) user
@@ -267,7 +268,8 @@ void OnClose(CFTypeRef ctrl,sio::client::close_reason const& reason)
     _name = _nickName.text;
     _userCount = numParticipants;
     [self.loginPage removeFromSuperview];
-    [self updateUserCount:_userCount];
+    
+    [self updateUser:nil count:_userCount joinOrLeft:YES];
     
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(keyboardWillShow:)
@@ -292,7 +294,7 @@ void OnClose(CFTypeRef ctrl,sio::client::close_reason const& reason)
         _io->emit("new message",[_messageField.text UTF8String]);
         MessageItem *item = [[MessageItem alloc] init];
         
-        item.isSelf = YES;
+        item.flag = Message_You;
         item.message = [NSString stringWithFormat:@"%@:You",_messageField.text];
         [_receivedMessage addObject:item];
         [_tableView reloadData];
@@ -326,15 +328,25 @@ void OnClose(CFTypeRef ctrl,sio::client::close_reason const& reason)
                                                   object:nil];
 }
 
--(void) updateUserCount:(NSInteger) num
+-(void) updateUser:(NSString*)user count:(NSInteger) num joinOrLeft:(BOOL) isJoin
 {
-    if(num == 1)
-    {
-        _infoLabel.text = @"There's 1 participant";
+    _userCount = num;
+    MessageItem *item = [[MessageItem alloc] init];
+    
+    item.flag = Message_System;
+    if (user) {
+        item.message = [NSString stringWithFormat:@"%@ %@\n%@",user,isJoin?@"joined":@"left",num==1?@"there's 1 participant":[NSString stringWithFormat:@"there are %ld participants",num]];
     }
     else
     {
-        _infoLabel.text = [NSString stringWithFormat:@"There're %ld participants",num];
+        item.message = [NSString stringWithFormat:@"Welcome to Socket.IO Chat-\n%@",num==1?@"there's 1 participant":[NSString stringWithFormat:@"there are %ld participants",num]];
+    }
+
+    [_receivedMessage addObject:item];
+    [_tableView reloadData];
+    if(![_messageField isFirstResponder])
+    {
+        [_tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:[_receivedMessage count]-1 inSection:0] atScrollPosition:UITableViewScrollPositionBottom animated:YES];
     }
 }
 
@@ -351,7 +363,22 @@ void OnClose(CFTypeRef ctrl,sio::client::close_reason const& reason)
     UITableViewCell* cell = [tableView dequeueReusableCellWithIdentifier:@"Msg"];
     MessageItem* item = [_receivedMessage objectAtIndex:indexPath.row];
     cell.textLabel.text = item.message;
-    cell.textLabel.textAlignment = item.isSelf?NSTextAlignmentRight:NSTextAlignmentLeft;
+    switch (item.flag) {
+        case Message_System:
+            cell.textLabel.textAlignment = NSTextAlignmentCenter;
+            [cell.textLabel setFont:[UIFont fontWithName:[cell.textLabel.font fontName] size:12]];
+            break;
+        case Message_Other:
+            [cell.textLabel setFont:[UIFont fontWithName:[cell.textLabel.font fontName] size:15]];
+            cell.textLabel.textAlignment = NSTextAlignmentLeft;
+            break;
+        case Message_You:
+            [cell.textLabel setFont:[UIFont fontWithName:[cell.textLabel.font fontName] size:15]];
+            cell.textLabel.textAlignment = NSTextAlignmentRight;
+            break;
+        default:
+            break;
+    }
     return cell;
 }
 

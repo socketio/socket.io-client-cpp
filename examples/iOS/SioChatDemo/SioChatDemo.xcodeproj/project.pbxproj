@@ -14,12 +14,13 @@
 		CE3B3B5A1AC8F365003CEB94 /* SioChatDemoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CE3B3B591AC8F365003CEB94 /* SioChatDemoTests.m */; };
 		CE3B3B651AC8F385003CEB94 /* CRViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = CE3B3B641AC8F385003CEB94 /* CRViewController.mm */; };
 		CE3B3B751AC8F438003CEB94 /* libsioclient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CE3B3B6A1AC8F438003CEB94 /* libsioclient.a */; };
-		CE3B3E661AC8F4FD003CEB94 /* sio_client.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE3B3B821AC8F4AF003CEB94 /* sio_client.cpp */; };
-		CE3B3E671AC8F4FD003CEB94 /* sio_packet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE3B3B851AC8F4AF003CEB94 /* sio_packet.cpp */; };
-		CE3B3E691AC8F520003CEB94 /* sio_client.h in Headers */ = {isa = PBXBuildFile; fileRef = CE3B3B831AC8F4AF003CEB94 /* sio_client.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		CE3B3E6A1AC8F520003CEB94 /* sio_message.h in Headers */ = {isa = PBXBuildFile; fileRef = CE3B3B841AC8F4AF003CEB94 /* sio_message.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		CE3B3E6D1AC8FE59003CEB94 /* libsioclient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CE3B3B6A1AC8F438003CEB94 /* libsioclient.a */; };
 		CE3B3E6F1AC9139B003CEB94 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CE3B3E6E1AC9139B003CEB94 /* Main.storyboard */; };
+		CE3B3E8C1ACA5446003CEB94 /* sio_client.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE3B3E871ACA5446003CEB94 /* sio_client.cpp */; };
+		CE3B3E8D1ACA5446003CEB94 /* sio_client.h in Headers */ = {isa = PBXBuildFile; fileRef = CE3B3E881ACA5446003CEB94 /* sio_client.h */; };
+		CE3B3E8E1ACA5446003CEB94 /* sio_message.h in Headers */ = {isa = PBXBuildFile; fileRef = CE3B3E891ACA5446003CEB94 /* sio_message.h */; };
+		CE3B3E8F1ACA5446003CEB94 /* sio_packet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE3B3E8A1ACA5446003CEB94 /* sio_packet.cpp */; };
+		CE3B3E901ACA5446003CEB94 /* sio_packet.h in Headers */ = {isa = PBXBuildFile; fileRef = CE3B3E8B1ACA5446003CEB94 /* sio_packet.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -74,12 +75,12 @@
 		CE3B3B6A1AC8F438003CEB94 /* libsioclient.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libsioclient.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		CE3B3B741AC8F438003CEB94 /* sioclientTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = sioclientTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CE3B3B7A1AC8F438003CEB94 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		CE3B3B821AC8F4AF003CEB94 /* sio_client.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sio_client.cpp; sourceTree = "<group>"; };
-		CE3B3B831AC8F4AF003CEB94 /* sio_client.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sio_client.h; sourceTree = "<group>"; };
-		CE3B3B841AC8F4AF003CEB94 /* sio_message.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sio_message.h; sourceTree = "<group>"; };
-		CE3B3B851AC8F4AF003CEB94 /* sio_packet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sio_packet.cpp; sourceTree = "<group>"; };
-		CE3B3B861AC8F4AF003CEB94 /* sio_packet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sio_packet.h; sourceTree = "<group>"; };
 		CE3B3E6E1AC9139B003CEB94 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
+		CE3B3E871ACA5446003CEB94 /* sio_client.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sio_client.cpp; sourceTree = "<group>"; };
+		CE3B3E881ACA5446003CEB94 /* sio_client.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sio_client.h; sourceTree = "<group>"; };
+		CE3B3E891ACA5446003CEB94 /* sio_message.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sio_message.h; sourceTree = "<group>"; };
+		CE3B3E8A1ACA5446003CEB94 /* sio_packet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sio_packet.cpp; sourceTree = "<group>"; };
+		CE3B3E8B1ACA5446003CEB94 /* sio_packet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sio_packet.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -119,6 +120,7 @@
 		CE3B3B311AC8F365003CEB94 = {
 			isa = PBXGroup;
 			children = (
+				CE3B3E861ACA5446003CEB94 /* src */,
 				CE3B3B3C1AC8F365003CEB94 /* SioChatDemo */,
 				CE3B3B561AC8F365003CEB94 /* SioChatDemoTests */,
 				CE3B3B6B1AC8F438003CEB94 /* sioclient */,
@@ -182,7 +184,6 @@
 		CE3B3B6B1AC8F438003CEB94 /* sioclient */ = {
 			isa = PBXGroup;
 			children = (
-				CE3B3B811AC8F4AF003CEB94 /* src */,
 			);
 			path = sioclient;
 			sourceTree = "<group>";
@@ -203,17 +204,17 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		CE3B3B811AC8F4AF003CEB94 /* src */ = {
+		CE3B3E861ACA5446003CEB94 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				CE3B3B821AC8F4AF003CEB94 /* sio_client.cpp */,
-				CE3B3B831AC8F4AF003CEB94 /* sio_client.h */,
-				CE3B3B841AC8F4AF003CEB94 /* sio_message.h */,
-				CE3B3B851AC8F4AF003CEB94 /* sio_packet.cpp */,
-				CE3B3B861AC8F4AF003CEB94 /* sio_packet.h */,
+				CE3B3E871ACA5446003CEB94 /* sio_client.cpp */,
+				CE3B3E881ACA5446003CEB94 /* sio_client.h */,
+				CE3B3E891ACA5446003CEB94 /* sio_message.h */,
+				CE3B3E8A1ACA5446003CEB94 /* sio_packet.cpp */,
+				CE3B3E8B1ACA5446003CEB94 /* sio_packet.h */,
 			);
 			name = src;
-			path = ../../../../src;
+			path = ../../../src;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -223,8 +224,9 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CE3B3E691AC8F520003CEB94 /* sio_client.h in Headers */,
-				CE3B3E6A1AC8F520003CEB94 /* sio_message.h in Headers */,
+				CE3B3E8E1ACA5446003CEB94 /* sio_message.h in Headers */,
+				CE3B3E901ACA5446003CEB94 /* sio_packet.h in Headers */,
+				CE3B3E8D1ACA5446003CEB94 /* sio_client.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -398,8 +400,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CE3B3E661AC8F4FD003CEB94 /* sio_client.cpp in Sources */,
-				CE3B3E671AC8F4FD003CEB94 /* sio_packet.cpp in Sources */,
+				CE3B3E8C1ACA5446003CEB94 /* sio_client.cpp in Sources */,
+				CE3B3E8F1ACA5446003CEB94 /* sio_packet.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -665,6 +667,7 @@
 				CE3B3B5F1AC8F365003CEB94 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		CE3B3B601AC8F365003CEB94 /* Build configuration list for PBXNativeTarget "SioChatDemoTests" */ = {
 			isa = XCConfigurationList;
@@ -673,6 +676,7 @@
 				CE3B3B621AC8F365003CEB94 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		CE3B3B7B1AC8F438003CEB94 /* Build configuration list for PBXNativeTarget "sioclient" */ = {
 			isa = XCConfigurationList;
@@ -681,6 +685,7 @@
 				CE3B3B7D1AC8F438003CEB94 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		CE3B3B7E1AC8F438003CEB94 /* Build configuration list for PBXNativeTarget "sioclientTests" */ = {
 			isa = XCConfigurationList;
@@ -689,6 +694,7 @@
 				CE3B3B801AC8F438003CEB94 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

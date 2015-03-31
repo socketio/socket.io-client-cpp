@@ -24,9 +24,9 @@
 		<key>21C71CD5ED4B8C77974DDBAF056104F039A3B593</key>
 		<string>../../../../..</string>
 		<key>7448E718372DB7A4B0D01E27524ED3F8AE51A902</key>
-		<string>../../../../..lib/rapidjson/</string>
+		<string>../../../../..lib/rapidjson</string>
 		<key>995AABD49A028E610D29FFC44D560D9DAC1EAC0B</key>
-		<string>../../../../..lib/websocketpp/</string>
+		<string>../../../../..lib/websocketpp</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
 	<string>https://github.com/socketio/socket.io-client-cpp.git</string>
