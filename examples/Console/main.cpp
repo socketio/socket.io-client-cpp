@@ -12,8 +12,21 @@
 #include <mutex>
 #include <condition_variable>
 #include <string>
+
+#ifdef WIN32
+#define HIGHLIGHT(__O__) std::cout<<__O__<<std::endl
+#define EM(__O__) std::cout<<__O__<<std::endl
+
+#include <stdio.h>
+#include <tchar.h>
+#define MAIN_FUNC int _tmain(int argc, _TCHAR* argv[])
+#else
 #define HIGHLIGHT(__O__) std::cout<<"\e[1;31m"<<__O__<<"\e[0m"<<std::endl
 #define EM(__O__) std::cout<<"\e[1;30;1m"<<__O__<<"\e[0m"<<std::endl
+
+#define MAIN_FUNC int main(int argc ,const char* args[])
+#endif
+
 using namespace sio;
 using namespace std;
 std::mutex _lock;
@@ -55,7 +68,7 @@ public:
 
 int participants = -1;
 
-int main(int argc ,const char* args[])
+MAIN_FUNC
 {
 
     sio::client h;
