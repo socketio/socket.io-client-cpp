@@ -454,8 +454,9 @@ void set_##__FIELD__(__TYPE__ const& l) \
             m_ping_timer.reset(new boost::asio::deadline_timer(m_client.get_io_service()));
             boost::system::error_code ec;
             m_ping_timer->expires_from_now(milliseconds(m_ping_interval), ec);
+            if(ec)LOG("ec:"<<ec.message()<<std::endl);
             m_ping_timer->async_wait(lib::bind(&client::impl::__ping,this,lib::placeholders::_1));
-            LOG("On handshake,sid:"<<m_sid<<std::endl);
+            LOG("On handshake,sid:"<<m_sid<<",ping interval:"<<m_ping_interval<<",ping timeout"<<"m_ping_timeout"<<m_ping_timeout<<std::endl);
             return;
         }
     failed:
@@ -512,6 +513,7 @@ void set_##__FIELD__(__TYPE__ const& l) \
         if (m_ping_timeout_timer) {
             boost::system::error_code ec;
             m_ping_timeout_timer->expires_from_now(milliseconds(m_ping_timeout),ec);
+            m_ping_timeout_timer->async_wait(lib::bind(&client::impl::__timeout_pong, this,lib::placeholders::_1));
         }
         // Parse the incoming message according to socket.IO rules
         m_packet_mgr.put_payload(msg->get_payload());
@@ -674,9 +676,9 @@ void set_##__FIELD__(__TYPE__ const& l) \
     {
         if(ec || m_con.expired())
         {
+            LOG("ping exit,con is expired?"<<m_con.expired()<<",ec:"<<ec.message()<<std::endl);
             return;
         }
-        std::string ping_msg;
         packet p(packet::frame_ping);
         m_packet_mgr.encode(p,
                             [&](bool isBin,shared_ptr<const string> payload)
@@ -763,7 +765,11 @@ void set_##__FIELD__(__TYPE__ const& l) \
         {
             //delay the ping, since we already have message to send.
             boost::system::error_code timeout_ec;
-            m_ping_timer->expires_from_now(milliseconds(m_ping_interval),timeout_ec);
+            if(m_ping_timer)
+            {
+                m_ping_timer->expires_from_now(milliseconds(m_ping_interval),timeout_ec);
+                m_ping_timer->async_wait(lib::bind(&client::impl::__ping,this,lib::placeholders::_1));
+            }
             while(m_message_queue.size()>0)
             {
                 message_queue_element element = m_message_queue.front();
@@ -819,6 +825,7 @@ void set_##__FIELD__(__TYPE__ const& l) \
     
     void client::impl::clear_timers()
     {
+        LOG("clear timers"<<std::endl);
         boost::system::error_code ec;
         if(m_ping_timeout_timer)
         {
