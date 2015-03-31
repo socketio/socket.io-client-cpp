@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>F1CE472E-3AF3-4EDA-9B64-F9DD83C665BC</string>
+	<key>IDESourceControlProjectName</key>
+	<string>SioChatDemo</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>21C71CD5ED4B8C77974DDBAF056104F039A3B593</key>
+		<string>https://github.com/socketio/socket.io-client-cpp.git</string>
+		<key>7448E718372DB7A4B0D01E27524ED3F8AE51A902</key>
+		<string>https://github.com/miloyip/rapidjson.git</string>
+		<key>995AABD49A028E610D29FFC44D560D9DAC1EAC0B</key>
+		<string>https://github.com/zaphoyd/websocketpp.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>examples/iOS/SioChatDemo/SioChatDemo.xcodeproj</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>21C71CD5ED4B8C77974DDBAF056104F039A3B593</key>
+		<string>../../../../..</string>
+		<key>7448E718372DB7A4B0D01E27524ED3F8AE51A902</key>
+		<string>../../../../..lib/rapidjson/</string>
+		<key>995AABD49A028E610D29FFC44D560D9DAC1EAC0B</key>
+		<string>../../../../..lib/websocketpp/</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://github.com/socketio/socket.io-client-cpp.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>111</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>21C71CD5ED4B8C77974DDBAF056104F039A3B593</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>7448E718372DB7A4B0D01E27524ED3F8AE51A902</string>
+			<key>IDESourceControlWCCName</key>
+			<string>rapidjson</string>
+		</dict>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>21C71CD5ED4B8C77974DDBAF056104F039A3B593</string>
+			<key>IDESourceControlWCCName</key>
+			<string>sioclient</string>
+		</dict>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>995AABD49A028E610D29FFC44D560D9DAC1EAC0B</string>
+			<key>IDESourceControlWCCName</key>
+			<string>websocketpp</string>
+		</dict>
+	</array>
+</dict>
+</plist>
