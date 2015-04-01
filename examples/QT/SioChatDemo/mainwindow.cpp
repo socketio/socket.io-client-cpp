@@ -6,7 +6,8 @@
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    _io(new client())
+    _io(new client()),
+    m_dialog()
 {
     ui->setupUi(this);
     using std::placeholders::_1;
@@ -56,41 +57,54 @@ void MainWindow::OnMessageReturn()
     this->SendBtnClicked();
 }
 
+void MainWindow::ShowLoginDialog()
+{
+    m_dialog.reset(new NicknameDialog(this));
+    connect(m_dialog.get(),SIGNAL(accepted()),this,SLOT(NicknameAccept()));
+    connect(m_dialog.get(),SIGNAL(rejected()),this,SLOT(NicknameCancelled()));
+    m_dialog->exec();
+}
+
 void MainWindow::showEvent(QShowEvent *event)
 {
-
+    ShowLoginDialog();
 }
 
-void MainWindow::LoginClicked()
-{
-    QString str = this->findChild<QLineEdit*>("nickNameEdit")->text();
-    if(str.length()>0)
-    {
-        _io->connect("ws://localhost:3000");
-        m_name = str;
-    }
-}
 
 void MainWindow::TypingStop()
 {
-    _timer.reset();
+    m_timer.reset();
     _io->emit("stop typing","");
 }
 
 void MainWindow::TypingChanged()
 {
-    if(_timer&&_timer->isActive())
+    if(m_timer&&m_timer->isActive())
     {
-        _timer->stop();
+        m_timer->stop();
     }
     else
     {
         _io->emit("typing","");
     }
-    _timer.reset(new QTimer(this));
-    connect(_timer.get(),SIGNAL(timeout()),this,SLOT(TypingStop()));
-    _timer->setSingleShot(true);
-    _timer->start(1000);
+    m_timer.reset(new QTimer(this));
+    connect(m_timer.get(),SIGNAL(timeout()),this,SLOT(TypingStop()));
+    m_timer->setSingleShot(true);
+    m_timer->start(1000);
+}
+
+void MainWindow::NicknameAccept()
+{
+    m_name = m_dialog->getNickname();
+    if(m_name.length()>0)
+    {
+        _io->connect("ws://localhost:3000");
+    }
+}
+
+void MainWindow::NicknameCancelled()
+{
+    QApplication::exit();
 }
 
 void MainWindow::AddListItem(QListWidgetItem* item)
@@ -228,15 +242,16 @@ void MainWindow::ToggleInputs(bool loginOrNot)
         this->findChild<QWidget*>("messageEdit")->setEnabled(true);
         this->findChild<QWidget*>("listView")->setEnabled(true);
         this->findChild<QWidget*>("sendBtn")->setEnabled(true);
-        this->findChild<QWidget*>("nickNameEdit")->setEnabled(false);
-        this->findChild<QWidget*>("loginBtn")->setEnabled(false);
+//        this->findChild<QWidget*>("nickNameEdit")->setEnabled(false);
+//        this->findChild<QWidget*>("loginBtn")->setEnabled(false);
     }
     else
     {
         this->findChild<QWidget*>("messageEdit")->setEnabled(false);
         this->findChild<QWidget*>("listView")->setEnabled(false);
         this->findChild<QWidget*>("sendBtn")->setEnabled(false);
-        this->findChild<QWidget*>("nickNameEdit")->setEnabled(true);
-        this->findChild<QWidget*>("loginBtn")->setEnabled(true);
+//        this->findChild<QWidget*>("nickNameEdit")->setEnabled(true);
+//        this->findChild<QWidget*>("loginBtn")->setEnabled(true);
+        ShowLoginDialog();
     }
 }

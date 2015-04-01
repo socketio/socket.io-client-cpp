@@ -7,6 +7,7 @@
 #include <QPlainTextEdit>
 #include <QTimer>
 #include <sio_client.h>
+#include "nicknamedialog.h"
 namespace Ui {
 class MainWindow;
 }
@@ -24,7 +25,6 @@ public:
 public Q_SLOTS:
     void SendBtnClicked();
     void TypingChanged();
-    void LoginClicked();
     void OnMessageReturn();
 protected:
     void showEvent(QShowEvent* event);
@@ -36,6 +36,8 @@ private Q_SLOTS:
     void AddListItem(QListWidgetItem *item);
     void ToggleInputs(bool loginOrNot);
     void TypingStop();
+    void NicknameAccept();
+    void NicknameCancelled();
 private:
     void OnNewMessage(std::string const& name,message::ptr const& data,bool hasAck,message::ptr &ack_resp);
     void OnUserJoined(std::string const& name,message::ptr const& data,bool hasAck,message::ptr &ack_resp);
@@ -46,14 +48,17 @@ private:
     void OnConnected();
     void OnClosed(client::close_reason const& reason);
     void OnFailed();
+    void ShowLoginDialog();
 
     Ui::MainWindow *ui;
 
     std::unique_ptr<client> _io;
 
+    std::unique_ptr<NicknameDialog> m_dialog;
+
     QString m_name;
 
-    std::unique_ptr<QTimer> _timer;
+    std::unique_ptr<QTimer> m_timer;
 };
 
 #endif // MAINWINDOW_H

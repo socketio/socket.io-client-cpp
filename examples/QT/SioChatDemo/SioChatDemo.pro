@@ -18,12 +18,15 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     ../../../src/sio_client.cpp \
     ../../../src/sio_packet.cpp \
+    nicknamedialog.cpp
 
 HEADERS  += mainwindow.h \
         ../../../src/sio_client.h \
-        ../../../src/sio_message.h
+        ../../../src/sio_message.h \
+    nicknamedialog.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    nicknamedialog.ui
 
 CONFIG(debug, debug|release):DEFINES +=DEBUG=1
 
