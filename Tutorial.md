@@ -1,4 +1,5 @@
 In this tutorial we’ll learn how to create a QT chat application that communicates with a [Socket.IO Node.JS chat server](https://github.com/Automattic/socket.io/tree/master/examples/chat).
+
 ###Introduction
 To follow along, start by cloning the repository: [socket.io-client-cpp](https://github.com/socketio/socket.io-client-cpp).
 Using:
@@ -19,8 +20,8 @@ Just install it with default installation option.
 
 ###Create a QT GUI application.
 Launch QT Creator.
-In welcome page, select `New Project`, There you can create a `QT Widget Application`, We named it `SioChatDemo`
-You'll see the project structure is like:
+In welcome page, select `New Project`, create a `QT Widget Application`, named it `SioChatDemo`
+The project structure is like:
 
 ```
 SioChatDemo
@@ -35,7 +36,7 @@ SioChatDemo
 ```
 
 ###Import SioClient and config compile options.
-You can copy the SioClient into the QT project as a subfolder `sioclient`.
+Let's copy the SioClient into the QT project as a subfolder `sioclient`.
 
 Edit `SioChatDemo.pro` to config paths and compile options, simply add:
 
@@ -50,7 +51,7 @@ INCLUDEPATH += $$PWD/sioclient/lib/rapidjson/include
 INCLUDEPATH += $$PWD/sioclient/lib/websocketpp
 ```
 
-We need also add two additional compile option
+Also add two additional compile option
 
 ```bash
 CONFIG+=no_keywords
@@ -61,42 +62,51 @@ CONFIG+=c++11
 `c++11` ask for C++11 support.
 
 ##Import boost
-Suppose you now have your boost `headers` and a fat boost `static lib` named `libboost.a`(non-win32) or `boost.lib`(win32) ready.
+Suppose we now have our boost `headers` and a fat boost `static lib` named `libboost.a`(non-win32) or `boost.lib`(win32) ready.
 
-To import them you need to Edit `SioChatDemo.pro` again,add header include:
+To import them we need to edit `SioChatDemo.pro` again,add header include:
 
 ```bash
-INCLUDEPATH += `your boost headers folder`
+INCLUDEPATH += `our boost headers folder`
 ```
 
-also linker option:
+also linker options:
 
 ```bash
-win32:CONFIG(release, debug|release): LIBS += -L`your Win32 boost static lib folder` -lboost
-else:win32:CONFIG(debug, debug|release): LIBS += -L`your Win32 boost static lib folder` -lboost
-else:unix: LIBS += -L`your osx boost static lib folder` -lboost
+win32:CONFIG(release, debug|release): LIBS += -L`our Win32 boost static lib folder` -lboost
+else:win32:CONFIG(debug, debug|release): LIBS += -L`our Win32 boost static lib folder` -lboost
+else:unix: LIBS += -L`our osx boost static lib folder` -lboost
 ```
 
 ###Make up mainwindow ui.
-We can make up a simple ui by drag and drop widget from `Widget box` in left side.
+Make up a simple ui by drag and drop widget from `Widget box` in left side.
 
 We finally end up with this:
 ![QT mainwindow](screenshots/Qmainwindow.jpg)
-it contains:
+
+It contains:
 
 *a `QLineEdit` at the top for nickname inputing, named `nickNameEdit`
+
 *a `QPushButton` at the topright for login, named `loginBtn`
+
 *a `QListWidget` at the center for showing messages, named `listView`
+
 *a `QLineEdit` at the bottom for typing message, named `messageEdit`
+
 *a `QPushButton` at the bottomright for sending message, named `sendBtn`
 
 ###Add Slots in mainwindow
-We need add slots in `mainwindow` class to handle UI events
-They are
-* click login
-* click send message
-* message text change (for typing status)
-* message edit returned (for sending message by return)
+Slots need to be added in `mainwindow` class to handle UI events.They are
+
+* click login button
+
+* click send message button
+
+* text change in messageEdit(for typing status)
+
+* message editing is returned (for sending message by return)
+
 Insert following code into `MainWindow` class in `mainwindow.h` 
 
 ```C++
@@ -114,13 +124,13 @@ By press left mouse on widget and drag on to the window (cursor will become a si
 
 In the connection editor, edit the slots of MainWindow at the right side, add Those slots function name added in `mainwindow.h` before.
 
-Then you'll be able to connect the event signal from widget with your own slots.
+Then we'll be able to connect the event signal from widget with our own slots.
 
 We finally end up with this:
 ![QT signals&slots](screenshots/SignalsSlots.jpg)
 
 ###Adding UI refresh Signals/Slots
-We may need request UI refresh in `sio::client` callbacks which may not be in UI thread, So we need `Signal` for non-UI thread to request `Slots` functions been executed in UI thread. Say we have to signal `QListWidgetItem` being added, we need to add:
+`sio::client`'s callbacks are not in UI thread. However, UI is required to be updated by those callbacks, so we need some `Signal` for non-UI thread to "request" `Slots` functions been called in UI thread. Say if we want to signal `QListWidgetItem` being added, add:
 
 ```C++
 //In mainwindow.h
@@ -138,14 +148,15 @@ void MainWindow::AddListItem(QListWidgetItem* item)
 }
 ```
 
-We also need to connect them in `MainWindow` constructor.
+Then connect them in `MainWindow` constructor.
 
 ```C++
     connect(this,SIGNAL(RequestAddListItem(QListWidgetItem*)),this,SLOT(AddListItem(QListWidgetItem*)));
 ```
 
 ###Init sio::client in MainWindow
-Since we are making a single window application, we let `MainWindow` class holding the `sio::client`.
+For single window applications, simply let `MainWindow` class holding the `sio::client` object:
+
 declare a `unique_ptr` member of `sio::client` and Several event handling functions in `mainwindow.h`
 
 ```C++
@@ -193,6 +204,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 ###Managing connection state
 We have several connection listeners for connection events.
+
 First we want to send login message once we're connected.
 
 ```C++
@@ -233,7 +245,7 @@ MainWindow::~MainWindow()
 ```
 
 ###Handle socket.io events
-You'll need to handle socket.io events in your functions bind to socket.io events.
+We'll need to handle socket.io events in our functions bind to socket.io events.
 For example, we need to show received messages to the `listView`
 
 ```C++
