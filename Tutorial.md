@@ -84,7 +84,7 @@ else:unix: LIBS += -L`our osx boost static lib folder` -lboost
 Make up a simple ui by drag and drop widget from `Widget box` in left side.
 
 We finally end up with this:
-![QT mainwindow](screenshots/Qmainwindow.jpg)
+![QT mainwindow](https://cldup.com/T4oUpiQFV7.jpg)
 
 It contains:
 
@@ -129,7 +129,7 @@ In the connection editor, edit the slots of MainWindow at the right side, add Th
 Then we'll be able to connect the event signal from widget with our own slots.
 
 We finally end up with this:
-![QT signals&slots](screenshots/SignalsSlots.jpg)
+![QT signals&slots](https://cldup.com/Vsb-UXG3FC.jpg)
 
 ###Adding UI refresh Signals/Slots
 `sio::client`'s callbacks are not in UI thread. However, UI is required to be updated by those callbacks, so we need some `Signal` for non-UI thread to "request" `Slots` functions been called in UI thread. Say if we want to signal `QListWidgetItem` being added, add:
