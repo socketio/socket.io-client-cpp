@@ -1,8 +1,8 @@
 # SIO Client
-This SIO client is depends on [websocket++](https://github.com/zaphoyd/websocketpp) and [rapidjson](https://github.com/miloyip/rapidjson), it provides another C++ client implementation for [Socket.IO](https://github.com/Automattic/socket.io).
-This library is able to connect to a Socket.IO server 1.0, and the initial thought of writing it is inspired by the [socket.io-clientpp](https://github.com/ebshimizu/socket.io-clientpp) project.
+This SIO client depends on [websocket++](https://github.com/zaphoyd/websocketpp) and [rapidjson](https://github.com/miloyip/rapidjson), it provides a C++ client implementation for [Socket.IO](https://github.com/Automattic/socket.io) and is inspired by the [socket.io-clientpp](https://github.com/ebshimizu/socket.io-clientpp) project.
+This library is able to connect to a Socket.IO 1.0 server.
 
-C++ has amazing abilities to cross platform, there's a screen shot about using all example apps (iPhone,QT,Console and web) in this project to chat in one room.
+C++ allows amazing possibilities for cross platform development. Here's a screenshot showing example apps (iPhone,QT,Console and web) chatting in one room.
 
 ![Clients with iPhone, QT, Console and web](/screenshots/QuadClients.png)
 
@@ -24,7 +24,7 @@ I'll do further compatibility efforts on demand.
 8. Reconnection.
 
 ## Usage
-1. Make sure you have the boost libararies installed.
+1. Make sure you have the boost libraries installed.
 2. Include websocket++, rapidjson and `sio_client.cpp`,`sio_packet.cpp` in your project.
 3. Include `sio_client.h` where you want to use it.
 4. Use `message` and its derived classes to compose complex text/binary messages.
