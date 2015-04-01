@@ -10,9 +10,11 @@ git clone --recurse-submodules https://github.com/socketio/socket.io-client-cpp.
 
 The app has the following features:
 
-*Sending a message to all users joining to the room.
-*Notifies when each user joins or leaves.
-*Notifies when an user start typing a message.
+* Sending a message to all users joining to the room.
+
+* Notifies when each user joins or leaves.
+
+* Notifies when an user start typing a message.
 
 ###Install QT community
 Visit [QT community download link](http://www.qt.io/download-open-source/#section-2) to get the install package.
