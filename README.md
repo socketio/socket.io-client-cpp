@@ -64,8 +64,8 @@ Set a default event handler for events with no binding functions.
 
 Set the error handler for socket.io error messages.
 
-`listener declare`
 ```C++
+//event listener declare:
 typedef std::function<void(const std::string& name,message::ptr const& message,bool need_ack, message::ptr& ack_message)> event_listener;
         
 typedef std::function<void(message::ptr const& message)> error_listener;
@@ -89,8 +89,8 @@ Call when failed in connecting.
 
 Call when closed or drop. See `client::close_reason`
 
-`listener declare`
 ```C++
+//connection listener declare:
 enum close_reason
 {
     close_reason_normal,
@@ -125,6 +125,21 @@ Check if client is connected.
 `std::string const& get_sessionid() const`
 
 Get socket.io session id.
+
+### Message Object
+`message` Base class of all message object.
+
+`int_message` message contains a 64-bit integer.
+
+`double_message` message contains a double.
+
+`string_message` message contains a string.
+
+`array_message` message contains a `vector<message::ptr>`.
+
+`object_message` message contains a `map<string,message::ptr>`.
+
+`message::ptr` pointer to `message` object, it will be one of its derived classes, judge by `message.get_flag()`.
 
 ##Example
 
@@ -220,16 +235,11 @@ where PREFIX is a directory where you want Boost.Build to be installed.
 
 For Windows:
 ```shell
-bjam stage --toolset=msvc --with-system --with-date_time --with-thread --with-regex --with-serialization --with-random --stagedir="D:\boost_1_55_0\boost_build\release" link=static runtime-link=shared threading=multi release
+bjam stage --toolset=msvc --with-system --with-date_time --with-thread --with-regex --with-serialization --with-random --stagedir="release" link=static runtime-link=shared threading=multi release
 ```
-For iOS
-```shell
-bjam -j16 --with-system --with-date_time --with-thread --with-regex --with-serialization --with-random --build-dir=iphone-build --stagedir=iphone-build/stage --prefix=$PREFIXDIR toolset=darwin architecture=arm target-os=iphone macosx-version=iphone-`${IPHONE_SDKVERSION}` define=_LITTLE_ENDIAN link=static stage
-```
-For Mac OSX
-```shell
-b2 -j16 --with-system --with-date_time --with-thread --with-regex --with-serialization --with-random --build-dir=osx-build --stagedir=osx-build/stage toolset=clang cxxflags="-std=c++11 -stdlib=libc++ -arch i386 -arch x86_64" linkflags="-stdlib=libc++" link=static threading=multi stage
-```
+For iOS and OSX
+Use this [shell](https://github.com/socketio/socket.io-client-cpp/blob/master/examples/iOS/SioChatDemo/boost/boost.sh) to download and build boost completely automattically.
+
 Finally, Add boost source folder to `header search path`, and add static libs to link option.
 
 ##License
