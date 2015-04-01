@@ -4,7 +4,7 @@ This library is able to connect to a Socket.IO 1.0 server.
 
 C++ allows amazing possibilities for cross platform development. Here's a screenshot showing example apps (iPhone,QT,Console and web) chatting in one room.
 
-![Clients with iPhone, QT, Console and web](/screenshots/QuadClients.png)
+![Clients with iPhone, QT, Console and web](/screenshots/QuadClients.jpg)
 
 ## Socket.IO 1.0+ protocol has been implemented!
 The code is compatible with 1.0+ protocol only, not with prior protocols.
