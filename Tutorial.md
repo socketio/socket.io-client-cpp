@@ -86,15 +86,15 @@ We finally end up with this:
 
 It contains:
 
-*a `QLineEdit` at the top for nickname inputing, named `nickNameEdit`
+* a `QLineEdit` at the top for nickname inputing, named `nickNameEdit`
 
-*a `QPushButton` at the topright for login, named `loginBtn`
+* a `QPushButton` at the topright for login, named `loginBtn`
 
-*a `QListWidget` at the center for showing messages, named `listView`
+* a `QListWidget` at the center for showing messages, named `listView`
 
-*a `QLineEdit` at the bottom for typing message, named `messageEdit`
+* a `QLineEdit` at the bottom for typing message, named `messageEdit`
 
-*a `QPushButton` at the bottomright for sending message, named `sendBtn`
+* a `QPushButton` at the bottomright for sending message, named `sendBtn`
 
 ###Add Slots in mainwindow
 Slots need to be added in `mainwindow` class to handle UI events.They are
