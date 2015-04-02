@@ -50,7 +50,9 @@ Emit a single binary buffer, along with event's name and a optional ack callback
 ### Event Bindings
 `void bind_event(std::string const& event_name,event_listener const& func)`
 
-Bind a callback to specified event name. Same as `socket.on` function in JS.
+`void bind_event(std::string const& event_name,event_listener_aux const& func)`
+
+Bind a callback to specified event name. Same as `socket.on()` function in JS, `event_listener` is for full content event object,`event_listener_aux` is for convinience.
 
 `void unbind_event(std::string const& event_name)`
 
@@ -62,6 +64,8 @@ Clear all event bindings.
 
 `void set_default_event_listener(event_listener const& l)`
 
+`void set_default_event_listener(event_listener_aux const& l)`
+
 Set a default event handler for events with no binding functions.
 
 `void set_error_listener(error_listener const& l)`
@@ -69,9 +73,28 @@ Set a default event handler for events with no binding functions.
 Set the error handler for socket.io error messages.
 
 ```C++
-//event listener declare:
-typedef std::function<void(const std::string& name,message::ptr const& message,bool need_ack, message::ptr& ack_message)> event_listener;
+//event object:
+class event
+    {
+    public:
+        const std::string& get_nsp() const;
         
+        const std::string& get_name() const;
+        
+        const message::ptr& get_message() const;
+        
+        bool need_ack() const;
+        
+        void put_ack_message(message::ptr const& ack_message);
+        
+        message::ptr const& get_ack_message() const;
+       ...
+    };
+//event listener declare:
+typedef std::function<void(const std::string& name,message::ptr const& message,bool need_ack, message::ptr& ack_message)> event_listener_aux;
+        
+typedef std::function<void(event& event)> event_listener;
+
 typedef std::function<void(message::ptr const& message)> error_listener;
 
 ```
@@ -129,6 +152,10 @@ Check if client is connected.
 `void connect(const std::string& uri)`
 
 Add namespace part `/[any namespaces]` after port, will automatically connect to the namespace you specified.
+
+`std::string const& get_namespace() const`
+
+Get current namespace which the client is inside.
 
 ### Session ID
 `std::string const& get_sessionid() const`
