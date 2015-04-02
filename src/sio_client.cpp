@@ -24,75 +24,6 @@ using std::stringstream;
 
 namespace sio
 {
-    class event_adapter
-    {
-    public:
-        static void adapt_func(client::event_listener_aux  const& func, event& event)
-        {
-            func(event.get_name(),event.get_message(),event.need_ack(),event.__get_ack_message());
-        }
-        
-        static inline client::event_listener do_adapt(client::event_listener_aux const& func)
-        {
-            return std::bind(&event_adapter::adapt_func, func,std::placeholders::_1);
-        }
-        
-        static inline event create_event(std::string const& nsp,std::string const& name,message::ptr const& message,bool need_ack)
-        {
-            return event(nsp,name,message,need_ack);
-        }
-    };
-    
-    inline
-    const std::string& event::get_nsp() const
-    {
-        return m_nsp;
-    }
-    
-    inline
-    const std::string& event::get_name() const
-    {
-        return m_name;
-    }
-    
-    inline
-    const message::ptr& event::get_message() const
-    {
-        return m_message;
-    }
-    
-    inline
-    bool event::need_ack() const
-    {
-        return m_need_ack;
-    }
-    
-    inline
-    void event::put_ack_message(message::ptr const& ack_message)
-    {
-        if(m_need_ack)
-            m_ack_message = ack_message;
-    }
-    
-    inline
-    event::event(std::string const& nsp,std::string const& name,message::ptr const& message,bool need_ack):
-    m_nsp(nsp),
-    m_name(name),
-    m_message(message),
-    m_need_ack(need_ack)
-    {
-    }
-    
-    message::ptr const& event::get_ack_message() const
-    {
-        return m_ack_message;
-    }
-    
-    message::ptr& event::__get_ack_message()
-    {
-        return m_ack_message;
-    }
-    
     
     client::client():
     m_impl(new impl())
@@ -425,79 +356,7 @@ namespace sio
         {
             case packet::frame_message:
             {
-                switch (p.get_type())
-                {
-                        // Connect open
-                    case packet::type_connect:
-                    {
-                        LOG("Received Message type (Connect)"<<std::endl);
-                        if(p.get_nsp() == m_nsp)
-                        {
-                            this->on_connected();
-                        }
-                        break;
-                    }
-                    case packet::type_disconnect:
-                    {
-                        LOG("Received Message type (Disconnect)"<<std::endl);
-                        close();
-                        break;
-                    }
-                    case packet::type_event:
-                    case packet::type_binary_event:
-                    {
-                        LOG("Received Message type (Event)"<<std::endl);
-                        const message::ptr ptr = p.get_message();
-                        if(ptr->get_flag() == message::flag_array)
-                        {
-                            const array_message* array_ptr = static_cast<const array_message*>(ptr.get());
-                            if(array_ptr->get_vector().size() >= 1&&array_ptr->get_vector()[0]->get_flag() == message::flag_string)
-                            {
-                                const string_message* name_ptr = static_cast<const string_message*>(array_ptr->get_vector()[0].get());
-                                message::ptr value_ptr;
-                                if(array_ptr->get_vector().size()>1)
-                                {
-                                    value_ptr = array_ptr->get_vector()[1];
-                                }
-                                this->on_socketio_event(p.get_nsp(), p.get_pack_id(),name_ptr->get_string(), value_ptr);
-                            }
-                        }
-                        
-                        break;
-                    }
-                        // Ack
-                    case packet::type_ack:
-                    case packet::type_binary_ack:
-                    {
-                        LOG("Received Message type (ACK)"<<std::endl);
-                        const message::ptr ptr = p.get_message();
-                        if(ptr->get_flag() == message::flag_array)
-                        {
-                            const array_message* array_ptr = static_cast<const array_message*>(ptr.get());
-                            if(array_ptr->get_vector().size() >= 1&&array_ptr->get_vector()[0]->get_flag() == message::flag_string)
-                            {
-                                message::ptr value_ptr;
-                                if(array_ptr->get_vector().size()>1)
-                                {
-                                    value_ptr = array_ptr->get_vector()[1];
-                                }
-                                this->on_socketio_ack(p.get_pack_id(), value_ptr);
-                                break;
-                            }
-                        }
-                        this->on_socketio_ack(p.get_pack_id(),ptr);
-                        break;
-                    }
-                        // Error
-                    case packet::type_error:
-                    {
-                        LOG("Received Message type (ERROR)"<<std::endl);
-                        this->on_socketio_error(p.get_message());
-                        break;
-                    }
-                    default:
-                        break;
-                }
+
                 break;
             }
             case packet::frame_open:
@@ -521,53 +380,7 @@ namespace sio
         m_client.get_io_service().dispatch(lib::bind(&client::impl::__send,this,payload,isBinary?frame::opcode::binary:frame::opcode::text));
     }
     
-    
-    unsigned int client::impl::s_global_event_id = 1;
-    
-    void client::impl::emit(std::string const& name, std::string const& message)
-    {
-        message::ptr msg_ptr = make_message(name, message);
-        packet p(m_nsp, msg_ptr);
-        m_packet_mgr.encode(p);
-    }
-    
-    void client::impl::emit(std::string const& name, std::string const& message, std::function<void (message::ptr const&)> const& ack)
-    {
-        message::ptr msg_ptr = make_message(name, message);
-        packet p(m_nsp, msg_ptr,s_global_event_id);
-        m_acks[s_global_event_id++] = ack;
-        m_packet_mgr.encode(p);
-    }
-    
-    void client::impl::emit(std::string const& name, message::ptr const& args)
-    {
-        message::ptr msg_ptr = make_message(name, args);
-        packet p(m_nsp, msg_ptr);
-        m_packet_mgr.encode(p);
-    }
-    
-    void client::impl::emit(std::string const& name, message::ptr const& args, std::function<void (message::ptr const&)> const& ack)
-    {
-        message::ptr msg_ptr = make_message(name, args);
-        packet p(m_nsp, msg_ptr,s_global_event_id);
-        m_acks[s_global_event_id++] = ack;
-        m_packet_mgr.encode(p);
-    }
-    
-    void client::impl::emit(std::string const& name, std::shared_ptr<const std::string> const& binary_ptr)
-    {
-        message::ptr msg_ptr = make_message(name, binary_ptr);
-        packet p(m_nsp, msg_ptr);
-        m_packet_mgr.encode(p);
-    }
-    
-    void client::impl::emit(std::string const& name, std::shared_ptr<const std::string> const& binary_ptr, std::function<void (message::ptr const&)> const& ack)
-    {
-        message::ptr msg_ptr = make_message(name, binary_ptr);
-        packet p(m_nsp, msg_ptr,s_global_event_id);
-        m_acks[s_global_event_id++] = ack;
-        m_packet_mgr.encode(p);
-    }
+
     
     void client::impl::__ping(const boost::system::error_code& ec)
     {
@@ -792,43 +605,5 @@ namespace sio
         m_client.get_alog().write(websocketpp::log::alevel::devel,
                                   "run loop end");
         
-    }
-    
-    // This is where you'd add in behavior to handle events.
-    // By default, nothing is done with the endpoint or ID params.
-    void client::impl::on_socketio_event(const std::string& nsp,int msgId,const std::string& name, message::ptr const& message)
-    {
-        event_listener *functor_ptr = &(m_default_event_listener);
-        auto it = m_event_binding.find(name);
-        if(it!=m_event_binding.end())
-        {
-            functor_ptr = &(it->second);
-        }
-        bool needAck = msgId >= 0;
-        event ev = event_adapter::create_event(nsp,name, message,needAck);
-        if (*functor_ptr) {
-            (*functor_ptr)(ev);
-        }
-        if(needAck)
-        {
-            this->__ack(msgId, name, ev.get_ack_message());
-        }
-    }
-    
-    // This is where you'd add in behavior to handle ack
-    void client::impl::on_socketio_ack(int msgId, message::ptr const& message)
-    {
-        auto it = m_acks.find(msgId);
-        if(it!=m_acks.end())
-        {
-            (it->second)(message);
-            m_acks.erase(it);
-        }
-    }
-    
-    // This is where you'd add in behavior to handle errors
-    void client::impl::on_socketio_error(message::ptr const& err_message)
-    {
-        if(m_error_listener)m_error_listener(err_message);
     }
 }

@@ -80,11 +80,11 @@ void set_##__FIELD__(__TYPE__ const& l) \
 
         std::string const& get_sessionid() const { return m_sid; }
 
-        std::string const& get_namespace() const { return m_nsp; }
-
         friend class client;
     protected:
         void send(packet const& packet);
+
+        void remove_socket(std::string const& nsp);
 
     private:
         void send(std::shared_ptr<const std::string> const& payload_ptr,frame::opcode::value opcode);
@@ -117,12 +117,6 @@ void set_##__FIELD__(__TYPE__ const& l) \
         void on_pong();
 
         void on_pong_timeout();
-
-        // Message Parsing callbacks.
-        void on_socketio_event(const std::string& nsp, int msgId,const std::string& name, message::ptr const& message);
-        void on_socketio_ack(int msgId, message::ptr const& message);
-
-        void on_socketio_error(message::ptr const& err_message);
 
         void reset_states();
 

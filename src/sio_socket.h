@@ -3,10 +3,44 @@
 #include "internal/sio_client_impl.h"
 namespace sio
 {
+class event_adapter;
+
+class event
+{
+public:
+    const std::string& get_nsp() const;
+
+    const std::string& get_name() const;
+
+    const message::ptr& get_message() const;
+
+    bool need_ack() const;
+
+    void put_ack_message(message::ptr const& ack_message);
+
+    message::ptr const& get_ack_message() const;
+
+protected:
+    event(std::string const& nsp,std::string const& name,message::ptr const& message,bool need_ack);
+
+    message::ptr& __get_ack_message();
+
+private:
+    const std::string m_nsp;
+    const std::string m_name;
+    const message::ptr m_message;
+    const bool m_need_ack;
+    message::ptr m_ack_message;
+
+    friend class event_adapter;
+};
+
 class socket
 {
 public:
-    typedef std::function<void(const std::string& name,message::ptr const& message,bool need_ack, message::ptr& ack_message)> event_listener;
+    typedef std::function<void(const std::string& name,message::ptr const& message,bool need_ack, message::ptr& ack_message)> event_listener_aux;
+
+    typedef std::function<void(event& event)> event_listener;
 
     typedef std::function<void(message::ptr const& message)> error_listener;
 
