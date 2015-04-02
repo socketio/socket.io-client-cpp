@@ -116,9 +116,11 @@ namespace sio {
         
         void sync_close();
         
+        bool connected() const;
+        
         std::string const& get_sessionid() const;
         
-        bool connected() const;
+        std::string const& get_namespace() const;
         
     private:
         class impl;

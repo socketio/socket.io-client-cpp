@@ -129,9 +129,11 @@ void set_##__FIELD__(__TYPE__ const& l) \
         
         void sync_close();
         
+        bool connected() const { return m_connected; }
+        
         std::string const& get_sessionid() const { return m_sid; }
         
-        bool connected() const { return m_connected; }
+        std::string const& get_namespace() const { return m_nsp; }
         
         friend class client;
     private:
@@ -420,16 +422,20 @@ void set_##__FIELD__(__TYPE__ const& l) \
         m_impl->sync_close();
     }
     
-    std::string const& client::get_sessionid() const
-    {
-        return m_impl->get_sessionid();
-    }
-    
     bool client::connected() const
     {
         return m_impl->connected();
     }
     
+    std::string const& client::get_sessionid() const
+    {
+        return m_impl->get_sessionid();
+    }
+    
+    std::string const& client::get_namespace() const
+    {
+        return m_impl->get_namespace();
+    }
     
     client::impl::impl() :
     m_connected(false),
