@@ -3,6 +3,18 @@
 #include <functional>
 #include <mutex>
 #include <cstdlib>
+#ifdef WIN32
+#define BIND_EVENT(IO,EV,FN) \
+    do{ \
+        client::event_listener_aux l = FN;\
+        IO->bind_event(EV,l);\
+    } while(0)
+
+#else
+#define BIND_EVENT(IO,EV,FN) \
+    IO->bind_event(EV,FN)
+#endif
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
@@ -14,12 +26,12 @@ MainWindow::MainWindow(QWidget *parent) :
     using std::placeholders::_2;
     using std::placeholders::_3;
     using std::placeholders::_4;
-    _io->bind_event("new message",std::bind(&MainWindow::OnNewMessage,this,_1,_2,_3,_4));
-    _io->bind_event("user joined",std::bind(&MainWindow::OnUserJoined,this,_1,_2,_3,_4));
-    _io->bind_event("user left",std::bind(&MainWindow::OnUserLeft,this,_1,_2,_3,_4));
-    _io->bind_event("typing",std::bind(&MainWindow::OnTyping,this,_1,_2,_3,_4));
-    _io->bind_event("stop typing",std::bind(&MainWindow::OnStopTyping,this,_1,_2,_3,_4));
-    _io->bind_event("login",std::bind(&MainWindow::OnLogin,this,_1,_2,_3,_4));
+    BIND_EVENT(_io,"new message",std::bind(&MainWindow::OnNewMessage,this,_1,_2,_3,_4));
+    BIND_EVENT(_io,"user joined",std::bind(&MainWindow::OnUserJoined,this,_1,_2,_3,_4));
+    BIND_EVENT(_io,"user left",std::bind(&MainWindow::OnUserLeft,this,_1,_2,_3,_4));
+    BIND_EVENT(_io,"typing",std::bind(&MainWindow::OnTyping,this,_1,_2,_3,_4));
+    BIND_EVENT(_io,"stop typing",std::bind(&MainWindow::OnStopTyping,this,_1,_2,_3,_4));
+    BIND_EVENT(_io,"login",std::bind(&MainWindow::OnLogin,this,_1,_2,_3,_4));
     _io->set_connect_listener(std::bind(&MainWindow::OnConnected,this));
     _io->set_fail_listener(std::bind(&MainWindow::OnFailed,this));
     _io->set_close_listener(std::bind(&MainWindow::OnClosed,this,_1));
