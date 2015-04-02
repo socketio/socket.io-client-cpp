@@ -168,7 +168,7 @@ void set_##__FIELD__(__TYPE__ const& l) \
         void on_pong_timeout();
         
         // Message Parsing callbacks.
-        void on_socketio_event(int msgId,const std::string& name, message::ptr const& message);
+        void on_socketio_event(const std::string& nsp, int msgId,const std::string& name, message::ptr const& message);
         void on_socketio_ack(int msgId, message::ptr const& message);
         
         void on_socketio_error(message::ptr const& err_message);
@@ -220,8 +220,77 @@ void set_##__FIELD__(__TYPE__ const& l) \
         
         event_listener m_default_event_listener;
         error_listener m_error_listener;
-        
     };
+    
+    class event_adapter
+    {
+    public:
+        static void adapt_func(client::event_listener_aux  const& func, event& event)
+        {
+            func(event.get_name(),event.get_message(),event.need_ack(),event.__get_ack_message());
+        }
+        
+        static inline client::event_listener do_adapt(client::event_listener_aux const& func)
+        {
+            return std::bind(&event_adapter::adapt_func, func,std::placeholders::_1);
+        }
+        
+        static inline event create_event(std::string const& nsp,std::string const& name,message::ptr const& message,bool need_ack)
+        {
+            return event(nsp,name,message,need_ack);
+        }
+    };
+    
+    inline
+    const std::string& event::get_nsp() const
+    {
+        return m_nsp;
+    }
+    
+    inline
+    const std::string& event::get_name() const
+    {
+        return m_name;
+    }
+    
+    inline
+    const message::ptr& event::get_message() const
+    {
+        return m_message;
+    }
+    
+    inline
+    bool event::need_ack() const
+    {
+        return m_need_ack;
+    }
+    
+    inline
+    void event::put_ack_message(message::ptr const& ack_message)
+    {
+        if(m_need_ack)
+            m_ack_message = ack_message;
+    }
+    
+    inline
+    event::event(std::string const& nsp,std::string const& name,message::ptr const& message,bool need_ack):
+    m_nsp(nsp),
+    m_name(name),
+    m_message(message),
+    m_need_ack(need_ack)
+    {
+    }
+    
+    message::ptr const& event::get_ack_message() const
+    {
+        return m_ack_message;
+    }
+    
+    message::ptr& event::__get_ack_message()
+    {
+        return m_ack_message;
+    }
+    
     
     client::client():
     m_impl(new impl())
@@ -253,6 +322,11 @@ void set_##__FIELD__(__TYPE__ const& l) \
         m_impl->set_close_listener(l);
     }
     
+    void client::set_default_event_listener(event_listener_aux const& l)
+    {
+        m_impl->set_default_event_listener(event_adapter::do_adapt(l));
+    }
+    
     void client::set_default_event_listener(event_listener const& l)
     {
         m_impl->set_default_event_listener(l);
@@ -266,6 +340,11 @@ void set_##__FIELD__(__TYPE__ const& l) \
     void client::bind_event(std::string const& event_name,event_listener const& func)
     {
         m_impl->bind_event(event_name,func);
+    }
+    
+    void client::bind_event(std::string const& event_name,event_listener_aux const& func)
+    {
+        m_impl->bind_event(event_name,event_adapter::do_adapt(func));
     }
     
     void client::unbind_event(std::string const& event_name)
@@ -574,7 +653,7 @@ void set_##__FIELD__(__TYPE__ const& l) \
                                 {
                                     value_ptr = array_ptr->get_vector()[1];
                                 }
-                                this->on_socketio_event(p.get_pack_id(),name_ptr->get_string(), value_ptr);
+                                this->on_socketio_event(p.get_nsp(), p.get_pack_id(),name_ptr->get_string(), value_ptr);
                             }
                         }
                         
@@ -911,7 +990,7 @@ void set_##__FIELD__(__TYPE__ const& l) \
     
     // This is where you'd add in behavior to handle events.
     // By default, nothing is done with the endpoint or ID params.
-    void client::impl::on_socketio_event(int msgId,const std::string& name, message::ptr const& message)
+    void client::impl::on_socketio_event(const std::string& nsp,int msgId,const std::string& name, message::ptr const& message)
     {
         event_listener *functor_ptr = &(m_default_event_listener);
         auto it = m_event_binding.find(name);
@@ -920,14 +999,13 @@ void set_##__FIELD__(__TYPE__ const& l) \
             functor_ptr = &(it->second);
         }
         bool needAck = msgId >= 0;
-        
-        message::ptr ack_message;
+        event ev = event_adapter::create_event(nsp,name, message,needAck);
         if (*functor_ptr) {
-            (*functor_ptr)(name, message,needAck, ack_message);
+            (*functor_ptr)(ev);
         }
         if(needAck)
         {
-            this->__ack(msgId, name, ack_message);
+            this->__ack(msgId, name, ev.get_ack_message());
         }
     }
     
