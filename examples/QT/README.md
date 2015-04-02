@@ -1,3 +1,5 @@
+![Demo clip](https://cldup.com/5Lozg7laKG.gif)
+
 In this tutorial we’ll learn how to create a QT chat application that communicates with a [Socket.IO Node.JS chat server](https://github.com/Automattic/socket.io/tree/master/examples/chat).
 
 ###Introduction
