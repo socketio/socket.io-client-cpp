@@ -125,6 +125,11 @@ Close the client, return until it is really closed.
 
 Check if client is connected.
 
+### Namespace
+`void connect(const std::string& uri)`
+
+Add namespace part `/[any namespaces]` after port, will automatically connect to the namespace you specified.
+
 ### Session ID
 `std::string const& get_sessionid() const`
 
@@ -144,6 +149,8 @@ Get socket.io session id.
 `object_message` message contains a `map<string,message::ptr>`.
 
 `message::ptr` pointer to `message` object, it will be one of its derived classes, judge by `message.get_flag()`.
+
+All designated constructor of `message` objects is hidden, you need to create message and get the `message::ptr` by `[derived]_message:create()`.
 
 ##Example
 
