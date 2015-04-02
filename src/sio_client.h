@@ -85,12 +85,14 @@ namespace sio {
         void bind_event(std::string const& event_name,event_listener_aux const& func);
     
         void unbind_event(std::string const& event_name);
-        
+
+        void clear_event_bindings();
+
         void clear_socketio_listeners();
         
         void clear_con_listeners();
         
-        void clear_event_bindings();
+
         // Client Functions - such as send, etc.
         
         //event emit functions, for plain message,json and binary
