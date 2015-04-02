@@ -472,7 +472,16 @@ void set_##__FIELD__(__TYPE__ const& l) \
         boost::system::error_code ec;
         m_connection_timer->expires_from_now(milliseconds(60000), ec);
         m_connection_timer->async_wait(lib::bind(&client::impl::__timeout_connection,this,lib::placeholders::_1));
-        
+        if(m_nsp.length()>0)//send connect only if we got nsp, otherwise wait for default one.
+        {
+            packet p(packet::type_connect, m_nsp);
+            m_packet_mgr.encode(p,
+                                [&](bool isBin,shared_ptr<const string> payload)
+            {
+                lib::error_code ec;
+                this->m_client.send(this->m_con, *payload, frame::opcode::text, ec);
+            });
+        }
         if(m_open_listener)m_open_listener();
     }
     
@@ -537,7 +546,10 @@ void set_##__FIELD__(__TYPE__ const& l) \
                     case packet::type_connect:
                     {
                         LOG("Received Message type (Connect)"<<std::endl);
-                        this->on_connected();
+                        if(p.get_nsp() == m_nsp)
+                        {
+                            this->on_connected();
+                        }
                         break;
                     }
                     case packet::type_disconnect:
@@ -731,7 +743,7 @@ void set_##__FIELD__(__TYPE__ const& l) \
         else
         {
             std::string payload;
-            packet pack(packet::type_disconnect);
+            packet pack(packet::type_disconnect,m_nsp);
             m_packet_mgr.encode(pack,
                                 [&](bool isBin,shared_ptr<const string> payload)
                                 {
@@ -804,7 +816,14 @@ void set_##__FIELD__(__TYPE__ const& l) \
             {
                 ss<<"ws://"<<uo.get_host()<<":"<<uo.get_port()<<"/socket.io/?EIO=4&transport=websocket&sid="<<m_sid<<"&t="<<time(NULL);
             }
-            
+            if(uo.get_resource()!="/")
+            {
+                m_nsp = uo.get_resource();
+            }
+            else
+            {
+                m_nsp.clear();
+            }
             lib::error_code ec;
             client_type::connection_ptr con = m_client.get_connection(ss.str(), ec);
             if (ec) {

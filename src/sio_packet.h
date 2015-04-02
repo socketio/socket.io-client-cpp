@@ -54,7 +54,7 @@ namespace sio
         
         packet(frame_type frame);
         
-        packet(type type,message::ptr const& msg = message::ptr());//other message types constructor.
+        packet(type type,string const& nsp= string(),message::ptr const& msg = message::ptr());//other message types constructor.
         //empty constructor for parse.
         packet();
         

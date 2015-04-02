@@ -177,9 +177,10 @@ namespace sio
                 || (isAck&&pack_id>=0)));
     }
 
-    packet::packet(type type,message::ptr const& msg):
+    packet::packet(type type,string const& nsp, message::ptr const& msg):
     _frame(frame_message),
     _type(type),
+    _nsp(nsp),
     _message(msg),
     _pack_id(-1),
     _pending_buffers(0)
@@ -260,36 +261,47 @@ namespace sio
             }
         }
         
-        size_t comma_pos = payload_ptr.find_first_of("{[,");
-        if( comma_pos!= string::npos && payload_ptr[comma_pos] == ',')
+        size_t nsp_json_pos = payload_ptr.find_first_of("{[\"/",pos,4);
+        if(nsp_json_pos==string::npos)//no namespace and no message,the end.
         {
-            _nsp = payload_ptr.substr(pos,comma_pos  - pos);
-            pos = comma_pos+1;
-        }
-        if (pos >= payload_ptr.length()) {
-            //message only have type, maybe with namespace.
             return false;
         }
-        size_t data_pos = payload_ptr.find_first_of("[{", pos, 2);
-        if (data_pos == string::npos) {
-            //we have pack id, no message.
-            _pack_id = stoi(payload_ptr.substr(pos));
-            return false;
-        }
-        else if(data_pos>pos)
+        size_t json_pos = nsp_json_pos;
+        if(payload_ptr[nsp_json_pos] == '/')//nsp_json_pos is start of nsp
         {
-            //we have pack id and messages.
-            _pack_id = stoi(payload_ptr.substr(pos,data_pos - pos));
+            size_t comma_pos = payload_ptr.find_first_of(",");//end of nsp
+            if(comma_pos == string::npos)//packet end with nsp
+            {
+                _nsp = payload_ptr.substr(nsp_json_pos);
+                return false;
+            }
+            else//we have a message, maybe the message have an id.
+            {
+                _nsp = payload_ptr.substr(nsp_json_pos,comma_pos - nsp_json_pos);
+                pos = comma_pos+1;//start of the message
+                json_pos = payload_ptr.find_first_of("\"[{", pos, 3);//start of the json part of message
+                if(json_pos == string::npos)
+                {
+                    //no message,the end
+                    //assume if there's no message, there's no message id.
+                    return false;
+                }
+            }
+        }
+
+        if(pos<json_pos)//we've got pack id.
+        {
+            _pack_id = stoi(payload_ptr.substr(pos,json_pos - pos));
         }
         if (_frame == frame_message && (_type == type_binary_event || _type == type_binary_ack)) {
             //parse later when all buffers are arrived.
-            _buffers.push_back(make_shared<const string>(payload_ptr.data() + data_pos, payload_ptr.length() - data_pos));
+            _buffers.push_back(make_shared<const string>(payload_ptr.data() + json_pos, payload_ptr.length() - json_pos));
             return true;
         }
         else
         {
             Document doc;
-            doc.Parse<0>(payload_ptr.substr(data_pos).data());
+            doc.Parse<0>(payload_ptr.data()+json_pos);
             _message = from_json(doc, vector<shared_ptr<const string> >());
             return false;
         }
