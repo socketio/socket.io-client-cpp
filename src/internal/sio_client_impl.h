@@ -75,7 +75,7 @@ void set_##__FIELD__(__TYPE__ const& l) \
 
         void reconnect(const std::string& uri);
         
-        client::socket_ptr const& socket(const std::string& nsp);
+        socket::ptr const& socket(const std::string& nsp);
 
         // Closes the connection
         void close();
@@ -108,7 +108,7 @@ void set_##__FIELD__(__TYPE__ const& l) \
 
         void __timeout_connection(const boost::system::error_code& ec);
         
-        client::socket_ptr const& get_socket_locked(std::string const& nsp);
+        socket::ptr const& get_socket_locked(std::string const& nsp);
 
         void sockets_invoke_void(void (sio::socket::*fn)(void));
 
@@ -162,7 +162,7 @@ void set_##__FIELD__(__TYPE__ const& l) \
         client::con_listener m_fail_listener;
         client::close_listener m_close_listener;
         
-        std::map<const std::string,client::socket_ptr> m_sockets;
+        std::map<const std::string,socket::ptr> m_sockets;
         
         std::mutex m_socket_mutex;
     

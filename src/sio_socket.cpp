@@ -146,8 +146,6 @@ void set_##__FIELD__(__TYPE__ const& l) \
     protected:
         void on_connected();
         
-        void on_drop();
-        
         void on_close();
         
         void on_open();
@@ -186,6 +184,8 @@ void set_##__FIELD__(__TYPE__ const& l) \
         error_listener m_error_listener;
         
         std::unique_ptr<boost::asio::deadline_timer> m_connection_timer;
+        
+        friend class socket;
     };
     
     socket::impl::impl(client_impl *client,std::string const& nsp):m_client(client),m_nsp(nsp)
@@ -260,6 +260,10 @@ void set_##__FIELD__(__TYPE__ const& l) \
         NULL_GUARD(m_client);
         packet p(packet::type_connect,m_nsp);
         m_client->send(p);
+        m_connection_timer.reset(new boost::asio::deadline_timer(m_client->get_io_service()));
+        boost::system::error_code ec;
+        m_connection_timer->expires_from_now(boost::posix_time::milliseconds(20000), ec);
+        m_connection_timer->async_wait(std::bind(&socket::impl::__timeout_connection,this, std::placeholders::_1));
     }
     
     void socket::impl::close()
@@ -276,11 +280,18 @@ void set_##__FIELD__(__TYPE__ const& l) \
     
     void socket::impl::on_connected()
     {
-        
-        m_connected = true;
-        if(m_connect_listener)
+        if(m_connection_timer)
         {
-            m_connect_listener();
+            m_connection_timer->cancel();
+            m_connection_timer.reset();
+        }
+        if(!m_connected)
+        {
+            m_connected = true;
+            if(m_connect_listener)
+            {
+                m_connect_listener();
+            }
         }
     }
     
@@ -294,11 +305,6 @@ void set_##__FIELD__(__TYPE__ const& l) \
         {
             m_close_listener();
         }
-    }
-    
-    void socket::impl::on_drop()
-    {
-        m_connected = false;
     }
     
     void socket::impl::on_open()
@@ -517,6 +523,26 @@ void set_##__FIELD__(__TYPE__ const& l) \
         return m_impl->get_namespace();
     }
     
+    
+    void socket::on_connected()
+    {
+        m_impl->on_connected();
+    }
+    
+    void socket::on_close()
+    {
+        m_impl->on_close();
+    }
+    
+    void socket::on_open()
+    {
+        m_impl->on_open();
+    }
+    
+    void socket::on_message_packet(packet const& p)
+    {
+        m_impl->on_message_packet(p);
+    }
 }
 
 

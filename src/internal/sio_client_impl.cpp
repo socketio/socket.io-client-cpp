@@ -152,7 +152,7 @@ namespace sio {
         }
         else
         {
-            this->sockets_invoke_void(&sio::socket::on_drop);
+            this->sockets_invoke_void(&sio::socket::on_close);
             reason = client::close_reason_drop;
         }
         
@@ -267,12 +267,14 @@ namespace sio {
     void client_impl::close()
     {
         m_con_state = con_closing;
+        this->sockets_invoke_void(&sio::socket::close);
         m_client.get_io_service().dispatch(lib::bind(&client_impl::__close, this,close::status::normal,"End by user"));
     }
     
     void client_impl::sync_close()
     {
         m_con_state = con_closing;
+        this->sockets_invoke_void(&sio::socket::close);
         m_client.get_io_service().dispatch(lib::bind(&client_impl::__close, this,close::status::normal,"End by user"));
         if(m_network_thread)
         {
@@ -389,22 +391,24 @@ namespace sio {
     {
         if(m_network_thread)
         {
-            if(m_con_state == con_closing)
+            if(m_con_state == con_closing||m_con_state == con_closed)
             {
+                //if client is closing, join to wait.
+                //if client is closed, still need to join,
+                //but in closed case,join will return immediately.
                 m_network_thread->join();
             }
             else
             {
+                //if we are connected, do nothing.
                 return;
             }
         }
-        if(m_con_state == con_closed)
-        {
-            m_con_state = con_opening;
-            this->reset_states();
-            m_client.get_io_service().dispatch(lib::bind(&client_impl::__connect,this,uri));
-            m_network_thread.reset(new std::thread(lib::bind(&client_impl::run_loop,this)));//uri lifecycle?
-        }
+        m_con_state = con_opening;
+        this->reset_states();
+        m_client.get_io_service().dispatch(lib::bind(&client_impl::__connect,this,uri));
+        m_network_thread.reset(new std::thread(lib::bind(&client_impl::run_loop,this)));//uri lifecycle?
+
     }
     
     void client_impl::reconnect(const std::string& uri)
@@ -429,7 +433,7 @@ namespace sio {
         }
     }
     
-    client::socket_ptr const& client_impl::socket(std::string const& nsp)
+    socket::ptr const& client_impl::socket(std::string const& nsp)
     {
         std::lock_guard<std::mutex> guard(m_socket_mutex);
         std::string aux = nsp;
@@ -445,7 +449,7 @@ namespace sio {
         }
         else
         {
-            std::pair<const std::string, client::socket_ptr> p(aux,std::make_shared<sio::socket>(this,aux));
+            std::pair<const std::string, socket::ptr> p(aux,std::make_shared<sio::socket>(this,aux));
             return (m_sockets.insert(p).first)->second;
         }
     }
@@ -459,9 +463,9 @@ namespace sio {
                                   "run loop end");
     }
     
-    client::socket_ptr empty_socket_ptr;
+    socket::ptr empty_socket_ptr;
     
-    client::socket_ptr const& client_impl::get_socket_locked(std::string const& nsp)
+    socket::ptr const& client_impl::get_socket_locked(std::string const& nsp)
     {
         std::lock_guard<std::mutex> guard(m_socket_mutex);
         auto it = m_sockets.find(nsp);
@@ -477,7 +481,7 @@ namespace sio {
     
     void client_impl::sockets_invoke_void(void (sio::socket::*fn)(void))
     {
-        std::map<const std::string,client::socket_ptr> socks;
+        std::map<const std::string,socket::ptr> socks;
         {
             std::lock_guard<std::mutex> guard(m_socket_mutex);
             socks.insert(m_sockets.begin(),m_sockets.end());

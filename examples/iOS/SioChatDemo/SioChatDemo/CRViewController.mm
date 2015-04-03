@@ -181,21 +181,6 @@ void OnClose(CFTypeRef ctrl,sio::client::close_reason const& reason)
 
 -(void)viewWillAppear:(BOOL)animated
 {
-    using std::placeholders::_1;
-    using std::placeholders::_2;
-    using std::placeholders::_3;
-    using std::placeholders::_4;
-    
-    _io->set_connect_listener(std::bind(&OnConnected, (__bridge CFTypeRef)self));
-    _io->set_fail_listener(std::bind(&OnFailed, (__bridge CFTypeRef)self));
-    _io->set_close_listener(std::bind(&OnClose, (__bridge CFTypeRef)self,_1));
-    
-    _io->bind_event("new message", std::bind(&OnNewMessage, (__bridge CFTypeRef)self, _1,_2,_3,_4));
-    _io->bind_event("typing", std::bind(&OnTyping, (__bridge CFTypeRef)self, _1,_2,_3,_4));
-    _io->bind_event("stop typing", std::bind(&OnStopTyping, (__bridge CFTypeRef)self, _1,_2,_3,_4));
-    _io->bind_event("user joined", std::bind(&OnUserJoined, (__bridge CFTypeRef)self, _1,_2,_3,_4));
-    _io->bind_event("user left", std::bind(&OnUserLeft, (__bridge CFTypeRef)self, _1,_2,_3,_4));
-    _io->bind_event("login", std::bind(&OnLogin, (__bridge CFTypeRef)self, _1,_2,_3,_4));
     
 }
 
@@ -217,8 +202,9 @@ void OnClose(CFTypeRef ctrl,sio::client::close_reason const& reason)
 
 -(void)viewDidDisappear:(BOOL)animated
 {
-    _io->clear_event_bindings();
-    _io->clear_con_listeners();
+    _io->socket()->all_off();
+    _io->socket()->set_connect_listener(nullptr);
+    _io->socket()->set_close_listener(nullptr);
     _io->close();
 }
 
@@ -291,7 +277,7 @@ void OnClose(CFTypeRef ctrl,sio::client::close_reason const& reason)
 
 - (IBAction)onSend:(id)sender {
     if ([_messageField.text length]>0 && [_name length]>0) {
-        _io->emit("new message",[_messageField.text UTF8String]);
+        _io->socket()->emit("new message",[_messageField.text UTF8String]);
         MessageItem *item = [[MessageItem alloc] init];
         
         item.flag = Message_You;
@@ -307,7 +293,7 @@ void OnClose(CFTypeRef ctrl,sio::client::close_reason const& reason)
 
 -(void)onConnected
 {
-    _io->emit("add user", [self.nickName.text UTF8String]);
+    _io->socket()->emit("add user", [self.nickName.text UTF8String]);
 }
 
 -(void)onDisconnected
@@ -315,9 +301,8 @@ void OnClose(CFTypeRef ctrl,sio::client::close_reason const& reason)
     if([self.loginPage superview] == nil)
     {
         [self.view addSubview:self.loginPage];
-        self.nickName.enabled = YES;
     }
-    
+    self.nickName.enabled = YES;
     
     [[NSNotificationCenter defaultCenter] removeObserver:self
                                                     name:UIKeyboardWillShowNotification
@@ -393,7 +378,7 @@ void OnClose(CFTypeRef ctrl,sio::client::close_reason const& reason)
 {
     if(textField == self.messageField)
     {
-        _io->emit("typing", "");
+        _io->socket()->emit("typing", "");
     }
 }
 
@@ -401,7 +386,7 @@ void OnClose(CFTypeRef ctrl,sio::client::close_reason const& reason)
 {
     if(textField == self.messageField)
     {
-        _io->emit("stop typing", "");
+        _io->socket()->emit("stop typing", "");
     }
 }
 
@@ -409,6 +394,21 @@ void OnClose(CFTypeRef ctrl,sio::client::close_reason const& reason)
 {
     if (textField == self.nickName) {
         if ([self.nickName.text length] > 0) {
+            
+            using std::placeholders::_1;
+            using std::placeholders::_2;
+            using std::placeholders::_3;
+            using std::placeholders::_4;
+            socket::ptr socket = _io->socket();
+            socket->set_connect_listener(std::bind(&OnConnected, (__bridge CFTypeRef)self));
+            socket->set_close_listener(std::bind(&OnFailed, (__bridge CFTypeRef)self));
+            
+            socket->on("new message", std::bind(&OnNewMessage, (__bridge CFTypeRef)self, _1,_2,_3,_4));
+            socket->on("typing", std::bind(&OnTyping, (__bridge CFTypeRef)self, _1,_2,_3,_4));
+            socket->on("stop typing", std::bind(&OnStopTyping, (__bridge CFTypeRef)self, _1,_2,_3,_4));
+            socket->on("user joined", std::bind(&OnUserJoined, (__bridge CFTypeRef)self, _1,_2,_3,_4));
+            socket->on("user left", std::bind(&OnUserLeft, (__bridge CFTypeRef)self, _1,_2,_3,_4));
+            socket->on("login", std::bind(&OnLogin, (__bridge CFTypeRef)self, _1,_2,_3,_4));
             _io->connect("ws://localhost:3000");
             self.nickName.enabled = NO;
         }

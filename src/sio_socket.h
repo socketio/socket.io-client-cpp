@@ -49,6 +49,8 @@ public:
     typedef std::function<void(message::ptr const& message)> error_listener;
 
     typedef std::function<void(void)> con_listener;
+    
+    typedef std::shared_ptr<socket> ptr;
 
     socket(client_impl*,std::string const&);
    
@@ -85,8 +87,6 @@ public:
     
 protected:
     void on_connected();
-    
-    void on_drop();
     
     void on_close();
     

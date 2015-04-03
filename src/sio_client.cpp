@@ -56,6 +56,11 @@ namespace sio
         m_impl->reconnect(uri);
     }
     
+    socket::ptr const& client::socket(const std::string& nsp)
+    {
+        return m_impl->socket(nsp);
+    }
+    
     // Closes the connection
     void client::close()
     {

@@ -29,7 +29,6 @@ namespace sio {
         
         typedef std::function<bool(event& ev)> event_filter;
         
-        typedef std::shared_ptr<socket> socket_ptr;
         
         client();
         ~client();
@@ -48,7 +47,7 @@ namespace sio {
         
         void reconnect(const std::string& uri);
         
-        socket_ptr const& socket(const std::string& nsp = "");
+        socket::ptr const& socket(const std::string& nsp = "");
         
         // Closes the connection
         void close();
