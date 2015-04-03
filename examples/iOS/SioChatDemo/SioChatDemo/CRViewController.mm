@@ -202,7 +202,7 @@ void OnClose(CFTypeRef ctrl,sio::client::close_reason const& reason)
 
 -(void)viewDidDisappear:(BOOL)animated
 {
-    _io->socket()->all_off();
+    _io->socket()->off_all();
     _io->socket()->set_connect_listener(nullptr);
     _io->socket()->set_close_listener(nullptr);
     _io->close();

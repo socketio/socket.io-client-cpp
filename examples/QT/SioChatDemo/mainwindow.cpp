@@ -28,7 +28,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-    _io->socket()->all_off();
+    _io->socket()->off_all();
     _io->socket()->clear_listeners();
     delete ui;
 }

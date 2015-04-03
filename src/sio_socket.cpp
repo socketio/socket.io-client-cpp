@@ -111,7 +111,7 @@ namespace sio {
             }
         }
         
-        void all_off()
+        void off_all()
         {
             m_event_binding.clear();
         }
@@ -500,9 +500,9 @@ void set_##__FIELD__(__TYPE__ const& l) \
         m_impl->off(event_name);
     }
     
-    void socket::all_off()
+    void socket::off_all()
     {
-        m_impl->all_off();
+        m_impl->off_all();
     }
     
     void socket::close()

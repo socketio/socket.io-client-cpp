@@ -60,7 +60,7 @@ namespace sio
         
         void off(std::string const& event_name);
         
-        void all_off();
+        void off_all();
         
         void close();
         
