@@ -23,12 +23,26 @@ By virtue of being written in C++, this client works in several different platfo
 5. Use `message` and its derived classes to compose complex text/binary messages.
 
 ## API
+### *Overview*
+There're just 3 roles in this library - `socket`,`client` and `message`.
 
-### Constructors
+`client` is for physical connection while `socket` is for "namespace"(which is like a logical channel), which means one `socket` paired with one namespace, and one `client` paired with one physical connection.
 
-`client()` default constructor.
+Since a physical connection can have multiple namespaces (which is called multiplex), a `client` object may have multiple `socket` objects, each is bind to a distinct `namespace`.
 
-### Event Emitter
+Use `client` to setup the connection to the server, manange the connection status, also session id for the connection.
+
+Use `socket` to send messages under namespace and receives messages in the namespace, also handle special types of message. 
+
+The `message` is just about the content you want to send, with text,binary or structured combinations.
+
+### *Socket*
+#### Constructors
+Sockets are all managed by `client`, no public constructors.
+
+You can get it's pointer by `client.socket(namespace)`.
+
+#### Event Emitter
 `void emit(std::string const& name, std::string const& message)`
 
 `void emit(std::string const& name, std::string const& message, std::function<void (message::ptr const&)> const& ack)`
@@ -47,34 +61,29 @@ Emit a `message` (explained below) object, along with event's name and a optiona
 
 Emit a single binary buffer, along with event's name and a optional ack callback function if you need server ack.
 
-### Event Bindings
-`void bind_event(std::string const& event_name,event_listener const& func)`
+#### Event Bindings
+`void on(std::string const& event_name,event_listener const& func)`
 
-`void bind_event(std::string const& event_name,event_listener_aux const& func)`
+`void on(std::string const& event_name,event_listener_aux const& func)`
 
 Bind a callback to specified event name. Same as `socket.on()` function in JS, `event_listener` is for full content event object,`event_listener_aux` is for convinience.
 
-`void unbind_event(std::string const& event_name)`
+`void off(std::string const& event_name)`
 
 Unbind the event callback with specified name.
 
-`void clear_event_bindings()` 
+`void off_all()` 
 
 Clear all event bindings.
-
-`void set_default_event_listener(event_listener const& l)`
-
-`void set_default_event_listener(event_listener_aux const& l)`
-
-Set a default event handler for events with no binding functions.
 
 `void set_error_listener(error_listener const& l)`
 
 Set the error handler for socket.io error messages.
 
 ```C++
-//event object:
-class event
+
+    //event object:
+    class event
     {
     public:
         const std::string& get_nsp() const;
@@ -90,23 +99,46 @@ class event
         message::ptr const& get_ack_message() const;
        ...
     };
-//event listener declare:
-typedef std::function<void(const std::string& name,message::ptr const& message,bool need_ack, message::ptr& ack_message)> event_listener_aux;
-        
-typedef std::function<void(event& event)> event_listener;
+    //event listener declare:
+    typedef std::function<void(const std::string& name,message::ptr const& message,bool need_ack, message::ptr& ack_message)> event_listener_aux;
+            
+    typedef std::function<void(event& event)> event_listener;
 
-typedef std::function<void(message::ptr const& message)> error_listener;
+    typedef std::function<void(message::ptr const& message)> error_listener;
 
 ```
 
-### Connection Listeners
+#### Listeners
+`void set_connect_listener(con_listener const& l)`
+
+Set listener for connect event, called when server notify socket is joined the namespace.
+
+`void set_close_listener(con_listener const& l)`
+
+Set listener for close event, called when server notify socket is kicked from namespace. `socket` object will be destroyed after close event.
+
+#### Connect and close socket
+`connect` will happen for existing `socket`s automatically when `client` have opened up the physical connection.
+
+`socket` opened with connected `client` will connect to its namespace immediately.
+
+`void close()`
+
+Positively disconnect from namespace.
+
+#### Get name of namespace
+`std::string const& get_namespace() const`
+
+Get current namespace name which the client is inside.
+
+### *Client*
+#### Constructors
+`client()` default constructor.
+
+#### Connection Listeners
 `void set_open_listener(con_listener const& l)`
 
 Call when websocket is open, especially means good connectivity.
-
-`void set_connect_listener(con_listener const& l)`
-
-Call when socket.io `connect` message is received, ready to send socket.io messages.
 
 `void set_fail_listener(con_listener const& l)`
 
@@ -127,7 +159,7 @@ typedef std::function<void(void)> con_listener;
         
 typedef std::function<void(close_reason const& reason)> close_listener;
 ```
-### Connect and Close
+#### Connect and Close
 `void connect(const std::string& uri)`
 
 Connect to socket.io server, eg. `client.connect("ws://localhost:3000");`
@@ -144,25 +176,21 @@ Close the client, return immediately.
 
 Close the client, return until it is really closed.
 
-`bool connected() const`
+`bool opened() const`
 
-Check if client is connected.
+Check if client's connection is opened.
 
-### Namespace
-`void connect(const std::string& uri)`
+#### Namespace
+`socket::ptr socket(std::string const& nsp)`
 
-Add namespace part `/[any namespaces]` after port, will automatically connect to the namespace you specified.
+Get a pointer to a socket which is paired with the specified namespace.
 
-`std::string const& get_namespace() const`
-
-Get current namespace which the client is inside.
-
-### Session ID
+#### Session ID
 `std::string const& get_sessionid() const`
 
 Get socket.io session id.
 
-### Message Object
+### *Message*
 `message` Base class of all message object.
 
 `int_message` message contains a 64-bit integer.
@@ -179,106 +207,31 @@ Get socket.io session id.
 
 All designated constructor of `message` objects is hidden, you need to create message and get the `message::ptr` by `[derived]_message:create()`.
 
-##Example
+## Boost setup
+* Download boost from [boost.org](http://www.boost.org/).
 
-Simple Console client Login to socket.io [chat room demo](https://github.com/Automattic/socket.io/tree/master/examples/chat).
-Find full example file [here](https://github.com/socketio/socket.io-client-cpp/blob/master/examples/Console/main.cpp)
-```C++
-#define HIGHLIGHT(__O__) std::cout<<"\e[1;31m"<<__O__<<"\e[0m"<<std::endl
-#define EM(__O__) std::cout<<"\e[1;30;1m"<<__O__<<"\e[0m"<<std::endl
-#include <functional>
-#include <iostream>
-#include <mutex>
-#include <condition_variable>
-#include <string>
-using namespace sio;
-using namespace std;
-std::mutex _lock;
+* Unpack boost to some place.
 
-std::condition_variable_any _cond;
-bool connect_finish = false;
+* Run either .\bootstrap.bat (on Windows), or ./bootstrap.sh (on other operating systems) under boost folder.
 
-class connection_listener
-{
-    sio::client &handler;
+## Boost build (Build the necessary subset only)
 
-public:
-    
-    connection_listener(sio::client& h):
-    handler(h)
-    {
-    }
-    
+#### Windows:
+Run with following script will build the necessary subset:
 
-    void on_connected()
-    {
-        _lock.lock();
-        _cond.notify_all();
-        connect_finish = true;
-        _lock.unlock();
-    }
-    void on_close(client::close_reason const& reason)
-    {
-        std::cout<<"sio closed "<<std::endl;
-        exit(0);
-    }
-    
-    void on_fail()
-    {
-        std::cout<<"sio failed "<<std::endl;
-        exit(0);
-    }
-};
-
-int main(int argc ,const char* args[])
-{
-
-    sio::client h;
-    connection_listener l(h);
-    h.set_connect_listener(std::bind(&connection_listener::on_connected, &l));
-    h.set_close_listener(std::bind(&connection_listener::on_close, &l,std::placeholders::_1));
-    h.set_fail_listener(std::bind(&connection_listener::on_fail, &l));
-    h.connect("http://127.0.0.1:3000");
-    _lock.lock();
-    if(!connect_finish)
-    {
-        _cond.wait(_lock);
-    }
-    _lock.unlock();
-    string nickname;
-    while (nickname.length() == 0) {
-        HIGHLIGHT("Type your nickname:");
-        
-        getline(cin, nickname);
-    }
-    h.bind_event("login", [&](string const& name, message::ptr const& data, bool isAck,message::ptr &ack_resp){
-        _lock.lock();
-        participants = data->get_map()["numUsers"]->get_int();
-        bool plural = participants !=1;
-        HIGHLIGHT("Welcome to Socket.IO Chat-\nthere"<<(plural?" are ":"'s ")<< participants<<(plural?" participants":" participant"));
-        _cond.notify_all();
-        _lock.unlock();
-        h.unbind_event("login");
-    });
-}
+```bash
+bjam stage --toolset=msvc --with-system --with-date_time --with-random --stagedir="release" link=static runtime-link=shared threading=multi release
 ```
-## Boost build instructions(Build the necessary subset only)
-1. Download boost from [boost.org](http://www.boost.org/).(suppose we downloaded boost 1.55.0)
-2. Unpack boost to some place.(such as D:\boost_1_55_0)
-3. Run either .\bootstrap.bat (on Windows), or ./bootstrap.sh (on other operating systems) under boost folder(D:\boost_1_55_0).
-4. Run ./b2 install --prefix=PREFIX
-where PREFIX is a directory where you want Boost.Build to be installed.
-5. Optionally, add PREFIX/bin to your PATH environment variable.
-6. Build needed boost modules, with following command line as an example:
+Optionally You can merge all output .lib files into a fat one, in output folder, run:
 
-For Windows:
-```shell
-bjam stage --toolset=msvc --with-system --with-date_time --with-thread --with-regex --with-serialization --with-random --stagedir="release" link=static runtime-link=shared threading=multi release
+```bash
+lib.exe /OUT:boost.lib *
 ```
-For iOS and OSX
+
+#### iOS and OSX
 Use this [shell](https://github.com/socketio/socket.io-client-cpp/blob/master/examples/iOS/SioChatDemo/boost/boost.sh) to download and build boost completely automattically.
 
-Finally, Add boost source folder to `header search path`, and add static libs to link option.
+#### Add boost source folder to your `header search path`, and add static libs to link option.
 
 ##License
 BSD
