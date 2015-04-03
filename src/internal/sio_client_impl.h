@@ -19,43 +19,50 @@ typedef websocketpp::config::debug_asio client_config;
 #include <websocketpp/config/asio_no_tls_client.hpp>
 typedef websocketpp::config::asio_client client_config;
 #endif
+#include <boost/asio/deadline_timer.hpp>
 
 #include <memory>
 #include <map>
 #include <queue>
 #include <thread>
-#include <sio_socket.h>
-
+#include "../sio_client.h"
+#include "../sio_packet.h"
 
 namespace sio
 {
+    using namespace websocketpp;
+    
     typedef websocketpp::client<client_config> client_type;
 
-    class client::impl {
+    class client_impl {
+   
     protected:
-        impl();
+        enum con_state
+        {
+            con_opening,
+            con_opened,
+            con_closing,
+            con_closed
+        };
+        
+        client_impl();
 
-        ~impl();
+        ~client_impl();
 
         //set listeners and event bindings.
 #define SYNTHESIS_SETTER(__TYPE__,__FIELD__) \
 void set_##__FIELD__(__TYPE__ const& l) \
 { m_##__FIELD__ = l;}
 
-        SYNTHESIS_SETTER(con_listener,open_listener)
+        SYNTHESIS_SETTER(client::con_listener,open_listener)
 
-        SYNTHESIS_SETTER(con_listener,fail_listener)
+        SYNTHESIS_SETTER(client::con_listener,fail_listener)
 
-        SYNTHESIS_SETTER(close_listener,close_listener)
+        SYNTHESIS_SETTER(client::close_listener,close_listener)
 
-        SYNTHESIS_SETTER(event_listener, default_event_listener)
 #undef SYNTHESIS_SETTER
 
-        void clear_socketio_listeners()
-        {
-            m_default_event_listener = nullptr;
-        }
-
+        
         void clear_con_listeners()
         {
             m_open_listener = nullptr;
@@ -64,31 +71,30 @@ void set_##__FIELD__(__TYPE__ const& l) \
         }
 
         // Client Functions - such as send, etc.
-
-        std::shared_ptr<sio::socket> socket(const std::string& namespace);
-
         void connect(const std::string& uri);
 
         void reconnect(const std::string& uri);
+        
+        client::socket_ptr const& socket(const std::string& nsp);
 
         // Closes the connection
         void close();
 
         void sync_close();
 
-        bool connected() const { return m_connected; }
+        bool opened() const { return m_con_state == con_opened; }
 
         std::string const& get_sessionid() const { return m_sid; }
 
         friend class client;
     protected:
-        void send(packet const& packet);
+        void send(packet& p);
 
         void remove_socket(std::string const& nsp);
+        
+        boost::asio::io_service& get_io_service();
 
     private:
-        void send(std::shared_ptr<const std::string> const& payload_ptr,frame::opcode::value opcode);
-
         void __close(close::status::value const& code,std::string const& reason);
 
         void __connect(const std::string& uri);
@@ -101,6 +107,10 @@ void set_##__FIELD__(__TYPE__ const& l) \
         void __timeout_pong(const boost::system::error_code& ec);
 
         void __timeout_connection(const boost::system::error_code& ec);
+        
+        client::socket_ptr const& get_socket_locked(std::string const& nsp);
+
+        void sockets_invoke_void(void (sio::socket::*fn)(void));
 
         void run_loop();
 
@@ -146,12 +156,17 @@ void set_##__FIELD__(__TYPE__ const& l) \
 
         std::unique_ptr<boost::asio::deadline_timer> m_ping_timeout_timer;
 
+        con_state m_con_state;
 
-        con_listener m_open_listener;
-        con_listener m_fail_listener;
-        close_listener m_close_listener;
-
-        event_listener m_default_event_listener;
+        client::con_listener m_open_listener;
+        client::con_listener m_fail_listener;
+        client::close_listener m_close_listener;
+        
+        std::map<const std::string,client::socket_ptr> m_sockets;
+        
+        std::mutex m_socket_mutex;
+    
+        friend class sio::client;
         friend class sio::socket;
     };
 }

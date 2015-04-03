@@ -1,6 +1,7 @@
 #ifndef SIO_SOCKET_H
 #define SIO_SOCKET_H
-#include "internal/sio_client_impl.h"
+#include "sio_message.h"
+#include <functional>
 namespace sio
 {
 class event_adapter;
@@ -35,6 +36,9 @@ private:
     friend class event_adapter;
 };
 
+    class client_impl;
+    class packet;
+    
 class socket
 {
 public:
@@ -46,17 +50,23 @@ public:
 
     typedef std::function<void(void)> con_listener;
 
-    socket();
+    socket(client_impl*,std::string const&);
+   
     ~socket();
 
-    void bind_event(std::string const& event_name,event_listener const& func);
+    void on(std::string const& event_name,event_listener const& func);
 
-    void unbind_event(std::string const& event_name);
+    void on(std::string const& event_name,event_listener_aux const& func);
+    
+    void off(std::string const& event_name);
 
-    void clear_event_bindings();
+    void all_off();
+    
+    void close();
 
-
-    void set_connect_listener(con_listener const& l) ;
+    void set_connect_listener(con_listener const& l);
+    void set_close_listener(con_listener const& l);
+    
     void set_error_listener(error_listener const& l);
 
     void emit(std::string const& name, std::string const& message);
@@ -70,6 +80,21 @@ public:
     void emit(std::string const& name, std::shared_ptr<const std::string> const& binary_ptr);
 
     void emit(std::string const& name, std::shared_ptr<const std::string> const& binary_ptr, std::function<void (message::ptr const&)> const& ack);
+    
+    std::string const& get_namespace() const;
+    
+protected:
+    void on_connected();
+    
+    void on_drop();
+    
+    void on_close();
+    
+    void on_open();
+    
+    void on_message_packet(packet const& p);
+
+    friend class client_impl;
 
 private:
     class impl;

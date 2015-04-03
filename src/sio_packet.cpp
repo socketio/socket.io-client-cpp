@@ -264,6 +264,7 @@ namespace sio
         size_t nsp_json_pos = payload_ptr.find_first_of("{[\"/",pos,4);
         if(nsp_json_pos==string::npos)//no namespace and no message,the end.
         {
+            _nsp = "/";
             return false;
         }
         size_t json_pos = nsp_json_pos;
@@ -287,6 +288,10 @@ namespace sio
                     return false;
                 }
             }
+        }
+        else
+        {
+            _nsp = "/";
         }
 
         if(pos<json_pos)//we've got pack id.
