@@ -52,8 +52,6 @@ namespace sio
         
         typedef std::shared_ptr<socket> ptr;
         
-        socket(client_impl*,std::string const&);
-        
         ~socket();
         
         void on(std::string const& event_name,event_listener const& func);
@@ -88,6 +86,8 @@ namespace sio
         std::string const& get_namespace() const;
         
     protected:
+        socket(client_impl*,std::string const&);
+
         void on_connected();
         
         void on_close();
@@ -99,6 +99,10 @@ namespace sio
         friend class client_impl;
         
     private:
+        //disable copy constructor and assign operator.
+        socket(socket const& sock){}
+        void operator=(socket const& sock){}
+
         class impl;
         impl *m_impl;
     };

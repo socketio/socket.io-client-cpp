@@ -433,7 +433,7 @@ namespace sio {
         }
         else
         {
-            std::pair<const std::string, socket::ptr> p(aux,std::make_shared<sio::socket>(this,aux));
+            std::pair<const std::string, socket::ptr> p(aux,std::shared_ptr<sio::socket>(new sio::socket(this,aux)));
             return (m_sockets.insert(p).first)->second;
         }
     }

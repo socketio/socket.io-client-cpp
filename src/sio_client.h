@@ -56,6 +56,10 @@ namespace sio {
         std::string const& get_sessionid() const;
         
     private:
+        //disable copy constructor and assign operator.
+        client(client const& cl){}
+        void operator=(client const& cl){}
+        
         client_impl* m_impl;
     };
     
