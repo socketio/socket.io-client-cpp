@@ -50,6 +50,7 @@ namespace sio {
     
     client_impl::~client_impl()
     {
+        this->sockets_invoke_void(&sio::socket::on_close);
         sync_close();
     }
     
@@ -58,11 +59,10 @@ namespace sio {
     {
         m_con.reset();
         m_con_state = con_closed;
-        this->sockets_invoke_void(&sio::socket::on_close);
+        this->sockets_invoke_void(&sio::socket::on_disconnect);
         LOG("Connection failed." << std::endl);
         if(m_fail_listener)m_fail_listener();
     }
-    
     
     void client_impl::on_pong()
     {
@@ -147,12 +147,12 @@ namespace sio {
         client::close_reason reason;
         if(code == close::status::normal)
         {
-            this->sockets_invoke_void(&sio::socket::on_close);
+            this->sockets_invoke_void(&sio::socket::on_disconnect);
             reason = client::close_reason_normal;
         }
         else
         {
-            this->sockets_invoke_void(&sio::socket::on_close);
+            this->sockets_invoke_void(&sio::socket::on_disconnect);
             reason = client::close_reason_drop;
         }
         

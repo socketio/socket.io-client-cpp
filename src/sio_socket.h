@@ -65,6 +65,7 @@ namespace sio
         void close();
         
         void set_connect_listener(con_listener const& l);
+        
         void set_close_listener(con_listener const& l);
         
         void set_error_listener(error_listener const& l);
@@ -93,6 +94,8 @@ namespace sio
         void on_close();
         
         void on_open();
+        
+        void on_disconnect();
         
         void on_message_packet(packet const& p);
         

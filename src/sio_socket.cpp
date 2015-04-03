@@ -124,6 +124,7 @@ void set_##__FIELD__(__TYPE__ const& l) \
         SYNTHESIS_SETTER(error_listener, error_listener) //socket io errors
         
         SYNTHESIS_SETTER(con_listener, close_listener) //socket io errors
+        
 #undef SYNTHESIS_SETTER
         
         void clear_listeners()
@@ -157,6 +158,8 @@ void set_##__FIELD__(__TYPE__ const& l) \
         void on_open();
         
         void on_message_packet(packet const& packet);
+        
+        void on_disconnect();
         
     private:
         
@@ -282,6 +285,14 @@ void set_##__FIELD__(__TYPE__ const& l) \
         {
             packet p(packet::type_disconnect,m_nsp);
             __send_packet(p);
+            
+            if(!m_connection_timer)
+            {
+                m_connection_timer.reset(new boost::asio::deadline_timer(m_client->get_io_service()));
+            }
+            boost::system::error_code ec;
+            m_connection_timer->expires_from_now(boost::posix_time::milliseconds(3000), ec);
+            m_connection_timer->async_wait(lib::bind(&socket::impl::on_close, this));
         }
     }
     
@@ -329,6 +340,18 @@ void set_##__FIELD__(__TYPE__ const& l) \
     void socket::impl::on_open()
     {
         __send_connect();
+    }
+    
+    void socket::impl::on_disconnect()
+    {
+        NULL_GUARD(m_client);
+        if(m_connected)
+        {
+            m_connected = false;
+            while (!m_packet_queue.empty()) {
+                m_packet_queue.pop();
+            }
+        }
     }
     
     void socket::impl::on_message_packet(packet const& p)
@@ -455,7 +478,7 @@ void set_##__FIELD__(__TYPE__ const& l) \
         }
         m_connection_timer.reset();
         LOG("Connection timeout"<<std::endl);
-        this->on_close();
+        this->on_disconnect();
     }
     
     void socket::impl::__send_packet(sio::packet &p)
@@ -582,6 +605,11 @@ void set_##__FIELD__(__TYPE__ const& l) \
     void socket::on_message_packet(packet const& p)
     {
         m_impl->on_message_packet(p);
+    }
+    
+    void socket::on_disconnect()
+    {
+        m_impl->on_disconnect();
     }
 }
 

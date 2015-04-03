@@ -181,7 +181,8 @@ void OnClose(CFTypeRef ctrl,sio::client::close_reason const& reason)
 
 -(void)viewWillAppear:(BOOL)animated
 {
-    
+    _io->set_close_listener(std::bind(&OnClose, (__bridge CFTypeRef)self, std::placeholders::_1));
+    _io->set_fail_listener(std::bind(&OnFailed, (__bridge CFTypeRef)self));
 }
 
 -(void)keyboardWillShow:(NSNotification*)notification
@@ -401,7 +402,6 @@ void OnClose(CFTypeRef ctrl,sio::client::close_reason const& reason)
             using std::placeholders::_4;
             socket::ptr socket = _io->socket();
             socket->set_connect_listener(std::bind(&OnConnected, (__bridge CFTypeRef)self));
-            socket->set_close_listener(std::bind(&OnFailed, (__bridge CFTypeRef)self));
             
             socket->on("new message", std::bind(&OnNewMessage, (__bridge CFTypeRef)self, _1,_2,_3,_4));
             socket->on("typing", std::bind(&OnTyping, (__bridge CFTypeRef)self, _1,_2,_3,_4));
