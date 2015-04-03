@@ -3,6 +3,7 @@
 #include "internal/sio_client_impl.h"
 #include <boost/asio/deadline_timer.hpp>
 #include <boost/system/error_code.hpp>
+#include <queue>
 
 #if DEBUG || _DEBUG
 #define LOG(x) std::cout << x
@@ -125,8 +126,13 @@ void set_##__FIELD__(__TYPE__ const& l) \
         SYNTHESIS_SETTER(con_listener, close_listener) //socket io errors
 #undef SYNTHESIS_SETTER
         
-        void connect();
-        
+        void clear_listeners()
+        {
+            m_error_listener = nullptr;
+            m_connect_listener = nullptr;
+            m_close_listener = nullptr;
+        }
+
         void close();
         
         void emit(std::string const& name, std::string const& message);
@@ -165,6 +171,8 @@ void set_##__FIELD__(__TYPE__ const& l) \
         
         void __send_connect();
         
+        void __send_packet(packet& p);
+        
         static unsigned int s_global_event_id;
         
         sio::client_impl *m_client;
@@ -172,7 +180,6 @@ void set_##__FIELD__(__TYPE__ const& l) \
         bool m_connected;
         std::string m_nsp;
         
-        // Currently we assume websocket as the transport, though you can find others in this string
         std::map<unsigned int, std::function<void (message::ptr const&)> > m_acks;
         
         std::map<std::string, event_listener> m_event_binding;
@@ -184,6 +191,8 @@ void set_##__FIELD__(__TYPE__ const& l) \
         error_listener m_error_listener;
         
         std::unique_ptr<boost::asio::deadline_timer> m_connection_timer;
+        
+        std::queue<packet> m_packet_queue;
         
         friend class socket;
     };
@@ -209,7 +218,7 @@ void set_##__FIELD__(__TYPE__ const& l) \
         NULL_GUARD(m_client);
         message::ptr msg_ptr = make_message(name, message);
         packet p(m_nsp, msg_ptr);
-        m_client->send(p);
+        __send_packet(p);
     }
     
     void socket::impl::emit(std::string const& name, std::string const& message, std::function<void (message::ptr const&)> const& ack)
@@ -218,7 +227,7 @@ void set_##__FIELD__(__TYPE__ const& l) \
         message::ptr msg_ptr = make_message(name, message);
         packet p(m_nsp, msg_ptr,s_global_event_id);
         m_acks[s_global_event_id++] = ack;
-        m_client->send(p);
+        __send_packet(p);
     }
     
     void socket::impl::emit(std::string const& name, message::ptr const& args)
@@ -226,7 +235,7 @@ void set_##__FIELD__(__TYPE__ const& l) \
         NULL_GUARD(m_client);
         message::ptr msg_ptr = make_message(name, args);
         packet p(m_nsp, msg_ptr);
-        m_client->send(p);
+        __send_packet(p);
     }
     
     void socket::impl::emit(std::string const& name, message::ptr const& args, std::function<void (message::ptr const&)> const& ack)
@@ -235,7 +244,7 @@ void set_##__FIELD__(__TYPE__ const& l) \
         message::ptr msg_ptr = make_message(name, args);
         packet p(m_nsp, msg_ptr,s_global_event_id);
         m_acks[s_global_event_id++] = ack;
-        m_client->send(p);
+        __send_packet(p);
     }
     
     void socket::impl::emit(std::string const& name, std::shared_ptr<const std::string> const& binary_ptr)
@@ -243,7 +252,7 @@ void set_##__FIELD__(__TYPE__ const& l) \
         NULL_GUARD(m_client);
         message::ptr msg_ptr = make_message(name, binary_ptr);
         packet p(m_nsp, msg_ptr);
-        m_client->send(p);
+        __send_packet(p);
     }
     
     void socket::impl::emit(std::string const& name, std::shared_ptr<const std::string> const& binary_ptr, std::function<void (message::ptr const&)> const& ack)
@@ -252,7 +261,7 @@ void set_##__FIELD__(__TYPE__ const& l) \
         message::ptr msg_ptr = make_message(name, binary_ptr);
         packet p(m_nsp, msg_ptr,s_global_event_id);
         m_acks[s_global_event_id++] = ack;
-        m_client->send(p);
+        __send_packet(p);
     }
     
     void socket::impl::__send_connect()
@@ -272,9 +281,7 @@ void set_##__FIELD__(__TYPE__ const& l) \
         if(m_connected)
         {
             packet p(packet::type_disconnect,m_nsp);
-            m_client->send(p);
-            m_connection_timer.reset(new boost::asio::deadline_timer(m_client->get_io_service()));
-            //            m_connection_timer->e
+            __send_packet(p);
         }
     }
     
@@ -292,13 +299,25 @@ void set_##__FIELD__(__TYPE__ const& l) \
             {
                 m_connect_listener();
             }
+            while (!m_packet_queue.empty()) {
+                m_client->send(m_packet_queue.front());
+                m_packet_queue.pop();
+            }
         }
     }
     
     void socket::impl::on_close()
     {
         NULL_GUARD(m_client);
+        if(m_connection_timer)
+        {
+            m_connection_timer->cancel();
+            m_connection_timer.reset();
+        }
         m_connected = false;
+        while (!m_packet_queue.empty()) {
+            m_packet_queue.pop();
+        }
         m_client->remove_socket(m_nsp);
         m_client = NULL;
         if(m_close_listener)
@@ -409,7 +428,7 @@ void set_##__FIELD__(__TYPE__ const& l) \
     void socket::impl::__ack(int msgId, const string &name, const message::ptr &ack_message)
     {
         packet p(m_nsp, make_message(name, ack_message),msgId,true);
-        m_client->send(p);
+        __send_packet(p);
     }
     
     void socket::impl::on_socketio_ack(int msgId, message::ptr const& message)
@@ -439,6 +458,22 @@ void set_##__FIELD__(__TYPE__ const& l) \
         this->on_close();
     }
     
+    void socket::impl::__send_packet(sio::packet &p)
+    {
+        NULL_GUARD(m_client);
+        if(m_connected)
+        {
+            while (!m_packet_queue.empty()) {
+                m_client->send(m_packet_queue.front());
+                m_packet_queue.pop();
+            }
+            m_client->send(p);
+        }
+        else
+        {
+            m_packet_queue.push(p);
+        }
+    }
     
     socket::socket(client_impl* client,std::string const& nsp):
     m_impl(new impl(client,nsp))
@@ -489,6 +524,11 @@ void set_##__FIELD__(__TYPE__ const& l) \
         m_impl->set_error_listener(l);
     }
     
+    void socket::clear_listeners()
+    {
+        m_impl->clear_listeners();
+    }
+
     void socket::emit(std::string const& name, std::string const& message)
     {
         m_impl->emit(name, message);

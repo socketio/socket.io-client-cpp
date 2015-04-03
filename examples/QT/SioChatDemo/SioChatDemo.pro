@@ -18,11 +18,16 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     ../../../src/sio_client.cpp \
     ../../../src/sio_packet.cpp \
+    ../../../src/sio_socket.cpp \
+    ../../../src/internal/sio_client_impl.cpp \
     nicknamedialog.cpp
 
 HEADERS  += mainwindow.h \
         ../../../src/sio_client.h \
         ../../../src/sio_message.h \
+        ../../../src/sio_packet.h \
+        ../../../src/sio_socket.h \
+        ../../../src/internal/sio_client_impl.h \
     nicknamedialog.h
 
 FORMS    += mainwindow.ui \

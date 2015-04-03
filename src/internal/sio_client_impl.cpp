@@ -158,7 +158,7 @@ namespace sio {
         
         if(m_close_listener)
         {
-           
+            
             m_close_listener(reason);
         }
     }
@@ -314,18 +314,7 @@ namespace sio {
                 m_ping_timer->expires_from_now(milliseconds(m_ping_interval),timeout_ec);
                 m_ping_timer->async_wait(lib::bind(&client_impl::__ping,this,lib::placeholders::_1));
             }
-            while(m_message_queue.size()>0)
-            {
-                message_queue_element element = m_message_queue.front();
-                m_message_queue.pop();
-                m_client.send(m_con,*(element.payload_ptr),element.opcode);
-            }
             m_client.send(m_con,*payload_ptr,opcode);
-        }
-        else
-        {
-            message_queue_element element = INTIALIZER(message_queue_element){opcode,payload_ptr};
-            m_message_queue.push(element);
         }
     }
     
@@ -380,11 +369,6 @@ namespace sio {
         m_client.reset();
         m_sid.clear();
         m_packet_mgr.reset();
-        //clear all queued messages.
-        while(!m_message_queue.empty())
-        {
-            m_message_queue.pop();
-        }
     }
     
     void client_impl::connect(const std::string& uri)
@@ -408,7 +392,7 @@ namespace sio {
         this->reset_states();
         m_client.get_io_service().dispatch(lib::bind(&client_impl::__connect,this,uri));
         m_network_thread.reset(new std::thread(lib::bind(&client_impl::run_loop,this)));//uri lifecycle?
-
+        
     }
     
     void client_impl::reconnect(const std::string& uri)

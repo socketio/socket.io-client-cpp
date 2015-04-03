@@ -7,12 +7,12 @@
 #define BIND_EVENT(IO,EV,FN) \
     do{ \
         client::event_listener_aux l = FN;\
-        IO->bind_event(EV,l);\
+        IO->on(EV,l);\
     } while(0)
 
 #else
 #define BIND_EVENT(IO,EV,FN) \
-    IO->bind_event(EV,FN)
+    IO->on(EV,FN)
 #endif
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -22,28 +22,14 @@ MainWindow::MainWindow(QWidget *parent) :
     m_dialog()
 {
     ui->setupUi(this);
-    using std::placeholders::_1;
-    using std::placeholders::_2;
-    using std::placeholders::_3;
-    using std::placeholders::_4;
-    BIND_EVENT(_io,"new message",std::bind(&MainWindow::OnNewMessage,this,_1,_2,_3,_4));
-    BIND_EVENT(_io,"user joined",std::bind(&MainWindow::OnUserJoined,this,_1,_2,_3,_4));
-    BIND_EVENT(_io,"user left",std::bind(&MainWindow::OnUserLeft,this,_1,_2,_3,_4));
-    BIND_EVENT(_io,"typing",std::bind(&MainWindow::OnTyping,this,_1,_2,_3,_4));
-    BIND_EVENT(_io,"stop typing",std::bind(&MainWindow::OnStopTyping,this,_1,_2,_3,_4));
-    BIND_EVENT(_io,"login",std::bind(&MainWindow::OnLogin,this,_1,_2,_3,_4));
-    _io->set_connect_listener(std::bind(&MainWindow::OnConnected,this));
-    _io->set_fail_listener(std::bind(&MainWindow::OnFailed,this));
-    _io->set_close_listener(std::bind(&MainWindow::OnClosed,this,_1));
-
     connect(this,SIGNAL(RequestAddListItem(QListWidgetItem*)),this,SLOT(AddListItem(QListWidgetItem*)));
     connect(this,SIGNAL(RequestToggleInputs(bool)),this,SLOT(ToggleInputs(bool)));
 }
 
 MainWindow::~MainWindow()
 {
-    _io->clear_event_bindings();
-    _io->clear_con_listeners();
+    _io->socket()->all_off();
+    _io->socket()->clear_listeners();
     delete ui;
 }
 
@@ -55,7 +41,7 @@ void MainWindow::SendBtnClicked()
     {
         QByteArray bytes = text.toUtf8();
         std::string msg(bytes.data(),bytes.length());
-        _io->emit("new message",msg);
+        _io->socket()->emit("new message",msg);
         text.append(":You");
         QListWidgetItem *item = new QListWidgetItem(text);
         item->setTextAlignment(Qt::AlignRight);
@@ -86,7 +72,7 @@ void MainWindow::showEvent(QShowEvent *event)
 void MainWindow::TypingStop()
 {
     m_timer.reset();
-    _io->emit("stop typing","");
+    _io->socket()->emit("stop typing","");
 }
 
 void MainWindow::TypingChanged()
@@ -97,7 +83,7 @@ void MainWindow::TypingChanged()
     }
     else
     {
-        _io->emit("typing","");
+        _io->socket()->emit("typing","");
     }
     m_timer.reset(new QTimer(this));
     connect(m_timer.get(),SIGNAL(timeout()),this,SLOT(TypingStop()));
@@ -110,6 +96,20 @@ void MainWindow::NicknameAccept()
     m_name = m_dialog->getNickname();
     if(m_name.length()>0)
     {
+        using std::placeholders::_1;
+        using std::placeholders::_2;
+        using std::placeholders::_3;
+        using std::placeholders::_4;
+        socket::ptr sock = _io->socket();
+        BIND_EVENT(sock,"new message",std::bind(&MainWindow::OnNewMessage,this,_1,_2,_3,_4));
+        BIND_EVENT(sock,"user joined",std::bind(&MainWindow::OnUserJoined,this,_1,_2,_3,_4));
+        BIND_EVENT(sock,"user left",std::bind(&MainWindow::OnUserLeft,this,_1,_2,_3,_4));
+        BIND_EVENT(sock,"typing",std::bind(&MainWindow::OnTyping,this,_1,_2,_3,_4));
+        BIND_EVENT(sock,"stop typing",std::bind(&MainWindow::OnStopTyping,this,_1,_2,_3,_4));
+        BIND_EVENT(sock,"login",std::bind(&MainWindow::OnLogin,this,_1,_2,_3,_4));
+        sock->set_connect_listener(std::bind(&MainWindow::OnConnected,this));
+
+        sock->set_close_listener(std::bind(&MainWindow::OnFailed,this));
         _io->connect("ws://localhost:3000");
     }
 }
@@ -234,7 +234,7 @@ void MainWindow::OnConnected()
 {
     QByteArray bytes = m_name.toUtf8();
     std::string nickName(bytes.data(),bytes.length());
-    _io->emit("add user", nickName);
+    _io->socket()->emit("add user", nickName);
 }
 
 void MainWindow::OnClosed(client::close_reason const& reason)

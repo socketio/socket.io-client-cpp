@@ -27,9 +27,6 @@ namespace sio {
         
         typedef std::function<void(close_reason const& reason)> close_listener;
         
-        typedef std::function<bool(event& ev)> event_filter;
-        
-        
         client();
         ~client();
         
