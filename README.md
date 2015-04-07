@@ -155,11 +155,11 @@ typedef std::function<void(void)> con_listener;
 typedef std::function<void(close_reason const& reason)> close_listener;
 ```
 #### Socket listeners
-`void set_connect_listener(socket_listener const& l)`
+`void set_socket_open_listener(socket_listener const& l)`
 
 Set listener for socket connect event, called when any sockets being ready to send message.
 
-`void set_close_listener(socket_listener const& l)`
+`void set_socket_close_listener(socket_listener const& l)`
 
 Set listener for socket close event, called when any sockets being closed, afterward, corresponding `socket` object will be cleared from client.
 
