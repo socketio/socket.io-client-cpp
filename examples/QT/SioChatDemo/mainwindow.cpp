@@ -159,7 +159,7 @@ void MainWindow::OnUserJoined(std::string const& name,message::ptr const& data,b
         }
         digits.insert(0,QChar(numUser+'0'));
         label.append(digits);
-        label.append(plural?" participants":"participant");
+        label.append(plural?" participants":" participant");
         QListWidgetItem *item= new QListWidgetItem(label);
         item->setTextAlignment(Qt::AlignHCenter);
         QFont font;
