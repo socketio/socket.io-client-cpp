@@ -31,6 +31,7 @@ typedef enum MessageFlag
     NSMutableSet *_typingUsers;
     NSString* _name;
     NSInteger _userCount;
+    NSTimer* _inputTimer;
 }
 @property (weak, nonatomic) IBOutlet UILabel *infoLabel;
 @property (weak, nonatomic) IBOutlet UILabel *typingLabel;
@@ -139,7 +140,7 @@ void OnLogin(CFTypeRef ctrl, string const& name, sio::message::ptr const& data, 
     }
 }
 
-void OnConnected(CFTypeRef ctrl)
+void OnConnected(CFTypeRef ctrl,std::string nsp)
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         [((__bridge CRViewController*)ctrl) onConnected];
@@ -181,6 +182,7 @@ void OnClose(CFTypeRef ctrl,sio::client::close_reason const& reason)
 
 -(void)viewWillAppear:(BOOL)animated
 {
+    _io->set_socket_open_listener(std::bind(&OnConnected, (__bridge CFTypeRef)self,std::placeholders::_1));
     _io->set_close_listener(std::bind(&OnClose, (__bridge CFTypeRef)self, std::placeholders::_1));
     _io->set_fail_listener(std::bind(&OnFailed, (__bridge CFTypeRef)self));
 }
@@ -204,8 +206,8 @@ void OnClose(CFTypeRef ctrl,sio::client::close_reason const& reason)
 -(void)viewDidDisappear:(BOOL)animated
 {
     _io->socket()->off_all();
-    _io->socket()->set_connect_listener(nullptr);
-    _io->socket()->set_close_listener(nullptr);
+    _io->set_open_listener(nullptr);
+    _io->set_close_listener(nullptr);
     _io->close();
 }
 
@@ -336,6 +338,29 @@ void OnClose(CFTypeRef ctrl,sio::client::close_reason const& reason)
     }
 }
 
+-(void) inputTimeout
+{
+    _inputTimer = nil;
+    _io->socket()->emit("stop typing", "");
+}
+
+-(BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
+{
+    if(textField == self.messageField)
+    {
+        if(_inputTimer.valid)
+        {
+            [_inputTimer setFireDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
+        }
+        else
+        {
+            _io->socket()->emit("typing", "");
+            _inputTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(inputTimeout) userInfo:nil repeats:NO];
+        }
+    }
+    return YES;
+}
+
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     return [_receivedMessage count];
@@ -375,22 +400,6 @@ void OnClose(CFTypeRef ctrl,sio::client::close_reason const& reason)
     }
 }
 
--(void)textFieldDidBeginEditing:(UITextField *)textField
-{
-    if(textField == self.messageField)
-    {
-        _io->socket()->emit("typing", "");
-    }
-}
-
--(void)textFieldDidEndEditing:(UITextField *)textField
-{
-    if(textField == self.messageField)
-    {
-        _io->socket()->emit("stop typing", "");
-    }
-}
-
 -(BOOL)textFieldShouldReturn:(UITextField *)textField
 {
     if (textField == self.nickName) {
@@ -401,7 +410,6 @@ void OnClose(CFTypeRef ctrl,sio::client::close_reason const& reason)
             using std::placeholders::_3;
             using std::placeholders::_4;
             socket::ptr socket = _io->socket();
-            socket->set_connect_listener(std::bind(&OnConnected, (__bridge CFTypeRef)self));
             
             socket->on("new message", std::bind(&OnNewMessage, (__bridge CFTypeRef)self, _1,_2,_3,_4));
             socket->on("typing", std::bind(&OnTyping, (__bridge CFTypeRef)self, _1,_2,_3,_4));

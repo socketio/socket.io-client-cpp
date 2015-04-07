@@ -217,7 +217,10 @@ void set_##__FIELD__(__TYPE__ const& l) \
         m_error_listener = nullptr;
     }
     
-    socket::impl::impl(client_impl *client,std::string const& nsp):m_client(client),m_nsp(nsp)
+    socket::impl::impl(client_impl *client,std::string const& nsp):
+    m_client(client),
+    m_nsp(nsp),
+    m_connected(false)
     {
         NULL_GUARD(client);
         if(m_client->opened())
