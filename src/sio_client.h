@@ -27,6 +27,8 @@ namespace sio {
         
         typedef std::function<void(close_reason const& reason)> close_listener;
         
+        typedef std::function<void(std::string const& nsp)> socket_listener;
+        
         client();
         ~client();
         
@@ -37,7 +39,13 @@ namespace sio {
         
         void set_close_listener(close_listener const& l);
         
+        void set_socket_open_listener(socket_listener const& l);
+        
+        void set_socket_close_listener(socket_listener const& l);
+        
         void clear_con_listeners();
+        
+        void clear_socket_listeners();
         
         // Client Functions - such as send, etc.
         void connect(const std::string& uri);

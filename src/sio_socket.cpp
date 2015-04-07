@@ -119,21 +119,15 @@ namespace sio {
 #define SYNTHESIS_SETTER(__TYPE__,__FIELD__) \
 void set_##__FIELD__(__TYPE__ const& l) \
 { m_##__FIELD__ = l;}
-        SYNTHESIS_SETTER(con_listener,connect_listener)
         
         SYNTHESIS_SETTER(error_listener, error_listener) //socket io errors
         
-        SYNTHESIS_SETTER(con_listener, close_listener) //socket io errors
-        
 #undef SYNTHESIS_SETTER
         
-        void clear_listeners()
-        {
-            m_error_listener = nullptr;
-            m_connect_listener = nullptr;
-            m_close_listener = nullptr;
-        }
-
+        void on_error(error_listener const& l);
+        
+        void off_error();
+        
         void close();
         
         void emit(std::string const& name, std::string const& message);
@@ -187,10 +181,6 @@ void set_##__FIELD__(__TYPE__ const& l) \
         
         std::map<std::string, event_listener> m_event_binding;
         
-        con_listener m_connect_listener;
-        
-        con_listener m_close_listener;
-        
         error_listener m_error_listener;
         
         std::unique_ptr<boost::asio::deadline_timer> m_connection_timer;
@@ -199,6 +189,16 @@ void set_##__FIELD__(__TYPE__ const& l) \
         
         friend class socket;
     };
+    
+    void socket::impl::on_error(error_listener const& l)
+    {
+        m_error_listener = l;
+    }
+    
+    void socket::impl::off_error()
+    {
+        m_error_listener = nullptr;
+    }
     
     socket::impl::impl(client_impl *client,std::string const& nsp):m_client(client),m_nsp(nsp)
     {
@@ -306,10 +306,7 @@ void set_##__FIELD__(__TYPE__ const& l) \
         if(!m_connected)
         {
             m_connected = true;
-            if(m_connect_listener)
-            {
-                m_connect_listener();
-            }
+            m_client->on_socket_opened(m_nsp);
             while (!m_packet_queue.empty()) {
                 m_client->send(m_packet_queue.front());
                 m_packet_queue.pop();
@@ -329,12 +326,9 @@ void set_##__FIELD__(__TYPE__ const& l) \
         while (!m_packet_queue.empty()) {
             m_packet_queue.pop();
         }
+        m_client->on_socket_closed(m_nsp);
         m_client->remove_socket(m_nsp);
         m_client = NULL;
-        if(m_close_listener)
-        {
-            m_close_listener();
-        }
     }
     
     void socket::impl::on_open()
@@ -533,23 +527,14 @@ void set_##__FIELD__(__TYPE__ const& l) \
         m_impl->close();
     }
     
-    void socket::set_connect_listener(con_listener const& l)
+    void socket::on_error(error_listener const& l)
     {
-        m_impl->set_connect_listener(l);
-    }
-    void socket::set_close_listener(con_listener const& l)
-    {
-        m_impl->set_close_listener(l);
+        m_impl->on_error(l);
     }
     
-    void socket::set_error_listener(error_listener const& l)
+    void socket::off_error()
     {
-        m_impl->set_error_listener(l);
-    }
-    
-    void socket::clear_listeners()
-    {
-        m_impl->clear_listeners();
+        m_impl->off_error();
     }
 
     void socket::emit(std::string const& name, std::string const& message)

@@ -39,9 +39,25 @@ namespace sio
         m_impl->set_close_listener(l);
     }
     
+    
+    void client::set_socket_open_listener(socket_listener const& l)
+    {
+        m_impl->set_socket_open_listener(l);
+    }
+    
+    void client::set_socket_close_listener(socket_listener const& l)
+    {
+        m_impl->set_socket_close_listener(l);
+    }
+    
     void client::clear_con_listeners()
     {
         m_impl->clear_con_listeners();
+    }
+    
+    void client::clear_socket_listeners()
+    {
+        m_impl->clear_socket_listeners();
     }
     
     void client::connect(const std::string& uri)

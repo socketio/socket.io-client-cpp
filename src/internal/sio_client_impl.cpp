@@ -303,6 +303,16 @@ namespace sio {
         return m_client.get_io_service();
     }
     
+    void client_impl::on_socket_closed(std::string const& nsp)
+    {
+        if(m_socket_close_listener)m_socket_close_listener(nsp);
+    }
+    
+    void client_impl::on_socket_opened(std::string const& nsp)
+    {
+        if(m_socket_open_listener)m_socket_open_listener(nsp);
+    }
+    
     void client_impl::__send(std::shared_ptr<const std::string> const& payload_ptr,frame::opcode::value opcode)
     {
         if(m_con_state == con_opened)
@@ -314,7 +324,12 @@ namespace sio {
                 m_ping_timer->expires_from_now(milliseconds(m_ping_interval),timeout_ec);
                 m_ping_timer->async_wait(lib::bind(&client_impl::__ping,this,lib::placeholders::_1));
             }
-            m_client.send(m_con,*payload_ptr,opcode);
+            lib::error_code ec;
+            m_client.send(m_con,*payload_ptr,opcode,ec);
+            if(ec)
+            {
+                std::cerr<<"Send failed,reason:"<< ec.message()<<std::endl;
+            }
         }
     }
     
@@ -420,10 +435,19 @@ namespace sio {
     socket::ptr const& client_impl::socket(std::string const& nsp)
     {
         std::lock_guard<std::mutex> guard(m_socket_mutex);
-        std::string aux = nsp;
-        if(aux == "")
+        std::string aux;
+        if(nsp == "")
         {
             aux = "/";
+        }
+        else if( nsp[0] != '/')
+        {
+            aux.append("/",1);
+            aux.append(nsp);
+        }
+        else
+        {
+            aux = nsp;
         }
         
         auto it = m_sockets.find(aux);

@@ -59,6 +59,10 @@ void set_##__FIELD__(__TYPE__ const& l) \
         
         SYNTHESIS_SETTER(client::close_listener,close_listener)
         
+        SYNTHESIS_SETTER(client::socket_listener,socket_open_listener)
+        
+        SYNTHESIS_SETTER(client::socket_listener,socket_close_listener)
+        
 #undef SYNTHESIS_SETTER
         
         
@@ -67,6 +71,12 @@ void set_##__FIELD__(__TYPE__ const& l) \
             m_open_listener = nullptr;
             m_close_listener = nullptr;
             m_fail_listener = nullptr;
+        }
+        
+        void clear_socket_listeners()
+        {
+            m_socket_open_listener = nullptr;
+            m_socket_close_listener = nullptr;
         }
         
         // Client Functions - such as send, etc.
@@ -92,6 +102,10 @@ void set_##__FIELD__(__TYPE__ const& l) \
         void remove_socket(std::string const& nsp);
         
         boost::asio::io_service& get_io_service();
+        
+        void on_socket_closed(std::string const& nsp);
+        
+        void on_socket_opened(std::string const& nsp);
         
     private:
         void __close(close::status::value const& code,std::string const& reason);
@@ -151,6 +165,9 @@ void set_##__FIELD__(__TYPE__ const& l) \
         client::con_listener m_open_listener;
         client::con_listener m_fail_listener;
         client::close_listener m_close_listener;
+        
+        client::socket_listener m_socket_open_listener;
+        client::socket_listener m_socket_close_listener;
         
         std::map<const std::string,socket::ptr> m_sockets;
         

@@ -39,6 +39,7 @@ namespace sio
     class client_impl;
     class packet;
     
+    //The name 'socket' is taken from concept of official socket.io.
     class socket
     {
     public:
@@ -47,8 +48,6 @@ namespace sio
         typedef std::function<void(event& event)> event_listener;
         
         typedef std::function<void(message::ptr const& message)> error_listener;
-        
-        typedef std::function<void(void)> con_listener;
         
         typedef std::shared_ptr<socket> ptr;
         
@@ -64,13 +63,9 @@ namespace sio
         
         void close();
         
-        void set_connect_listener(con_listener const& l);
+        void on_error(error_listener const& l);
         
-        void set_close_listener(con_listener const& l);
-        
-        void set_error_listener(error_listener const& l);
-        
-        void clear_listeners();
+        void off_error();
         
         void emit(std::string const& name, std::string const& message);
         

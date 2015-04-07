@@ -68,12 +68,48 @@ public:
 
 int participants = -1;
 
+socket::ptr current_socket;
+
+void bind_events(socket::ptr &socket)
+{
+    current_socket->on("new message", [&](string const& name, message::ptr const& data, bool isAck,message::ptr &ack_resp)
+                       {
+                           _lock.lock();
+                           string user = data->get_map()["username"]->get_string();
+                           string message = data->get_map()["message"]->get_string();
+                           EM(user<<":"<<message);
+                           _lock.unlock();
+                       });
+    
+    current_socket->on("user joined", [&](string const& name, message::ptr const& data, bool isAck,message::ptr &ack_resp)
+                       {
+                           _lock.lock();
+                           string user = data->get_map()["username"]->get_string();
+                           participants  = data->get_map()["numUsers"]->get_int();
+                           bool plural = participants !=1;
+                           
+                           //     abc "
+                           HIGHLIGHT(user<<" joined"<<"\nthere"<<(plural?" are ":"'s ")<< participants<<(plural?" participants":" participant"));
+                           _lock.unlock();
+                       });
+    current_socket->on("user left", [&](string const& name, message::ptr const& data, bool isAck,message::ptr &ack_resp)
+                       {
+                           _lock.lock();
+                           string user = data->get_map()["username"]->get_string();
+                           participants  = data->get_map()["numUsers"]->get_int();
+                           bool plural = participants !=1;
+                           HIGHLIGHT(user<<" left"<<"\nthere"<<(plural?" are ":"'s ")<< participants<<(plural?" participants":" participant"));
+                           _lock.unlock();
+                       });
+}
+
 MAIN_FUNC
 {
 
     sio::client h;
     connection_listener l(h);
-    h.set_connect_listener(std::bind(&connection_listener::on_connected, &l));
+    current_socket = h.socket();
+    h.set_open_listener(std::bind(&connection_listener::on_connected, &l));
     h.set_close_listener(std::bind(&connection_listener::on_close, &l,std::placeholders::_1));
     h.set_fail_listener(std::bind(&connection_listener::on_fail, &l));
     h.connect("http://127.0.0.1:3000");
@@ -83,58 +119,31 @@ MAIN_FUNC
         _cond.wait(_lock);
     }
     _lock.unlock();
+Login:
     string nickname;
     while (nickname.length() == 0) {
         HIGHLIGHT("Type your nickname:");
         
         getline(cin, nickname);
     }
-    h.bind_event("login", [&](string const& name, message::ptr const& data, bool isAck,message::ptr &ack_resp){
+    current_socket->on("login", [&](string const& name, message::ptr const& data, bool isAck,message::ptr &ack_resp){
         _lock.lock();
         participants = data->get_map()["numUsers"]->get_int();
         bool plural = participants !=1;
         HIGHLIGHT("Welcome to Socket.IO Chat-\nthere"<<(plural?" are ":"'s ")<< participants<<(plural?" participants":" participant"));
         _cond.notify_all();
         _lock.unlock();
-        h.unbind_event("login");
+        current_socket->off("login");
     });
-    h.emit("add user", nickname);
+    current_socket->emit("add user", nickname);
     _lock.lock();
     if (participants<0) {
         _cond.wait(_lock);
     }
     _lock.unlock();
- 
-    h.bind_event("new message", [&](string const& name, message::ptr const& data, bool isAck,message::ptr &ack_resp)
-                 {
-                     _lock.lock();
-                     string user = data->get_map()["username"]->get_string();
-                     string message = data->get_map()["message"]->get_string();
-                     EM(user<<":"<<message);
-                     _lock.unlock();
-                 });
+    bind_events(current_socket);
     
-    h.bind_event("user joined", [&](string const& name, message::ptr const& data, bool isAck,message::ptr &ack_resp)
-                 {
-                     _lock.lock();
-                     string user = data->get_map()["username"]->get_string();
-                     participants  = data->get_map()["numUsers"]->get_int();
-                     bool plural = participants !=1;
-                     
-                     //     abc "
-                     HIGHLIGHT(user<<" joined"<<"\nthere"<<(plural?" are ":"'s ")<< participants<<(plural?" participants":" participant"));
-                     _lock.unlock();
-                 });
-    h.bind_event("user left", [&](string const& name, message::ptr const& data, bool isAck,message::ptr &ack_resp)
-                 {
-                     _lock.lock();
-                     string user = data->get_map()["username"]->get_string();
-                     participants  = data->get_map()["numUsers"]->get_int();
-                     bool plural = participants !=1;
-                     HIGHLIGHT(user<<" left"<<"\nthere"<<(plural?" are ":"'s ")<< participants<<(plural?" participants":" participant"));
-                     _lock.unlock();
-                 });
-    HIGHLIGHT("Start to chat, type '$exit' to exit");
+    HIGHLIGHT("Start to chat,commands:\n'$exit' : exit chat\n'$nsp <namespace>' : change namespace");
     for (std::string line; std::getline(std::cin, line);) {
         if(line.length()>0)
         {
@@ -142,7 +151,30 @@ MAIN_FUNC
             {
                 break;
             }
-            h.emit("new message", line);
+            else if(line.length() > 5&&line.substr(0,5) == "$nsp ")
+            {
+                string new_nsp = line.substr(5);
+                if(new_nsp == current_socket->get_namespace())
+                {
+                    continue;
+                }
+                current_socket->off_all();
+                current_socket->off_error();
+                //per socket.io, default nsp should never been closed.
+                if(current_socket->get_namespace() != "/")
+                {
+                    current_socket->close();
+                }
+                current_socket = h.socket(new_nsp);
+                //if change to default nsp, we do not need to bind events again.
+                if(current_socket->get_namespace() == "/")
+                {
+                    continue;
+                }
+                bind_events(current_socket);
+                goto Login;
+            }
+            current_socket->emit("new message", line);
             _lock.lock();
             EM("\t\t\t"<<line<<":"<<"You");
             _lock.unlock();
