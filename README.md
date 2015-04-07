@@ -18,7 +18,7 @@ By virtue of being written in C++, this client works in several different platfo
 ### With CMake
 1. Install boost, see [Boost setup](#boost_setup) section.
 2. Use `git clone --recurse-submodules https://github.com/socketio/socket.io-client-cpp.git` to clone your local repo.
-3. Run `cmake -DBOOST_PATH:STRING=<your boost install folder> ./
+3. Run `cmake -DBOOST_PATH:STRING=<your boost install folder> ./`
 4. Run `make`(if makefile generated) or open generated project (if project file generated) to build.
 5. Include `sio_client.h` in your client code where you want to use it.
 
