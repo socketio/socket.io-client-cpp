@@ -132,8 +132,8 @@ void MainWindow::OnNewMessage(std::string const& name,message::ptr const& data,b
     if(data->get_flag() == message::flag_object)
     {
         std::string msg = data->get_map()["message"]->get_string();
-        std::string name = data->get_map()["username"]->get_string();
-        QString label = QString::fromUtf8(name.data(),name.length());
+        std::string username = data->get_map()["username"]->get_string();
+        QString label = QString::fromUtf8(username.data(),username.length());
         label.append(':');
         label.append(QString::fromUtf8(msg.data(),msg.length()));
         QListWidgetItem *item= new QListWidgetItem(label);
