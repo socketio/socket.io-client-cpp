@@ -18,7 +18,7 @@ By virtue of being written in C++, this client works in several different platfo
 
 1. Install boost
 2. Use `git clone --recurse-submodules https://github.com/socketio/socket.io-client-cpp.git` to clone your local repo.
-3. Include `websocket++`, `rapidjson` and `sio_client.cpp`,`sio_packet.cpp` in your project.
+3. Include `websocket++`, `rapidjson` and `sio_client.cpp`,`sio_packet.cpp`,`sio_socket.cpp`,`internal/sio_client_impl.cpp` in your project.
 4. Include `sio_client.h` where you want to use it.
 5. Use `message` and its derived classes to compose complex text/binary messages.
 
@@ -74,11 +74,15 @@ Unbind the event callback with specified name.
 
 `void off_all()` 
 
-Clear all event bindings.
+Clear all event bindings (not including the error listener).
 
-`void set_error_listener(error_listener const& l)`
+`void on_error(error_listener const& l)`
 
-Set the error handler for socket.io error messages.
+Bind the error handler for socket.io error messages.
+
+`void off_error()`
+
+Unbind the error handler.
 
 ```C++
 
@@ -107,15 +111,6 @@ Set the error handler for socket.io error messages.
     typedef std::function<void(message::ptr const& message)> error_listener;
 
 ```
-
-#### Listeners
-`void set_connect_listener(con_listener const& l)`
-
-Set listener for connect event, called when server notify socket is joined the namespace.
-
-`void set_close_listener(con_listener const& l)`
-
-Set listener for close event, called when server notify socket is kicked from namespace. `socket` object will be destroyed after close event.
 
 #### Connect and close socket
 `connect` will happen for existing `socket`s automatically when `client` have opened up the physical connection.
@@ -159,6 +154,20 @@ typedef std::function<void(void)> con_listener;
         
 typedef std::function<void(close_reason const& reason)> close_listener;
 ```
+#### Socket listeners
+`void set_connect_listener(socket_listener const& l)`
+
+Set listener for socket connect event, called when any sockets being ready to send message.
+
+`void set_close_listener(socket_listener const& l)`
+
+Set listener for socket close event, called when any sockets being closed, afterward, corresponding `socket` object will be cleared from client.
+
+```C++
+    //socket_listener declare:
+    typedef std::function<void(std::string const& nsp)> socket_listener;
+```
+
 #### Connect and Close
 `void connect(const std::string& uri)`
 
