@@ -15,12 +15,20 @@ By virtue of being written in C++, this client works in several different platfo
 - Similar API to the Socket.IO JS client
 
 ## How to use
-
-1. Install boost
+### With CMake
+1. Install boost, see [Boost setup](#boost_setup) section.
 2. Use `git clone --recurse-submodules https://github.com/socketio/socket.io-client-cpp.git` to clone your local repo.
-3. Include `websocket++`, `rapidjson` and `sio_client.cpp`,`sio_packet.cpp`,`sio_socket.cpp`,`internal/sio_client_impl.cpp` in your project.
-4. Include `sio_client.h` where you want to use it.
-5. Use `message` and its derived classes to compose complex text/binary messages.
+3. Run `cmake -DBOOST_PATH:STRING=<your boost install folder> ./
+4. Run `make`(if makefile generated) or open generated project (if project file generated) to build.
+5. Include `sio_client.h` in your client code where you want to use it.
+
+### Without CMake
+1. Install boost, see [Boost setup](#boost_setup) section.
+2. Use `git clone --recurse-submodules https://github.com/socketio/socket.io-client-cpp.git` to clone your local repo.
+3. Add `<your boost install folder>/include`,`./lib/websocketpp` and `./lib/rapidjson/include` to headers search path.
+4. Include all files under `./src` in your project, add `sio_packet.cpp`,`sio_socket.cpp`,`internal/sio_client_impl.cpp` to source list.
+5. Add `<your boost install folder>/lib` to library search path, add `boost.lib`(Win32) or `-lboost`(Other) link option.
+6. Include `sio_client.h` in your client code where you want to use it.
 
 ## API
 ### *Overview*
@@ -216,7 +224,7 @@ Get socket.io session id.
 
 All designated constructor of `message` objects is hidden, you need to create message and get the `message::ptr` by `[derived]_message:create()`.
 
-## Boost setup
+##<a name="boost_setup"></a> Boost setup
 * Download boost from [boost.org](http://www.boost.org/).
 
 * Unpack boost to some place.
@@ -225,22 +233,24 @@ All designated constructor of `message` objects is hidden, you need to create me
 
 ## Boost build (Build the necessary subset only)
 
-#### Windows:
+#### Windows (or other mainstream desktop platforms shall work too):
 Run with following script will build the necessary subset:
 
 ```bash
-bjam stage --toolset=msvc --with-system --with-date_time --with-random --stagedir="release" link=static runtime-link=shared threading=multi release
+bjam install --prefix="<your boost install folder>" --with-system --with-date_time --with-random link=static runtime-link=shared threading=multi
 ```
-Optionally You can merge all output .lib files into a fat one, in output folder, run:
+Optionally You can merge all output .lib files into a fat one,especially if you're not using cmake.
+
+In output folder, run:
 
 ```bash
 lib.exe /OUT:boost.lib *
 ```
 
-#### iOS and OSX
+#### iOS
 Use this [shell](https://github.com/socketio/socket.io-client-cpp/blob/master/examples/iOS/SioChatDemo/boost/boost.sh) to download and build boost completely automattically.
 
-#### Add boost source folder to your `header search path`, and add static libs to link option.
+It installs boost to `<shell folder>/prefix`.
 
 ##License
 BSD
