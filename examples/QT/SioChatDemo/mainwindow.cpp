@@ -22,10 +22,24 @@ MainWindow::MainWindow(QWidget *parent) :
     m_dialog()
 {
     ui->setupUi(this);
+
+    using std::placeholders::_1;
+    using std::placeholders::_2;
+    using std::placeholders::_3;
+    using std::placeholders::_4;
+    socket::ptr sock = _io->socket();
+    BIND_EVENT(sock,"new message",std::bind(&MainWindow::OnNewMessage,this,_1,_2,_3,_4));
+    BIND_EVENT(sock,"user joined",std::bind(&MainWindow::OnUserJoined,this,_1,_2,_3,_4));
+    BIND_EVENT(sock,"user left",std::bind(&MainWindow::OnUserLeft,this,_1,_2,_3,_4));
+    BIND_EVENT(sock,"typing",std::bind(&MainWindow::OnTyping,this,_1,_2,_3,_4));
+    BIND_EVENT(sock,"stop typing",std::bind(&MainWindow::OnStopTyping,this,_1,_2,_3,_4));
+    BIND_EVENT(sock,"login",std::bind(&MainWindow::OnLogin,this,_1,_2,_3,_4));
+    _io->set_socket_open_listener(std::bind(&MainWindow::OnConnected,this,std::placeholders::_1));
+    _io->set_close_listener(std::bind(&MainWindow::OnClosed,this,_1));
+    _io->set_fail_listener(std::bind(&MainWindow::OnFailed,this));
+
     connect(this,SIGNAL(RequestAddListItem(QListWidgetItem*)),this,SLOT(AddListItem(QListWidgetItem*)));
     connect(this,SIGNAL(RequestToggleInputs(bool)),this,SLOT(ToggleInputs(bool)));
-    _io->set_socket_open_listener(std::bind(&MainWindow::OnConnected,this,std::placeholders::_1));
-    _io->set_socket_close_listener(std::bind(&MainWindow::OnFailed,this));
 }
 
 MainWindow::~MainWindow()
@@ -98,17 +112,6 @@ void MainWindow::NicknameAccept()
     m_name = m_dialog->getNickname();
     if(m_name.length()>0)
     {
-        using std::placeholders::_1;
-        using std::placeholders::_2;
-        using std::placeholders::_3;
-        using std::placeholders::_4;
-        socket::ptr sock = _io->socket();
-        BIND_EVENT(sock,"new message",std::bind(&MainWindow::OnNewMessage,this,_1,_2,_3,_4));
-        BIND_EVENT(sock,"user joined",std::bind(&MainWindow::OnUserJoined,this,_1,_2,_3,_4));
-        BIND_EVENT(sock,"user left",std::bind(&MainWindow::OnUserLeft,this,_1,_2,_3,_4));
-        BIND_EVENT(sock,"typing",std::bind(&MainWindow::OnTyping,this,_1,_2,_3,_4));
-        BIND_EVENT(sock,"stop typing",std::bind(&MainWindow::OnStopTyping,this,_1,_2,_3,_4));
-        BIND_EVENT(sock,"login",std::bind(&MainWindow::OnLogin,this,_1,_2,_3,_4));
         _io->connect("ws://localhost:3000");
     }
 }
@@ -253,16 +256,12 @@ void MainWindow::ToggleInputs(bool loginOrNot)
         this->findChild<QWidget*>("messageEdit")->setEnabled(true);
         this->findChild<QWidget*>("listView")->setEnabled(true);
         this->findChild<QWidget*>("sendBtn")->setEnabled(true);
-//        this->findChild<QWidget*>("nickNameEdit")->setEnabled(false);
-//        this->findChild<QWidget*>("loginBtn")->setEnabled(false);
     }
     else
     {
         this->findChild<QWidget*>("messageEdit")->setEnabled(false);
         this->findChild<QWidget*>("listView")->setEnabled(false);
         this->findChild<QWidget*>("sendBtn")->setEnabled(false);
-//        this->findChild<QWidget*>("nickNameEdit")->setEnabled(true);
-//        this->findChild<QWidget*>("loginBtn")->setEnabled(true);
         ShowLoginDialog();
     }
 }

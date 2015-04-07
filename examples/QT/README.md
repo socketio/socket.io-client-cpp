@@ -180,7 +180,9 @@ private:
     std::unique_ptr<client> _io;
 ```
 
-Init `sio::client` and setup event bindings in `MainWindow` constructor.
+Init `sio::client` and setup event bindings for default `socket` in `MainWindow` constructor.
+
+And we also need to handle the connectivity events, handle the connect and disconnect events.
 
 Now the `MainWindow` constructor:
 
@@ -195,15 +197,19 @@ MainWindow::MainWindow(QWidget *parent) :
     using std::placeholders::_2;
     using std::placeholders::_3;
     using std::placeholders::_4;
-    _io->bind_event("new message",std::bind(&MainWindow::OnNewMessage,this,_1,_2,_3,_4));
-    _io->bind_event("user joined",std::bind(&MainWindow::OnUserJoined,this,_1,_2,_3,_4));
-    _io->bind_event("user left",std::bind(&MainWindow::OnUserLeft,this,_1,_2,_3,_4));
-    _io->bind_event("typing",std::bind(&MainWindow::OnTyping,this,_1,_2,_3,_4));
-    _io->bind_event("stop typing",std::bind(&MainWindow::OnStopTyping,this,_1,_2,_3,_4));
-    _io->bind_event("login",std::bind(&MainWindow::OnLogin,this,_1,_2,_3,_4));
-    _io->set_connect_listener(std::bind(&MainWindow::OnConnected,this));
-    _io->set_fail_listener(std::bind(&MainWindow::OnFailed,this));
+    socket::ptr sock = _io->socket();
+    sock->on("new message",std::bind(&MainWindow::OnNewMessage,this,_1,_2,_3,_4));
+    sock->on("user joined",std::bind(&MainWindow::OnUserJoined,this,_1,_2,_3,_4));
+    sock->on("user left",std::bind(&MainWindow::OnUserLeft,this,_1,_2,_3,_4));
+    sock->on("typing",std::bind(&MainWindow::OnTyping,this,_1,_2,_3,_4));
+    sock->on("stop typing",std::bind(&MainWindow::OnStopTyping,this,_1,_2,_3,_4));
+    sock->on("login",std::bind(&MainWindow::OnLogin,this,_1,_2,_3,_4));
+    //default socket opened, also we have "set_open_listener" for monitoring physical connection opened.
+    _io->set_socket_open_listener(std::bind(&MainWindow::OnConnected,this,std::placeholders::_1));
+    //physical connection closed or drop.
     _io->set_close_listener(std::bind(&MainWindow::OnClosed,this,_1));
+    //physical connection fail to establish.
+    _io->set_fail_listener(std::bind(&MainWindow::OnFailed,this));
     connect(this,SIGNAL(RequestAddListItem(QListWidgetItem*)),this,SLOT(AddListItem(QListWidgetItem*)));
 }
 ```
@@ -211,14 +217,14 @@ MainWindow::MainWindow(QWidget *parent) :
 ###Managing connection state
 We have several connection listeners for connection events.
 
-First we want to send login message once we're connected.
+First we want to send login message once we're connected, get the default `socket` from `client` to do that.
 
 ```C++
 void MainWindow::OnConnected()
 {
     QByteArray bytes = m_name.toUtf8();
     std::string nickName(bytes.data(),bytes.length());
-    _io->emit("add user", nickName);
+    _io->socket()->emit("add user", nickName);
 }
 ```
 
@@ -244,8 +250,8 @@ the `sio::client` object will be destruct by `unique_ptr`
 ```C++
 MainWindow::~MainWindow()
 {
-    _io->clear_event_bindings();
-    _io->clear_con_listeners();
+    _io->socket()->off_all();
+    _io->socket()->off_error();
     delete ui;
 }
 ```
@@ -285,7 +291,7 @@ void MainWindow::SendBtnClicked()
     {
         QByteArray bytes = text.toUtf8();
         std::string msg(bytes.data(),bytes.length());
-        _io->emit("new message",msg);//emit new message
+        _io->socket()->emit("new message",msg);//emit new message
         text.append(":You");
         QListWidgetItem *item = new QListWidgetItem(text);
         item->setTextAlignment(Qt::AlignRight);
