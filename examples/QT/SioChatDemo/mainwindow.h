@@ -45,7 +45,7 @@ private:
     void OnTyping(std::string const& name,message::ptr const& data,bool hasAck,message::ptr &ack_resp);
     void OnStopTyping(std::string const& name,message::ptr const& data,bool hasAck,message::ptr &ack_resp);
     void OnLogin(std::string const& name,message::ptr const& data,bool hasAck,message::ptr &ack_resp);
-    void OnConnected();
+    void OnConnected(std::string const& nsp);
     void OnClosed(client::close_reason const& reason);
     void OnFailed();
     void ShowLoginDialog();

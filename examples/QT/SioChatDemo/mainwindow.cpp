@@ -24,12 +24,14 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     connect(this,SIGNAL(RequestAddListItem(QListWidgetItem*)),this,SLOT(AddListItem(QListWidgetItem*)));
     connect(this,SIGNAL(RequestToggleInputs(bool)),this,SLOT(ToggleInputs(bool)));
+    _io->set_socket_open_listener(std::bind(&MainWindow::OnConnected,this,std::placeholders::_1));
+    _io->set_socket_close_listener(std::bind(&MainWindow::OnFailed,this));
 }
 
 MainWindow::~MainWindow()
 {
     _io->socket()->off_all();
-    _io->socket()->clear_listeners();
+    _io->socket()->off_error();
     delete ui;
 }
 
@@ -107,9 +109,6 @@ void MainWindow::NicknameAccept()
         BIND_EVENT(sock,"typing",std::bind(&MainWindow::OnTyping,this,_1,_2,_3,_4));
         BIND_EVENT(sock,"stop typing",std::bind(&MainWindow::OnStopTyping,this,_1,_2,_3,_4));
         BIND_EVENT(sock,"login",std::bind(&MainWindow::OnLogin,this,_1,_2,_3,_4));
-        sock->set_connect_listener(std::bind(&MainWindow::OnConnected,this));
-
-        sock->set_close_listener(std::bind(&MainWindow::OnFailed,this));
         _io->connect("ws://localhost:3000");
     }
 }
@@ -230,7 +229,7 @@ void MainWindow::OnLogin(std::string const& name,message::ptr const& data,bool h
     Q_EMIT RequestAddListItem(item);
 }
 
-void MainWindow::OnConnected()
+void MainWindow::OnConnected(std::string const& nsp)
 {
     QByteArray bytes = m_name.toUtf8();
     std::string nickName(bytes.data(),bytes.length());
