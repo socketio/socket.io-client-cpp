@@ -92,29 +92,13 @@ namespace sio {
         impl(client_impl *,std::string const&);
         ~impl();
         
-        void on(std::string const& event_name,event_listener_aux const& func)
-        {
-            m_event_binding[event_name] = event_adapter::do_adapt(func);
-        }
+        void on(std::string const& event_name,event_listener_aux const& func);
         
-        void on(std::string const& event_name,event_listener const& func)
-        {
-            m_event_binding[event_name] = func;
-        }
+        void on(std::string const& event_name,event_listener const& func);
         
-        void off(std::string const& event_name)
-        {
-            auto it = m_event_binding.find(event_name);
-            if(it!=m_event_binding.end())
-            {
-                m_event_binding.erase(it);
-            }
-        }
+        void off(std::string const& event_name);
         
-        void off_all()
-        {
-            m_event_binding.clear();
-        }
+        void off_all();
         
 #define SYNTHESIS_SETTER(__TYPE__,__FIELD__) \
 void set_##__FIELD__(__TYPE__ const& l) \
@@ -162,6 +146,8 @@ void set_##__FIELD__(__TYPE__ const& l) \
         void on_socketio_ack(int msgId, message::ptr const& message);
         void on_socketio_error(message::ptr const& err_message);
         
+        event_listener get_bind_listener_locked(string const& event);
+        
         void __ack(int msgId,string const& name,message::ptr const& ack_message);
         
         void __timeout_connection(const boost::system::error_code &ec);
@@ -169,6 +155,8 @@ void set_##__FIELD__(__TYPE__ const& l) \
         void __send_connect();
         
         void __send_packet(packet& p);
+        
+        static event_listener s_null_event_listener;
         
         static unsigned int s_global_event_id;
         
@@ -187,8 +175,37 @@ void set_##__FIELD__(__TYPE__ const& l) \
         
         std::queue<packet> m_packet_queue;
         
+        std::mutex m_event_mutex;
+        
         friend class socket;
     };
+    
+    void socket::impl::on(std::string const& event_name,event_listener_aux const& func)
+    {
+        this->on(event_name,event_adapter::do_adapt(func));
+    }
+    
+    void socket::impl::on(std::string const& event_name,event_listener const& func)
+    {
+        std::lock_guard<std::mutex> guard(m_event_mutex);
+        m_event_binding[event_name] = func;
+    }
+    
+    void socket::impl::off(std::string const& event_name)
+    {
+        std::lock_guard<std::mutex> guard(m_event_mutex);
+        auto it = m_event_binding.find(event_name);
+        if(it!=m_event_binding.end())
+        {
+            m_event_binding.erase(it);
+        }
+    }
+    
+    void socket::impl::off_all()
+    {
+        std::lock_guard<std::mutex> guard(m_event_mutex);
+        m_event_binding.clear();
+    }
     
     void socket::impl::on_error(error_listener const& l)
     {
@@ -229,7 +246,10 @@ void set_##__FIELD__(__TYPE__ const& l) \
         NULL_GUARD(m_client);
         message::ptr msg_ptr = make_message(name, message);
         packet p(m_nsp, msg_ptr,s_global_event_id);
-        m_acks[s_global_event_id++] = ack;
+        {
+            std::lock_guard<std::mutex> guard(m_event_mutex);
+            m_acks[s_global_event_id++] = ack;
+        }
         __send_packet(p);
     }
     
@@ -246,7 +266,10 @@ void set_##__FIELD__(__TYPE__ const& l) \
         NULL_GUARD(m_client);
         message::ptr msg_ptr = make_message(name, args);
         packet p(m_nsp, msg_ptr,s_global_event_id);
-        m_acks[s_global_event_id++] = ack;
+        {
+            std::lock_guard<std::mutex> guard(m_event_mutex);
+            m_acks[s_global_event_id++] = ack;
+        }
         __send_packet(p);
     }
     
@@ -263,7 +286,10 @@ void set_##__FIELD__(__TYPE__ const& l) \
         NULL_GUARD(m_client);
         message::ptr msg_ptr = make_message(name, binary_ptr);
         packet p(m_nsp, msg_ptr,s_global_event_id);
-        m_acks[s_global_event_id++] = ack;
+        {
+            std::lock_guard<std::mutex> guard(m_event_mutex);
+            m_acks[s_global_event_id++] = ack;
+        }
         __send_packet(p);
     }
     
@@ -431,11 +457,8 @@ void set_##__FIELD__(__TYPE__ const& l) \
     {
         bool needAck = msgId >= 0;
         event ev = event_adapter::create_event(nsp,name, message,needAck);
-        auto it = m_event_binding.find(name);
-        if(it!=m_event_binding.end())
-        {
-            (it->second)(ev);
-        }
+        event_listener func = this->get_bind_listener_locked(name);
+        if(func)func(ev);
         if(needAck)
         {
             this->__ack(msgId, name, ev.get_ack_message());
@@ -450,12 +473,17 @@ void set_##__FIELD__(__TYPE__ const& l) \
     
     void socket::impl::on_socketio_ack(int msgId, message::ptr const& message)
     {
-        auto it = m_acks.find(msgId);
-        if(it!=m_acks.end())
+        std::function<void (message::ptr const&)> l;
         {
-            (it->second)(message);
-            m_acks.erase(it);
+            std::lock_guard<std::mutex> guard(m_event_mutex);
+            auto it = m_acks.find(msgId);
+            if(it!=m_acks.end())
+            {
+                l = it->second;
+                m_acks.erase(it);
+            }
         }
+        if(l)l(message);
     }
     
     void socket::impl::on_socketio_error(message::ptr const& err_message)
@@ -490,6 +518,17 @@ void set_##__FIELD__(__TYPE__ const& l) \
         {
             m_packet_queue.push(p);
         }
+    }
+    
+    socket::event_listener socket::impl::get_bind_listener_locked(const string &event)
+    {
+        std::lock_guard<std::mutex> guard(m_event_mutex);
+        auto it = m_event_binding.find(event);
+        if(it!=m_event_binding.end())
+        {
+            return it->second;
+        }
+        return socket::event_listener();
     }
     
     socket::socket(client_impl* client,std::string const& nsp):

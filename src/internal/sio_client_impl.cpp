@@ -186,7 +186,8 @@ namespace sio {
         {
             case packet::frame_message:
             {
-                get_socket_locked(p.get_nsp())->on_message_packet(p);
+                socket::ptr so_ptr = get_socket_locked(p.get_nsp());
+                if(so_ptr)so_ptr->on_message_packet(p);
                 break;
             }
             case packet::frame_open:
@@ -471,9 +472,7 @@ namespace sio {
                                   "run loop end");
     }
     
-    socket::ptr empty_socket_ptr;
-    
-    socket::ptr const& client_impl::get_socket_locked(std::string const& nsp)
+    socket::ptr client_impl::get_socket_locked(std::string const& nsp)
     {
         std::lock_guard<std::mutex> guard(m_socket_mutex);
         auto it = m_sockets.find(nsp);
@@ -483,7 +482,7 @@ namespace sio {
         }
         else
         {
-            return empty_socket_ptr;
+            return socket::ptr();
         }
     }
     

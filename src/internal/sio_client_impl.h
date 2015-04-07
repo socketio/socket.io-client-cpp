@@ -120,7 +120,7 @@ void set_##__FIELD__(__TYPE__ const& l) \
         
         void __timeout_connection(const boost::system::error_code& ec);
         
-        socket::ptr const& get_socket_locked(std::string const& nsp);
+        socket::ptr get_socket_locked(std::string const& nsp);
         
         void sockets_invoke_void(void (sio::socket::*fn)(void));
         

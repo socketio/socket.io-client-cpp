@@ -166,12 +166,12 @@ Login:
                     current_socket->close();
                 }
                 current_socket = h.socket(new_nsp);
-                //if change to default nsp, we do not need to bind events again.
+                bind_events(current_socket);
+                //if change to default nsp, we do not need to login again (since it is not closed).
                 if(current_socket->get_namespace() == "/")
                 {
                     continue;
                 }
-                bind_events(current_socket);
                 goto Login;
             }
             current_socket->emit("new message", line);
