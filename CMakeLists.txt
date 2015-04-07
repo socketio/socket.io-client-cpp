@@ -1,9 +1,10 @@
 cmake_minimum_required (VERSION 2.6)
 PROJECT(sioclient)
 
-#set(BOOST_ROOT "D:/BoostRoot" )
-set(BOOST_INCLUDEDIR "D:/boost_1_55_0" )
-set(BOOST_LIBRARYDIR "D:/boost_1_55_0/boost_build/release/lib" )
+set(BOOST_PATH "./boost" CACHE STRING "boost root path" )
+set(BOOST_ROOT ${BOOST_PATH} )
+#set(BOOST_INCLUDEDIR "${BOOST_PATH}/include" )
+#set(BOOST_LIBRARYDIR "${BOOST_PATH}/lib" )
 set(Boost_DEBUG 1)
 set(Boost_USE_STATIC_LIBS ON) 
 set(Boost_USE_MULTITHREADED ON) 
