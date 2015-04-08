@@ -12,6 +12,7 @@ By virtue of being written in C++, this client works in several different platfo
 - Compatible with 1.0+ protocol
 - Binary support
 - Automatic JSON encoding
+- Multiplex support
 - Similar API to the Socket.IO JS client
 
 ## How to use
@@ -68,8 +69,8 @@ void OnMessage(sio::event &)
 {
     
 }
-
 h.socket()->on("new message", &OnMessage);
+
 /********************* bind with lambda ********************/
 h.socket()->on("login", [&](sio::event& ev)
 {
@@ -154,30 +155,29 @@ Bind the error handler for socket.io error messages.
 Unbind the error handler.
 
 ```C++
+//event object:
+class event
+{
+public:
+    const std::string& get_nsp() const;
+    
+    const std::string& get_name() const;
+    
+    const message::ptr& get_message() const;
+    
+    bool need_ack() const;
+    
+    void put_ack_message(message::ptr const& ack_message);
+    
+    message::ptr const& get_ack_message() const;
+   ...
+};
+//event listener declare:
+typedef std::function<void(const std::string& name,message::ptr const& message,bool need_ack, message::ptr& ack_message)> event_listener_aux;
+        
+typedef std::function<void(event& event)> event_listener;
 
-    //event object:
-    class event
-    {
-    public:
-        const std::string& get_nsp() const;
-        
-        const std::string& get_name() const;
-        
-        const message::ptr& get_message() const;
-        
-        bool need_ack() const;
-        
-        void put_ack_message(message::ptr const& ack_message);
-        
-        message::ptr const& get_ack_message() const;
-       ...
-    };
-    //event listener declare:
-    typedef std::function<void(const std::string& name,message::ptr const& message,bool need_ack, message::ptr& ack_message)> event_listener_aux;
-            
-    typedef std::function<void(event& event)> event_listener;
-
-    typedef std::function<void(message::ptr const& message)> error_listener;
+typedef std::function<void(message::ptr const& message)> error_listener;
 
 ```
 

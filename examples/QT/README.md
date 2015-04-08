@@ -87,7 +87,7 @@ Make up a simple ui by drag and drop widget from `Widget box` in left side.
 
 We finally end up with this:
 
-![QT mainwindow](https://cldup.com/T4oUpiQFV7.jpg)
+![QT mainwindow](https://cldup.com/RI98CYpYL5.png)
 
 It contains:
 
