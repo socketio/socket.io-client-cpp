@@ -1,9 +1,13 @@
-cmake_minimum_required (VERSION 2.6)
+cmake_minimum_required(VERSION 3.1.0 FATAL_ERROR)
 PROJECT(sioclient)
 
 set(BOOST_VER "1.55.0" CACHE STRING "boost version" )
 set(BOOST_PATH "__boost__" CACHE STRING "boost root path" )
-set(CMAKE_CXX_FLAGS "-std=c++11 -stdlib=libc++" )
+set(CMAKE_CXX_FLAGS_DEBUG          "-O0 -g")
+set(CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -DNDEBUG")
+set(CMAKE_CXX_FLAGS_RELEASE        "-O3 -DNDEBUG")
+
+
 
 if(${BOOST_PATH} STREQUAL "__boost__" )
     set(BOOST_INCLUDE "__boost__" CACHE STRING "boost include path" )
@@ -36,6 +40,8 @@ if(Boost_FOUND)
     file(GLOB ALL_HEADERS ${PROJECT_SOURCE_DIR}/src/*.h )
     MESSAGE(STATUS ${ALL_HEADERS} )
     add_library(sioclient STATIC ${ALL_SRC}) 
+    set_property(TARGET sioclient PROPERTY CXX_STANDARD 11)
+    set_property(TARGET sioclient PROPERTY CXX_STANDARD_REQUIRED ON)
     target_link_libraries(sioclient ${Boost_LIBRARIES})
     INSTALL(FILES ${ALL_HEADERS} 
         DESTINATION "${PROJECT_SOURCE_DIR}/build/include"
