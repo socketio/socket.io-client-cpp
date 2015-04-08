@@ -25,7 +25,7 @@ typedef websocketpp::config::asio_client client_config;
 #include <map>
 #include <thread>
 #include "../sio_client.h"
-#include "../sio_packet.h"
+#include "sio_packet.h"
 
 namespace sio
 {

@@ -11,8 +11,8 @@
 #include "sio_message.h"
 #include "sio_socket.h"
 
-namespace sio {
-    
+namespace sio
+{
     class client_impl;
     
     class client {

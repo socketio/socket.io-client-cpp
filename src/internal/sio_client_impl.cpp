@@ -9,7 +9,6 @@
 #include "sio_client_impl.h"
 #include <sstream>
 #include <boost/date_time/posix_time/posix_time.hpp>
-#include "sio_packet.h"
 #include <mutex>
 // Comment this out to disable handshake logging to stdout
 #if DEBUG || _DEBUG
@@ -20,7 +19,8 @@
 
 using boost::posix_time::milliseconds;
 
-namespace sio {
+namespace sio
+{
     client_impl::client_impl() :
     m_con_state(con_closed),
     m_ping_interval(0),

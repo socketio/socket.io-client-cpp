@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CE1D31A01AD5087800895150 /* sio_packet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE1D319E1AD5087800895150 /* sio_packet.cpp */; };
+		CE1D31A11AD5087800895150 /* sio_packet.h in Headers */ = {isa = PBXBuildFile; fileRef = CE1D319F1AD5087800895150 /* sio_packet.h */; };
 		CE2958691ACE4589000ABD30 /* sio_client_impl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE2958671ACE442F000ABD30 /* sio_client_impl.cpp */; };
 		CE29586A1ACE4592000ABD30 /* sio_socket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE2958621ACE2CD6000ABD30 /* sio_socket.cpp */; };
 		CE3B3B401AC8F365003CEB94 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = CE3B3B3F1AC8F365003CEB94 /* main.m */; };
@@ -21,8 +23,6 @@
 		CE3B3E8C1ACA5446003CEB94 /* sio_client.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE3B3E871ACA5446003CEB94 /* sio_client.cpp */; };
 		CE3B3E8D1ACA5446003CEB94 /* sio_client.h in Headers */ = {isa = PBXBuildFile; fileRef = CE3B3E881ACA5446003CEB94 /* sio_client.h */; };
 		CE3B3E8E1ACA5446003CEB94 /* sio_message.h in Headers */ = {isa = PBXBuildFile; fileRef = CE3B3E891ACA5446003CEB94 /* sio_message.h */; };
-		CE3B3E8F1ACA5446003CEB94 /* sio_packet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE3B3E8A1ACA5446003CEB94 /* sio_packet.cpp */; };
-		CE3B3E901ACA5446003CEB94 /* sio_packet.h in Headers */ = {isa = PBXBuildFile; fileRef = CE3B3E8B1ACA5446003CEB94 /* sio_packet.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -62,6 +62,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		CE1D319E1AD5087800895150 /* sio_packet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sio_packet.cpp; sourceTree = "<group>"; };
+		CE1D319F1AD5087800895150 /* sio_packet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sio_packet.h; sourceTree = "<group>"; };
 		CE2958621ACE2CD6000ABD30 /* sio_socket.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sio_socket.cpp; sourceTree = "<group>"; };
 		CE2958631ACE2CD6000ABD30 /* sio_socket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sio_socket.h; sourceTree = "<group>"; };
 		CE2958661ACE2CDD000ABD30 /* sio_client_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sio_client_impl.h; sourceTree = "<group>"; };
@@ -85,8 +87,6 @@
 		CE3B3E871ACA5446003CEB94 /* sio_client.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sio_client.cpp; sourceTree = "<group>"; };
 		CE3B3E881ACA5446003CEB94 /* sio_client.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sio_client.h; sourceTree = "<group>"; };
 		CE3B3E891ACA5446003CEB94 /* sio_message.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sio_message.h; sourceTree = "<group>"; };
-		CE3B3E8A1ACA5446003CEB94 /* sio_packet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sio_packet.cpp; sourceTree = "<group>"; };
-		CE3B3E8B1ACA5446003CEB94 /* sio_packet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sio_packet.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -126,6 +126,8 @@
 		CE2958651ACE2CDD000ABD30 /* internal */ = {
 			isa = PBXGroup;
 			children = (
+				CE1D319E1AD5087800895150 /* sio_packet.cpp */,
+				CE1D319F1AD5087800895150 /* sio_packet.h */,
 				CE2958661ACE2CDD000ABD30 /* sio_client_impl.h */,
 				CE2958671ACE442F000ABD30 /* sio_client_impl.cpp */,
 			);
@@ -228,8 +230,6 @@
 				CE3B3E871ACA5446003CEB94 /* sio_client.cpp */,
 				CE3B3E881ACA5446003CEB94 /* sio_client.h */,
 				CE3B3E891ACA5446003CEB94 /* sio_message.h */,
-				CE3B3E8A1ACA5446003CEB94 /* sio_packet.cpp */,
-				CE3B3E8B1ACA5446003CEB94 /* sio_packet.h */,
 			);
 			name = src;
 			path = ../../../src;
@@ -243,7 +243,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CE3B3E8E1ACA5446003CEB94 /* sio_message.h in Headers */,
-				CE3B3E901ACA5446003CEB94 /* sio_packet.h in Headers */,
+				CE1D31A11AD5087800895150 /* sio_packet.h in Headers */,
 				CE3B3E8D1ACA5446003CEB94 /* sio_client.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -419,9 +419,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				CE29586A1ACE4592000ABD30 /* sio_socket.cpp in Sources */,
+				CE1D31A01AD5087800895150 /* sio_packet.cpp in Sources */,
 				CE2958691ACE4589000ABD30 /* sio_client_impl.cpp in Sources */,
 				CE3B3E8C1ACA5446003CEB94 /* sio_client.cpp in Sources */,
-				CE3B3E8F1ACA5446003CEB94 /* sio_packet.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

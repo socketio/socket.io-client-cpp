@@ -3,6 +3,7 @@ PROJECT(sioclient)
 
 set(BOOST_VER "1.55.0" CACHE STRING "boost version" )
 set(BOOST_PATH "__boost__" CACHE STRING "boost root path" )
+set(CMAKE_CXX_FLAGS "-std=c++11 -stdlib=libc++" )
 
 if(${BOOST_PATH} STREQUAL "__boost__" )
     set(BOOST_INCLUDE "__boost__" CACHE STRING "boost include path" )
@@ -31,7 +32,15 @@ find_package(Boost ${BOOST_VER} COMPONENTS system date_time random)
 if(Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS} ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/lib/websocketpp ${PROJECT_SOURCE_DIR}/lib/rapidjson/include) 
     aux_source_directory(${PROJECT_SOURCE_DIR}/src ALL_SRC)
-    MESSAGE( STATUS "SRC FILES:        " ${ALL_SRC} )
+    aux_source_directory(${PROJECT_SOURCE_DIR}/src/internal ALL_SRC)
+    file(GLOB ALL_HEADERS ${PROJECT_SOURCE_DIR}/src/*.h )
+    MESSAGE(STATUS ${ALL_HEADERS} )
     add_library(sioclient STATIC ${ALL_SRC}) 
     target_link_libraries(sioclient ${Boost_LIBRARIES})
+    INSTALL(FILES ${ALL_HEADERS} 
+        DESTINATION "${PROJECT_SOURCE_DIR}/build/include"
+        )
+    INSTALL(TARGETS sioclient
+        DESTINATION "${PROJECT_SOURCE_DIR}/build/lib"
+        )
 endif() 

@@ -1,5 +1,5 @@
 #include "sio_socket.h"
-#include "sio_packet.h"
+#include "internal/sio_packet.h"
 #include "internal/sio_client_impl.h"
 #include <boost/asio/deadline_timer.hpp>
 #include <boost/system/error_code.hpp>
@@ -14,8 +14,8 @@
 #define NULL_GUARD(_x_)  \
 if(_x_ == NULL) return
 
-namespace sio {
-    
+namespace sio
+{
     class event_adapter
     {
     public:
