@@ -256,7 +256,7 @@ lib.exe /OUT:boost.lib *
 ```
 
 #### iOS
-Use this [shell](https://github.com/socketio/socket.io-client-cpp/blob/master/examples/iOS/SioChatDemo/boost/boost.sh) to download and build boost completely automattically.
+Use this [shell](https://gist.github.com/melode11/a90114a2abf009ca22ea) to download and build boost completely automattically.
 
 It installs boost to `<shell folder>/prefix`.
 
