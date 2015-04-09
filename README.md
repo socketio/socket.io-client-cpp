@@ -23,7 +23,7 @@ By virtue of being written in C++, this client works in several different platfo
 4. Run `make install`(if makefile generated) or open generated project (if project file generated) to build.
 5. Outputs is under `./build`, link with the all static libs under `./build/lib` and  include headers under `./build/include` in your client code where you want to use it.
 
-*If you're using boost without install,you can specify `boost include dir` and `boost lib dir` separately by:* 
+* If you're using boost without install,you can specify `boost include dir` and `boost lib dir` separately by:
 ```bash
 cmake
 -DBOOST_INCLUDE:STRING=<your boost include folder> 
@@ -31,6 +31,7 @@ cmake
 -DBOOST_VER:STRING=<your boost version>
 ./
 ```
+* CMake didn't allow merging static libraries,but they're all copied to `./build/lib`, you can DIY if you like.
 
 ### Without CMake
 1. Install boost, see [Boost setup](#boost_setup) section.
