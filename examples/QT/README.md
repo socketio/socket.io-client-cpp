@@ -1,4 +1,4 @@
-![Demo shot](https://cldup.com/K2wREmuErz.png)
+![Demo shot](https://cldup.com/LNmXuFu2tu.gif)
 
 In this tutorial we’ll learn how to create a QT chat application that communicates with a [Socket.IO Node.JS chat server](https://github.com/Automattic/socket.io/tree/master/examples/chat).
 
@@ -302,5 +302,6 @@ void MainWindow::SendBtnClicked()
 ```
 
 ###Further reading
-If you want to learn more, I recommanded you to look into the [Demo project](https://github.com/socketio/socket.io-client-cpp/tree/master/examples/QT/SioChatDemo) for other features.
+You can run [Demo project](https://github.com/socketio/socket.io-client-cpp/tree/master/examples/QT/SioChatDemo) to have a closer look. 
+Before running, please follow the [instructions](../../README.md#with_cmake) to make the sioclient library.
 
