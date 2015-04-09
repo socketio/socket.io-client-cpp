@@ -6,7 +6,7 @@
 #ifdef WIN32
 #define BIND_EVENT(IO,EV,FN) \
     do{ \
-        client::event_listener_aux l = FN;\
+        socket::event_listener_aux l = FN;\
         IO->on(EV,l);\
     } while(0)
 

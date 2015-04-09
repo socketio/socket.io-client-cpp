@@ -26,10 +26,23 @@ FORMS    += mainwindow.ui \
 
 CONFIG(debug, debug|release):DEFINES +=DEBUG=1
 
-LIBS += -L$$PWD/../../../build/lib/ -lsioclient
-LIBS += -L$$PWD/../../../build/lib/ -lboost_system
-LIBS += -L$$PWD/../../../build/lib/ -lboost_date_time
-LIBS += -L$$PWD/../../../build/lib/ -lboost_random
 
 INCLUDEPATH += $$PWD/../../../build/include
 DEPENDPATH += $$PWD/../../../build/lib
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../build/lib/release/ -lsioclient
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../build/lib/debug/ -lsioclient
+else:unix: LIBS += -L$$PWD/../../../build/lib/ -lsioclient
+
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../build/lib/release/ -lboost_random
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../build/lib/debug/ -lboost_random
+else:unix: LIBS += -L$$PWD/../../../build/lib/ -lboost_random
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../build/lib/release/ -lboost_system
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../build/lib/debug/ -lboost_system
+else:unix: LIBS += -L$$PWD/../../../build/lib/ -lboost_system
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../build/lib/release/ -lboost_date_time
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../build/lib/debug/ -lboost_date_time
+else:unix: LIBS += -L$$PWD/../../../build/lib/ -lboost_date_time

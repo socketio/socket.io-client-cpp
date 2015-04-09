@@ -1,6 +1,36 @@
 cmake_minimum_required(VERSION 3.1.0 FATAL_ERROR)
 PROJECT(sioclient)
 
+function(get_lib_name out_lib_name component)
+if(MSVC)
+set(${out_lib_name} "${component}.lib" PARENT_SCOPE)
+else()
+set(${out_lib_name} "lib${component}.a" PARENT_SCOPE)
+endif()
+endfunction()
+
+
+function(install_libs configuration lib_dir)
+get_lib_name(renamed_system "boost_system")
+install(FILES ${Boost_SYSTEM_LIBRARY}
+    CONFIGURATIONS ${configuration} DESTINATION ${lib_dir} RENAME ${renamed_system}
+)
+get_lib_name(renamed_date_time "boost_date_time")
+install(FILES ${Boost_DATE_TIME_LIBRARY}
+    CONFIGURATIONS ${configuration} DESTINATION ${lib_dir} RENAME ${renamed_date_time}
+)
+get_lib_name(renamed_random "boost_random")
+install(FILES ${Boost_RANDOM_LIBRARY}
+    CONFIGURATIONS ${configuration} DESTINATION ${lib_dir} RENAME ${renamed_random}
+)
+
+install(TARGETS sioclient
+    CONFIGURATIONS ${configuration} DESTINATION ${lib_dir}
+)
+endfunction()
+
+MESSAGE(STATUS ${CMAKE_CURRENT_LIST_DIR})
+
 set(BOOST_VER "1.55.0" CACHE STRING "boost version" )
 set(BOOST_PATH "__boost__" CACHE STRING "boost root path" )
 
@@ -28,8 +58,6 @@ set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME OFF) 
 find_package(Boost ${BOOST_VER} REQUIRED COMPONENTS system date_time random) 
 
-MESSAGE(STATUS ${Boost_SYSTEM_LIBRARY} )
-MESSAGE(STATUS ${CMAKE_CURRENT_LIST_DIR})
 aux_source_directory(${CMAKE_CURRENT_LIST_DIR}/src ALL_SRC)
 aux_source_directory(${CMAKE_CURRENT_LIST_DIR}/src/internal ALL_SRC)
 file(GLOB ALL_HEADERS ${CMAKE_CURRENT_LIST_DIR}/src/*.h )
@@ -48,8 +76,7 @@ target_link_libraries(sioclient PRIVATE ${Boost_LIBRARIES})
 install(FILES ${ALL_HEADERS} 
     DESTINATION "${CMAKE_CURRENT_LIST_DIR}/build/include"
     )
-install(FILES ${Boost_LIBRARIES} DESTINATION "${CMAKE_CURRENT_LIST_DIR}/build/lib")
-
-install(TARGETS sioclient
-    DESTINATION "${CMAKE_CURRENT_LIST_DIR}/build/lib"
-    )
+set(LIB_DIR_DEBUG "${CMAKE_CURRENT_LIST_DIR}/build/lib/debug")
+set(LIB_DIR_RELEASE "${CMAKE_CURRENT_LIST_DIR}/build/lib/release")
+install_libs(Debug ${LIB_DIR_DEBUG})
+install_libs(Release ${LIB_DIR_RELEASE})
