@@ -49,8 +49,12 @@ namespace sio
         
         // Client Functions - such as send, etc.
         void connect(const std::string& uri);
-        
-        void reconnect(const std::string& uri);
+
+        void set_reconnect_attempts(int attempts);
+
+        void set_reconnect_delay(unsigned millis);
+
+        void set_reconnect_delay_max(unsigned millis);
         
         socket::ptr const& socket(const std::string& nsp = "");
         

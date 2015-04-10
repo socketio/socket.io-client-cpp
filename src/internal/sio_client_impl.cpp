@@ -411,27 +411,27 @@ namespace sio
         
     }
     
-    void client_impl::reconnect(const std::string& uri)
-    {
-        if(m_network_thread)
-        {
-            if(m_con_state == con_closing)
-            {
-                m_network_thread->join();
-            }
-            else
-            {
-                return;
-            }
-        }
-        if(m_con_state == con_closed)
-        {
-            m_con_state = con_opening;
+//    void client_impl::reconnect(const std::string& uri)
+//    {
+//        if(m_network_thread)
+//        {
+//            if(m_con_state == con_closing)
+//            {
+//                m_network_thread->join();
+//            }
+//            else
+//            {
+//                return;
+//            }
+//        }
+//        if(m_con_state == con_closed)
+//        {
+//            m_con_state = con_opening;
             
-            m_client.get_io_service().dispatch(lib::bind(&client_impl::__connect,this,uri));
-            m_network_thread.reset(new std::thread(lib::bind(&client_impl::run_loop,this)));//uri
-        }
-    }
+//            m_client.get_io_service().dispatch(lib::bind(&client_impl::__connect,this,uri));
+//            m_network_thread.reset(new std::thread(lib::bind(&client_impl::run_loop,this)));//uri
+//        }
+//    }
     
     socket::ptr const& client_impl::socket(std::string const& nsp)
     {

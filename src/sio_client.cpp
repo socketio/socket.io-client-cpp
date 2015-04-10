@@ -64,10 +64,10 @@ namespace sio
         m_impl->connect(uri);
     }
     
-    void client::reconnect(const std::string& uri)
-    {
-        m_impl->reconnect(uri);
-    }
+//    void client::reconnect(const std::string& uri)
+//    {
+//        m_impl->reconnect(uri);
+//    }
     
     socket::ptr const& client::socket(const std::string& nsp)
     {
@@ -93,6 +93,21 @@ namespace sio
     std::string const& client::get_sessionid() const
     {
         return m_impl->get_sessionid();
+    }
+
+    void client::set_reconnect_attempts(int attempts)
+    {
+        m_impl->set_reconnect_attempts(attempts);
+    }
+
+    void client::set_reconnect_delay(unsigned millis)
+    {
+        m_impl->set_reconnect_delay(millis);
+    }
+
+    void client::set_reconnect_delay_max(unsigned millis)
+    {
+        m_impl->set_reconnect_delay_max(millis);
     }
     
 }

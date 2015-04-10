@@ -83,7 +83,7 @@ void set_##__FIELD__(__TYPE__ const& l) \
         // Client Functions - such as send, etc.
         void connect(const std::string& uri);
         
-        void reconnect(const std::string& uri);
+//        void reconnect(const std::string& uri);
         
         socket::ptr const& socket(const std::string& nsp);
         
@@ -95,8 +95,13 @@ void set_##__FIELD__(__TYPE__ const& l) \
         bool opened() const { return m_con_state == con_opened; }
         
         std::string const& get_sessionid() const { return m_sid; }
+
+        void set_reconnect_attempts(unsigned attempts) {m_reconn_attempts = attempts;}
+
+        void set_reconnect_delay(unsigned millis) {m_reconn_delay = millis;if(m_reconn_delay_max<millis) m_reconn_delay_max = millis;}
+
+        void set_reconnect_delay_max(unsigned millis) {m_reconn_delay_max = millis;if(m_reconn_delay>millis) m_reconn_delay = millis;}
         
-        friend class client;
     protected:
         void send(packet& p);
         
@@ -173,6 +178,12 @@ void set_##__FIELD__(__TYPE__ const& l) \
         std::map<const std::string,socket::ptr> m_sockets;
         
         std::mutex m_socket_mutex;
+
+        unsigned m_reconn_delay;
+
+        unsigned m_reconn_delay_max;
+
+        unsigned m_reconn_attempts;
         
         friend class sio::client;
         friend class sio::socket;
