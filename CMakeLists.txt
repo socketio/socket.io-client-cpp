@@ -9,18 +9,48 @@ set(${out_lib_name} "lib${component}.a" PARENT_SCOPE)
 endif()
 endfunction()
 
+function(select_lib output_lib lib_list configuration)
+list(LENGTH lib_list LIB_LEN )
+if(LIB_LEN GREATER 1)
+set(LIB_MET OFF)
+foreach(lib_i ${lib_list})
+	if(LIB_MET)
+		set(${output_lib} ${lib_i} PARENT_SCOPE)
+		return()
+	endif()
+	if(NOT lib_i MATCHES ".*[Bb]oost.*" )
+		if(lib_i STREQUAL "debug" )
+			if(configuration STREQUAL "Debug")
+				set(${LIB_MET} ON)
+			endif()
+		else()
+			if(configuration STREQUAL "Release")
+				set(${LIB_MET} ON)
+			endif()
+		endif()
+	endif()
+endforeach(lib_i)
+else()
+set(${output_lib} ${lib_list} PARENT_SCOPE)
+endif()
+endfunction()
 
 function(install_libs configuration lib_dir)
+
+
 get_lib_name(renamed_system "boost_system")
-install(FILES ${Boost_SYSTEM_LIBRARY}
+select_lib(src_lib_x ${Boost_SYSTEM_LIBRARY} ${configuration} )
+install(FILES ${src_lib_x}
     CONFIGURATIONS ${configuration} DESTINATION ${lib_dir} RENAME ${renamed_system}
 )
 get_lib_name(renamed_date_time "boost_date_time")
-install(FILES ${Boost_DATE_TIME_LIBRARY}
+select_lib(src_lib_y ${Boost_SYSTEM_LIBRARY} ${configuration} )
+install(FILES ${src_lib_y}
     CONFIGURATIONS ${configuration} DESTINATION ${lib_dir} RENAME ${renamed_date_time}
 )
 get_lib_name(renamed_random "boost_random")
-install(FILES ${Boost_RANDOM_LIBRARY}
+select_lib(src_lib_z ${Boost_SYSTEM_LIBRARY} ${configuration} )
+install(FILES ${src_lib_z}
     CONFIGURATIONS ${configuration} DESTINATION ${lib_dir} RENAME ${renamed_random}
 )
 
