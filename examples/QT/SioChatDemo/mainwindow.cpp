@@ -19,6 +19,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
     _io(new client()),
+    m_typingItem(NULL),
     m_dialog()
 {
     ui->setupUi(this);
@@ -39,6 +40,7 @@ MainWindow::MainWindow(QWidget *parent) :
     _io->set_fail_listener(std::bind(&MainWindow::OnFailed,this));
 
     connect(this,SIGNAL(RequestAddListItem(QListWidgetItem*)),this,SLOT(AddListItem(QListWidgetItem*)));
+    connect(this,SIGNAL(RequestRemoveListItem(QListWidgetItem*)),this,SLOT(RemoveListItem(QListWidgetItem*)));
     connect(this,SIGNAL(RequestToggleInputs(bool)),this,SLOT(ToggleInputs(bool)));
 }
 
@@ -58,7 +60,7 @@ void MainWindow::SendBtnClicked()
         QByteArray bytes = text.toUtf8();
         std::string msg(bytes.data(),bytes.length());
         _io->socket()->emit("new message",msg);
-        text.append(":You");
+        text.append(" : You");
         QListWidgetItem *item = new QListWidgetItem(text);
         item->setTextAlignment(Qt::AlignRight);
         Q_EMIT RequestAddListItem(item);
@@ -126,6 +128,14 @@ void MainWindow::AddListItem(QListWidgetItem* item)
     this->findChild<QListWidget*>("listView")->addItem(item);
 }
 
+void MainWindow::RemoveListItem(QListWidgetItem* item)
+{
+    QListWidget* list = this->findChild<QListWidget*>("listView");
+    int row = list->row(item);
+    delete list->takeItem(row);
+}
+
+
 void MainWindow::OnNewMessage(std::string const& name,message::ptr const& data,bool hasAck,message::ptr &ack_resp)
 {
 
@@ -134,7 +144,7 @@ void MainWindow::OnNewMessage(std::string const& name,message::ptr const& data,b
         std::string msg = data->get_map()["message"]->get_string();
         std::string username = data->get_map()["username"]->get_string();
         QString label = QString::fromUtf8(username.data(),username.length());
-        label.append(':');
+        label.append(" : ");
         label.append(QString::fromUtf8(msg.data(),msg.length()));
         QListWidgetItem *item= new QListWidgetItem(label);
         Q_EMIT RequestAddListItem(item);
@@ -200,12 +210,25 @@ void MainWindow::OnUserLeft(std::string const& name,message::ptr const& data,boo
 
 void MainWindow::OnTyping(std::string const& name,message::ptr const& data,bool hasAck,message::ptr &ack_resp)
 {
-//Not implemented
+    if(m_typingItem == NULL)
+    {
+        std::string name = data->get_map()["username"]->get_string();
+        QString label = QString::fromUtf8(name.data(),name.length());
+        label.append("  is typing...");
+        QListWidgetItem *item = new QListWidgetItem(label);
+        item->setTextColor(QColor(200,200,200,255));
+        m_typingItem = item;
+        Q_EMIT RequestAddListItem(item);
+    }
 }
 
 void MainWindow::OnStopTyping(std::string const& name,message::ptr const& data,bool hasAck,message::ptr &ack_resp)
 {
-//Not implemented
+    if(m_typingItem != NULL)
+    {
+        Q_EMIT RequestRemoveListItem(m_typingItem);
+        m_typingItem = NULL;
+    }
 }
 
 void MainWindow::OnLogin(std::string const& name,message::ptr const& data,bool hasAck,message::ptr &ack_resp)

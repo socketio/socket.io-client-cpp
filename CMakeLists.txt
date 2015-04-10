@@ -30,6 +30,10 @@ install(TARGETS sioclient
 endfunction()
 
 MESSAGE(STATUS ${CMAKE_CURRENT_LIST_DIR})
+if(NOT CMAKE_BUILD_TYPE )
+MESSAGE(STATUS "not define build type, set to release" )
+set(CMAKE_BUILD_TYPE Release )
+endif()
 
 set(BOOST_VER "1.55.0" CACHE STRING "boost version" )
 set(BOOST_PATH "__boost__" CACHE STRING "boost root path" )

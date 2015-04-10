@@ -31,9 +31,11 @@ protected:
 
 Q_SIGNALS:
     void RequestAddListItem(QListWidgetItem *item);
+    void RequestRemoveListItem(QListWidgetItem *item);
     void RequestToggleInputs(bool loginOrNot);
 private Q_SLOTS:
     void AddListItem(QListWidgetItem *item);
+    void RemoveListItem(QListWidgetItem *item);
     void ToggleInputs(bool loginOrNot);
     void TypingStop();
     void NicknameAccept();
@@ -59,6 +61,8 @@ private:
     QString m_name;
 
     std::unique_ptr<QTimer> m_timer;
+
+    QListWidgetItem *m_typingItem;
 };
 
 #endif // MAINWINDOW_H
