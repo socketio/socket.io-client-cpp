@@ -22,19 +22,22 @@ using boost::posix_time::milliseconds;
 namespace sio
 {
     client_impl::client_impl() :
-    m_con_state(con_closed),
-    m_ping_interval(0),
-    m_ping_timeout(0),
-    m_network_thread()
+        m_con_state(con_closed),
+        m_ping_interval(0),
+        m_ping_timeout(0),
+        m_network_thread(),
+        m_reconn_attempts(0xFFFFFFFF),
+        m_reconn_delay(5000),
+        m_reconn_delay_max(25000)
     {
         using websocketpp::log::alevel;
-#ifndef DEBUG
+    #ifndef DEBUG
         m_client.clear_access_channels(alevel::all);
         m_client.set_access_channels(alevel::connect|alevel::disconnect|alevel::app);
-#endif
+    #endif
         // Initialize the Asio transport policy
         m_client.init_asio();
-        
+
         // Bind the clients we are using
         using websocketpp::lib::placeholders::_1;
         using websocketpp::lib::placeholders::_2;
@@ -42,9 +45,9 @@ namespace sio
         m_client.set_close_handler(lib::bind(&client_impl::on_close,this,_1));
         m_client.set_fail_handler(lib::bind(&client_impl::on_fail,this,_1));
         m_client.set_message_handler(lib::bind(&client_impl::on_message,this,_1,_2));
-        
+
         m_packet_mgr.set_decode_callback(lib::bind(&client_impl::on_decode,this,_1));
-        
+
         m_packet_mgr.set_encode_callback(lib::bind(&client_impl::on_encode,this,_1,_2));
     }
     
