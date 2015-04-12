@@ -41,8 +41,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)boost;$(SolutionDir)..\..\..\lib\websocketpp;$(SolutionDir)..\..\..\lib\rapidjson\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)boost\$(Configuration)\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>D:\BoostRoot\include\boost-1_55;$(SolutionDir)..\..\..\lib\websocketpp;$(SolutionDir)..\..\..\lib\rapidjson\include;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\boost_1_55_0\boost_build\debug\lib;$(SolutionDir)boost\$(Configuration)\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -82,13 +82,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\src\internal\sio_client_impl.h" />
+    <ClInclude Include="..\..\..\src\internal\sio_packet.h" />
     <ClInclude Include="..\..\..\src\sio_client.h" />
     <ClInclude Include="..\..\..\src\sio_message.h" />
-    <ClInclude Include="..\..\..\src\sio_packet.h" />
+    <ClInclude Include="..\..\..\src\sio_socket.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\src\internal\sio_client_impl.cpp" />
+    <ClCompile Include="..\..\..\src\internal\sio_packet.cpp" />
     <ClCompile Include="..\..\..\src\sio_client.cpp" />
-    <ClCompile Include="..\..\..\src\sio_packet.cpp" />
+    <ClCompile Include="..\..\..\src\sio_socket.cpp" />
     <ClCompile Include="..\main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
