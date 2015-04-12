@@ -38,12 +38,21 @@ namespace sio
         m_impl->set_close_listener(l);
     }
     
-    
     void client::set_socket_open_listener(socket_listener const& l)
     {
         m_impl->set_socket_open_listener(l);
     }
     
+    void client::set_reconnect_listener(reconnect_listener const& l)
+    {
+        m_impl->set_reconnect_listener(l);
+    }
+
+    void client::set_reconnecting_listener(con_listener const& l)
+    {
+        m_impl->set_reconnecting_listener(l);
+    }
+
     void client::set_socket_close_listener(socket_listener const& l)
     {
         m_impl->set_socket_close_listener(l);

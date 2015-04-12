@@ -26,6 +26,8 @@ namespace sio
         typedef std::function<void(void)> con_listener;
         
         typedef std::function<void(close_reason const& reason)> close_listener;
+
+        typedef std::function<void(unsigned, unsigned)> reconnect_listener;
         
         typedef std::function<void(std::string const& nsp)> socket_listener;
         
@@ -37,6 +39,10 @@ namespace sio
         
         void set_fail_listener(con_listener const& l);
         
+        void set_reconnecting_listener(con_listener const& l);
+
+        void set_reconnect_listener(reconnect_listener const& l);
+
         void set_close_listener(close_listener const& l);
         
         void set_socket_open_listener(socket_listener const& l);

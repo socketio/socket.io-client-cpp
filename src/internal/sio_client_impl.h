@@ -57,6 +57,10 @@ void set_##__FIELD__(__TYPE__ const& l) \
         SYNTHESIS_SETTER(client::con_listener,open_listener)
         
         SYNTHESIS_SETTER(client::con_listener,fail_listener)
+
+        SYNTHESIS_SETTER(client::reconnect_listener,reconnect_listener)
+
+        SYNTHESIS_SETTER(client::con_listener,reconnecting_listener)
         
         SYNTHESIS_SETTER(client::close_listener,close_listener)
         
@@ -72,6 +76,8 @@ void set_##__FIELD__(__TYPE__ const& l) \
             m_open_listener = nullptr;
             m_close_listener = nullptr;
             m_fail_listener = nullptr;
+            m_reconnect_listener = nullptr;
+            m_reconnecting_listener = nullptr;
         }
         
         void clear_socket_listeners()
@@ -82,8 +88,6 @@ void set_##__FIELD__(__TYPE__ const& l) \
         
         // Client Functions - such as send, etc.
         void connect(const std::string& uri);
-        
-//        void reconnect(const std::string& uri);
         
         socket::ptr const& socket(const std::string& nsp);
         
@@ -129,6 +133,10 @@ void set_##__FIELD__(__TYPE__ const& l) \
         socket::ptr get_socket_locked(std::string const& nsp);
         
         void sockets_invoke_void(void (sio::socket::*fn)(void));
+
+        void reconnect(boost::system::error_code const& ec);
+
+        unsigned next_delay() const;
         
         void run_loop();
         
@@ -155,6 +163,8 @@ void set_##__FIELD__(__TYPE__ const& l) \
         client_type m_client;
         // Socket.IO server settings
         std::string m_sid;
+        std::string m_base_url;
+
         unsigned int m_ping_interval;
         unsigned int m_ping_timeout;
         
@@ -165,11 +175,16 @@ void set_##__FIELD__(__TYPE__ const& l) \
         std::unique_ptr<boost::asio::deadline_timer> m_ping_timer;
         
         std::unique_ptr<boost::asio::deadline_timer> m_ping_timeout_timer;
+
+        std::unique_ptr<boost::asio::deadline_timer> m_reconn_timer;
         
         con_state m_con_state;
         
         client::con_listener m_open_listener;
         client::con_listener m_fail_listener;
+        client::con_listener m_reconnecting_listener;
+        client::reconnect_listener m_reconnect_listener;
+
         client::close_listener m_close_listener;
         
         client::socket_listener m_socket_open_listener;
@@ -184,6 +199,8 @@ void set_##__FIELD__(__TYPE__ const& l) \
         unsigned m_reconn_delay_max;
 
         unsigned m_reconn_attempts;
+
+        unsigned m_reconn_made;
         
         friend class sio::client;
         friend class sio::socket;

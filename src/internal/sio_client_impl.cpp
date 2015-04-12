@@ -10,6 +10,7 @@
 #include <sstream>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <mutex>
+#include <cmath>
 // Comment this out to disable handshake logging to stdout
 #if DEBUG || _DEBUG
 #define LOG(x) std::cout << x
@@ -27,6 +28,7 @@ namespace sio
         m_ping_timeout(0),
         m_network_thread(),
         m_reconn_attempts(0xFFFFFFFF),
+        m_reconn_made(0),
         m_reconn_delay(5000),
         m_reconn_delay_max(25000)
     {
@@ -55,25 +57,6 @@ namespace sio
     {
         this->sockets_invoke_void(&sio::socket::on_close);
         sync_close();
-    }
-    
-    // Websocket++ client client
-    void client_impl::on_fail(connection_hdl con)
-    {
-        m_con.reset();
-        m_con_state = con_closed;
-        this->sockets_invoke_void(&sio::socket::on_disconnect);
-        LOG("Connection failed." << std::endl);
-        if(m_fail_listener)m_fail_listener();
-    }
-    
-    void client_impl::on_pong()
-    {
-        if(m_ping_timeout_timer)
-        {
-            m_ping_timeout_timer->cancel();
-            m_ping_timeout_timer.reset();
-        }
     }
     
     void client_impl::on_handshake(message::ptr const& message)
@@ -113,12 +96,35 @@ namespace sio
             m_ping_timer->expires_from_now(milliseconds(m_ping_interval), ec);
             if(ec)LOG("ec:"<<ec.message()<<std::endl);
             m_ping_timer->async_wait(lib::bind(&client_impl::__ping,this,lib::placeholders::_1));
-            LOG("On handshake,sid:"<<m_sid<<",ping interval:"<<m_ping_interval<<",ping timeout"<<"m_ping_timeout"<<m_ping_timeout<<std::endl);
+            LOG("On handshake,sid:"<<m_sid<<",ping interval:"<<m_ping_interval<<",ping timeout"<<m_ping_timeout<<std::endl);
             return;
         }
     failed:
         //just close it.
         m_client.get_io_service().dispatch(lib::bind(&client_impl::__close, this,close::status::policy_violation,"Handshake error"));
+    }
+
+    // Websocket++ client client
+    void client_impl::on_fail(connection_hdl con)
+    {
+        m_con.reset();
+        m_con_state = con_closed;
+        this->sockets_invoke_void(&sio::socket::on_disconnect);
+        LOG("Connection failed." << std::endl);
+        if(m_reconn_made<m_reconn_attempts)
+        {
+			LOG("Reconnect for attempt:"<<m_reconn_made<<std::endl);
+            unsigned delay = this->next_delay();
+            if(m_reconnect_listener) m_reconnect_listener(m_reconn_made,delay);
+            m_reconn_timer.reset(new boost::asio::deadline_timer(m_client.get_io_service()));
+            boost::system::error_code ec;
+            m_reconn_timer->expires_from_now(milliseconds(delay), ec);
+            m_reconn_timer->async_wait(lib::bind(&client_impl::reconnect,this,lib::placeholders::_1));
+        }
+        else
+        {
+            if(m_fail_listener)m_fail_listener();
+        }
     }
     
     void client_impl::on_open(connection_hdl con)
@@ -126,6 +132,7 @@ namespace sio
         LOG("Connected." << std::endl);
         m_con_state = con_opened;
         m_con = con;
+		m_reconn_made = 0;
         this->sockets_invoke_void(&sio::socket::on_open);
         if(m_open_listener)m_open_listener();
     }
@@ -156,12 +163,22 @@ namespace sio
         else
         {
             this->sockets_invoke_void(&sio::socket::on_disconnect);
+            if(m_reconn_made<m_reconn_attempts)
+            {
+				LOG("Reconnect for attempt:"<<m_reconn_made<<std::endl);
+                unsigned delay = this->next_delay();
+                if(m_reconnect_listener) m_reconnect_listener(m_reconn_made,delay);
+                m_reconn_timer.reset(new boost::asio::deadline_timer(m_client.get_io_service()));
+                boost::system::error_code ec;
+                m_reconn_timer->expires_from_now(milliseconds(delay), ec);
+                m_reconn_timer->async_wait(lib::bind(&client_impl::reconnect,this,lib::placeholders::_1));
+                return;
+            }
             reason = client::close_reason_drop;
         }
         
         if(m_close_listener)
         {
-            
             m_close_listener(reason);
         }
     }
@@ -177,6 +194,15 @@ namespace sio
         m_packet_mgr.put_payload(msg->get_payload());
     }
     
+	void client_impl::on_pong()
+    {
+        if(m_ping_timeout_timer)
+        {
+            m_ping_timeout_timer->cancel();
+            m_ping_timeout_timer.reset();
+        }
+    }
+
     void client_impl::on_pong_timeout()
     {
         LOG("Pong timeout"<<std::endl);
@@ -257,6 +283,11 @@ namespace sio
     void client_impl::__close(close::status::value const& code,std::string const& reason)
     {
         LOG("Close by reason:"<<reason << std::endl);
+        if(m_reconn_timer)
+        {
+            m_reconn_timer->cancel();
+            m_reconn_timer.reset();
+        }
         if (m_con.expired())
         {
             std::cerr << "Error: No active session" << std::endl;
@@ -285,6 +316,12 @@ namespace sio
             m_network_thread->join();
             m_network_thread.reset();
         }
+    }
+
+    unsigned client_impl::next_delay() const
+    {
+        //no jitter, fixed power root.
+        return (unsigned)min(m_reconn_delay * pow(1.5,m_reconn_made),m_reconn_delay_max);
     }
     
     void client_impl::send(packet& p)
@@ -392,6 +429,11 @@ namespace sio
     
     void client_impl::connect(const std::string& uri)
     {
+        if(m_reconn_timer)
+        {
+            m_reconn_timer->cancel();
+            m_reconn_timer.reset();
+        }
         if(m_network_thread)
         {
             if(m_con_state == con_closing||m_con_state == con_closed)
@@ -400,6 +442,7 @@ namespace sio
                 //if client is closed, still need to join,
                 //but in closed case,join will return immediately.
                 m_network_thread->join();
+                m_network_thread.reset();//defensive
             }
             else
             {
@@ -408,33 +451,30 @@ namespace sio
             }
         }
         m_con_state = con_opening;
+        m_base_url = uri;
+        m_reconn_made = 0;
         this->reset_states();
         m_client.get_io_service().dispatch(lib::bind(&client_impl::__connect,this,uri));
         m_network_thread.reset(new std::thread(lib::bind(&client_impl::run_loop,this)));//uri lifecycle?
         
     }
     
-//    void client_impl::reconnect(const std::string& uri)
-//    {
-//        if(m_network_thread)
-//        {
-//            if(m_con_state == con_closing)
-//            {
-//                m_network_thread->join();
-//            }
-//            else
-//            {
-//                return;
-//            }
-//        }
-//        if(m_con_state == con_closed)
-//        {
-//            m_con_state = con_opening;
-            
-//            m_client.get_io_service().dispatch(lib::bind(&client_impl::__connect,this,uri));
-//            m_network_thread.reset(new std::thread(lib::bind(&client_impl::run_loop,this)));//uri
-//        }
-//    }
+    void client_impl::reconnect(boost::system::error_code const& ec)
+    {
+        if(ec)
+        {
+            return;
+        }
+        if(m_con_state == con_closed)
+        {
+            m_con_state = con_opening;
+            m_reconn_made++;
+            this->reset_states();
+			LOG("Reconnecting..."<<std::endl);
+            if(m_reconnecting_listener) m_reconnecting_listener();
+            m_client.get_io_service().dispatch(lib::bind(&client_impl::__connect,this,m_base_url));
+        }
+    }
     
     socket::ptr const& client_impl::socket(std::string const& nsp)
     {
