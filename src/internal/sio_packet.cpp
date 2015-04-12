@@ -144,7 +144,7 @@ namespace sio
             if (mem_it!=value.MemberEnd() && mem_it->value.GetBool()) {
                
                 int num = value["num"].GetInt();
-                if(num > 0 && num < buffers.size())
+                if(num >= 0 && num < buffers.size())
                 {
                     return binary_message::create(buffers[num]);
                 }
