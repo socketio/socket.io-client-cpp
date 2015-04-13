@@ -7,11 +7,20 @@
     <x>0</x>
     <y>0</y>
     <width>366</width>
-    <height>577</height>
+    <height>549</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="windowTitle">
    <string>Socket.IO Chat</string>
+  </property>
+  <property name="unifiedTitleAndToolBarOnMac">
+   <bool>false</bool>
   </property>
   <widget class="QWidget" name="centralWidget">
    <widget class="QListWidget" name="listView">
@@ -20,11 +29,17 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>10</x>
+      <x>8</x>
       <y>11</y>
-      <width>351</width>
+      <width>350</width>
       <height>461</height>
      </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
     </property>
     <property name="sizeIncrement">
      <size>
@@ -39,9 +54,9 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>485</y>
-      <width>351</width>
+      <x>8</x>
+      <y>480</y>
+      <width>350</width>
       <height>21</height>
      </rect>
     </property>
