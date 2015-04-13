@@ -242,10 +242,6 @@ Set listener for socket close event, called when any sockets being closed, after
 `void connect(const std::string& uri)`
 
 Connect to socket.io server, eg. `client.connect("ws://localhost:3000");`
-        
-`void reconnect(const std::string& uri)`
-
-Try to reconnect with original session id. If `fail listener` triggered, means your session id is already expired, do not keep reconnect again.
 
 `void close()`
 
@@ -258,6 +254,28 @@ Close the client, return until it is really closed.
 `bool opened() const`
 
 Check if client's connection is opened.
+
+#### Transparent reconnecting
+`void set_reconnect_attempts(int attempts)`
+
+Set max reconnect attempts, set to 0 to disable transparent reconnecting.
+
+`void set_reconnect_delay(unsigned millis)`
+
+Set minimum delay for reconnecting, this is the delay for 1st reconnecting attempt,
+then the delay duration grows by attempts made.
+
+`void set_reconnect_delay_max(unsigned millis)`
+
+Set maximum delay for reconnecting.
+
+`void set_reconnecting_listener(con_listener const& l)`
+
+Set listener for reconnecting is in process.
+
+`void set_reconnect_listener(reconnect_listener const& l)`
+
+Set listener for reconnecting event, called once a delayed connecting is scheduled.
 
 #### Namespace
 `socket::ptr socket(std::string const& nsp)`
