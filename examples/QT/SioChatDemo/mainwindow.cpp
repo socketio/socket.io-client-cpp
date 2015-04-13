@@ -198,7 +198,7 @@ void MainWindow::OnUserLeft(std::string const& name,message::ptr const& data,boo
         }
         digits.insert(0,QChar(numUser+'0'));
         label.append(digits);
-        label.append(plural?" participants":"participant");
+        label.append(plural?" participants":" participant");
         QListWidgetItem *item= new QListWidgetItem(label);
         item->setTextAlignment(Qt::AlignHCenter);
         QFont font;
@@ -278,13 +278,13 @@ void MainWindow::ToggleInputs(bool loginOrNot)
     {
         this->findChild<QWidget*>("messageEdit")->setEnabled(true);
         this->findChild<QWidget*>("listView")->setEnabled(true);
-        this->findChild<QWidget*>("sendBtn")->setEnabled(true);
+//        this->findChild<QWidget*>("sendBtn")->setEnabled(true);
     }
     else
     {
         this->findChild<QWidget*>("messageEdit")->setEnabled(false);
         this->findChild<QWidget*>("listView")->setEnabled(false);
-        this->findChild<QWidget*>("sendBtn")->setEnabled(false);
+//        this->findChild<QWidget*>("sendBtn")->setEnabled(false);
         ShowLoginDialog();
     }
 }

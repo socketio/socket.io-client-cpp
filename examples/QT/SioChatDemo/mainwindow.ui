@@ -14,22 +14,6 @@
    <string>Socket.IO Chat</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QPushButton" name="sendBtn">
-    <property name="enabled">
-     <bool>false</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>300</x>
-      <y>480</y>
-      <width>61</width>
-      <height>32</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Send</string>
-    </property>
-   </widget>
    <widget class="QListWidget" name="listView">
     <property name="enabled">
      <bool>false</bool>
@@ -57,7 +41,7 @@
      <rect>
       <x>10</x>
       <y>485</y>
-      <width>281</width>
+      <width>351</width>
       <height>21</height>
      </rect>
     </property>
@@ -101,22 +85,6 @@
     </hint>
     <hint type="destinationlabel">
      <x>30</x>
-     <y>545</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>sendBtn</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>SendBtnClicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>307</x>
-     <y>531</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>269</x>
      <y>545</y>
     </hint>
    </hints>

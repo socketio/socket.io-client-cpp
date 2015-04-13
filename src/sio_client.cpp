@@ -73,11 +73,6 @@ namespace sio
         m_impl->connect(uri);
     }
     
-//    void client::reconnect(const std::string& uri)
-//    {
-//        m_impl->reconnect(uri);
-//    }
-    
     socket::ptr const& client::socket(const std::string& nsp)
     {
         return m_impl->socket(nsp);
