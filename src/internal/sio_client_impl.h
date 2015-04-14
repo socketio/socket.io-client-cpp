@@ -89,7 +89,7 @@ void set_##__FIELD__(__TYPE__ const& l) \
         // Client Functions - such as send, etc.
         void connect(const std::string& uri);
         
-        ::sio::socket::ptr const& socket(const std::string& nsp);
+        sio::socket::ptr const& socket(const std::string& nsp);
         
         // Closes the connection
         void close();
