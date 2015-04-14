@@ -321,7 +321,7 @@ namespace sio
     unsigned client_impl::next_delay() const
     {
         //no jitter, fixed power root.
-        return (unsigned)min(m_reconn_delay * pow(1.5,m_reconn_made),m_reconn_delay_max);
+        return min<unsigned>(m_reconn_delay * pow(1.5,m_reconn_made),m_reconn_delay_max);
     }
     
     void client_impl::send(packet& p)
