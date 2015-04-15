@@ -118,44 +118,45 @@ void set_##__FIELD__(__TYPE__ const& l) \
         void on_socket_opened(std::string const& nsp);
         
     private:
-        void __close(close::status::value const& code,std::string const& reason);
+        void run_loop();
+
+        void connect_impl(const std::string& uri);
+
+        void close_impl(close::status::value const& code,std::string const& reason);
         
-        void __connect(const std::string& uri);
+        void send_impl(std::shared_ptr<const std::string> const&  payload_ptr,frame::opcode::value opcode);
         
-        void __send(std::shared_ptr<const std::string> const&  payload_ptr,frame::opcode::value opcode);
+        void ping(const boost::system::error_code& ec);
         
-        void __ping(const boost::system::error_code& ec);
-        
-        void __timeout_pong(const boost::system::error_code& ec);
-        
-        void __timeout_connection(const boost::system::error_code& ec);
-        
+        void timeout_pong(const boost::system::error_code& ec);
+
+        void timeout_reconnect(boost::system::error_code const& ec);
+
+        unsigned next_delay() const;
+
         socket::ptr get_socket_locked(std::string const& nsp);
         
         void sockets_invoke_void(void (sio::socket::*fn)(void));
-
-        void reconnect(boost::system::error_code const& ec);
-
-        unsigned next_delay() const;
-        
-        void run_loop();
         
         void on_decode(packet const& pack);
         void on_encode(bool isBinary,shared_ptr<const string> const& payload);
         
-        // Callbacks
+        //websocket callbacks
         void on_fail(connection_hdl con);
+
         void on_open(connection_hdl con);
+
         void on_close(connection_hdl con);
+
         void on_message(connection_hdl con, client_type::message_ptr msg);
+
+        //socketio callbacks
         void on_handshake(message::ptr const& message);
-        
+
         void on_pong();
-        
-        void on_pong_timeout();
-        
+
         void reset_states();
-        
+
         void clear_timers();
         
         // Connection pointer for client functions.
@@ -184,7 +185,6 @@ void set_##__FIELD__(__TYPE__ const& l) \
         client::con_listener m_fail_listener;
         client::con_listener m_reconnecting_listener;
         client::reconnect_listener m_reconnect_listener;
-
         client::close_listener m_close_listener;
         
         client::socket_listener m_socket_open_listener;

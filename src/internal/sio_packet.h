@@ -4,8 +4,8 @@
 //  Created by Melo Yao on 3/19/15.
 //
 
-#ifndef __SIO_PACKET_H__
-#define __SIO_PACKET_H__
+#ifndef SIO_PACKET_H
+#define SIO_PACKET_H
 #include <sstream>
 #include "../sio_message.h"
 #include <functional>

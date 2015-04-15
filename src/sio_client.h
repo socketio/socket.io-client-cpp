@@ -4,8 +4,8 @@
 //  Created by Melo Yao on 3/25/15.
 //
 
-#ifndef __SIO_CLIENT__H__
-#define __SIO_CLIENT__H__
+#ifndef SIO_CLIENT_H
+#define SIO_CLIENT_H
 #include <string>
 #include <functional>
 #include "sio_message.h"
