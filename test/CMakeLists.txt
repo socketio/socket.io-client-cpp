@@ -1,0 +1,7 @@
+cmake_minimum_required(VERSION 2.8)
+include(${CMAKE_CURRENT_SOURCE_DIR}/../CMakeLists.txt)
+find_package(Boost ${BOOST_VER} REQUIRED COMPONENTS unit_test_framework) 
+add_executable(sio_test sio_test.cpp)
+target_link_libraries(sioclient PRIVATE ${Boost_LIBRARIES})
+target_link_libraries(sio_test sioclient)
+target_include_directories(sio_test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../src"  ${Boost_INCLUDE_DIRS} )
