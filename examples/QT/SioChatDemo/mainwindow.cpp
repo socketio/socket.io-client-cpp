@@ -3,6 +3,8 @@
 #include <functional>
 #include <mutex>
 #include <cstdlib>
+
+#define kURL "ws://localhost:3000"
 #ifdef WIN32
 #define BIND_EVENT(IO,EV,FN) \
     do{ \
@@ -113,7 +115,7 @@ void MainWindow::NicknameAccept()
     m_name = m_dialog->getNickname();
     if(m_name.length()>0)
     {
-        _io->connect("ws://localhost:3000");
+        _io->connect(kURL);
     }
 }
 
