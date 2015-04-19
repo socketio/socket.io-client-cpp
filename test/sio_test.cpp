@@ -67,13 +67,16 @@ BOOST_AUTO_TEST_CASE( test_packet_accept_2 )
 
 BOOST_AUTO_TEST_CASE( test_packet_accept_3 )
 {
-    packet p("/nsp",string_message::create("test"),1001,true);
+    message::ptr array = array_message::create();
+    array->get_vector().push_back(string_message::create("event"));
+    array->get_vector().push_back(string_message::create("text"));
+    packet p("/nsp",array,1001,true);
     std::string payload;
     std::vector<std::shared_ptr<const std::string> > buffers;
     p.accept(payload,buffers);
     BOOST_CHECK(p.get_type() == packet::type_ack);
     BOOST_CHECK(buffers.size() == 0);
-    BOOST_CHECK_MESSAGE(payload == "43/nsp,1001\"test\"",std::string("outputing payload:")+payload);
+    BOOST_CHECK_MESSAGE(payload == "43/nsp,1001[\"event\",\"text\"]",std::string("outputing payload:")+payload);
 }
 
 BOOST_AUTO_TEST_CASE( test_packet_accept_4 )

@@ -139,13 +139,13 @@ void set_##__FIELD__(__TYPE__ const& l) \
         
         event_listener get_bind_listener_locked(string const& event);
         
-        void __ack(int msgId,string const& name,message::ptr const& ack_message);
+        void ack(int msgId,string const& name,message::ptr const& ack_message);
         
-        void __timeout_connection(const boost::system::error_code &ec);
+        void timeout_connection(const boost::system::error_code &ec);
         
-        void __send_connect();
+        void send_connect();
         
-        void __send_packet(packet& p);
+        void send_packet(packet& p);
         
         static event_listener s_null_event_listener;
         
@@ -216,7 +216,7 @@ void set_##__FIELD__(__TYPE__ const& l) \
         NULL_GUARD(client);
         if(m_client->opened())
         {
-            __send_connect();
+            send_connect();
         }
     }
     
@@ -231,16 +231,22 @@ void set_##__FIELD__(__TYPE__ const& l) \
     {
         NULL_GUARD(m_client);
         message::ptr msg_ptr = msglist.to_array_message(name);
-        packet p(m_nsp, msg_ptr,s_global_event_id);
+        int pack_id;
         if(ack)
         {
+            pack_id = s_global_event_id++;
             std::lock_guard<std::mutex> guard(m_event_mutex);
-            m_acks[s_global_event_id++] = ack;
+            m_acks[pack_id] = ack;
         }
-        __send_packet(p);
+        else
+        {
+            pack_id = -1;
+        }
+        packet p(m_nsp, msg_ptr,pack_id);
+        send_packet(p);
     }
     
-    void socket::impl::__send_connect()
+    void socket::impl::send_connect()
     {
         NULL_GUARD(m_client);
         packet p(packet::type_connect,m_nsp);
@@ -248,7 +254,7 @@ void set_##__FIELD__(__TYPE__ const& l) \
         m_connection_timer.reset(new boost::asio::deadline_timer(m_client->get_io_service()));
         boost::system::error_code ec;
         m_connection_timer->expires_from_now(boost::posix_time::milliseconds(20000), ec);
-        m_connection_timer->async_wait(std::bind(&socket::impl::__timeout_connection,this, std::placeholders::_1));
+        m_connection_timer->async_wait(std::bind(&socket::impl::timeout_connection,this, std::placeholders::_1));
     }
     
     void socket::impl::close()
@@ -257,7 +263,7 @@ void set_##__FIELD__(__TYPE__ const& l) \
         if(m_connected)
         {
             packet p(packet::type_disconnect,m_nsp);
-            __send_packet(p);
+            send_packet(p);
             
             if(!m_connection_timer)
             {
@@ -306,7 +312,7 @@ void set_##__FIELD__(__TYPE__ const& l) \
     
     void socket::impl::on_open()
     {
-        __send_connect();
+        send_connect();
     }
     
     void socket::impl::on_disconnect()
@@ -408,14 +414,14 @@ void set_##__FIELD__(__TYPE__ const& l) \
         if(func)func(ev);
         if(needAck)
         {
-            this->__ack(msgId, name, ev.get_ack_message());
+            this->ack(msgId, name, ev.get_ack_message());
         }
     }
     
-    void socket::impl::__ack(int msgId, const string &name, const message::ptr &ack_message)
+    void socket::impl::ack(int msgId, const string &name, const message::ptr &ack_message)
     {
         packet p(m_nsp, make_message(name, ack_message),msgId,true);
-        __send_packet(p);
+        send_packet(p);
     }
     
     void socket::impl::on_socketio_ack(int msgId, message::ptr const& message)
@@ -438,7 +444,7 @@ void set_##__FIELD__(__TYPE__ const& l) \
         if(m_error_listener)m_error_listener(err_message);
     }
     
-    void socket::impl::__timeout_connection(const boost::system::error_code &ec)
+    void socket::impl::timeout_connection(const boost::system::error_code &ec)
     {
         NULL_GUARD(m_client);
         if(ec)
@@ -450,7 +456,7 @@ void set_##__FIELD__(__TYPE__ const& l) \
         this->on_disconnect();
     }
     
-    void socket::impl::__send_packet(sio::packet &p)
+    void socket::impl::send_packet(sio::packet &p)
     {
         NULL_GUARD(m_client);
         if(m_connected)

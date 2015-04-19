@@ -91,7 +91,7 @@ void MainWindow::showEvent(QShowEvent *event)
 void MainWindow::TypingStop()
 {
     m_timer.reset();
-    _io->socket()->emit("stop typing","");
+    _io->socket()->emit("stop typing");
 }
 
 void MainWindow::TypingChanged()
@@ -102,7 +102,7 @@ void MainWindow::TypingChanged()
     }
     else
     {
-        _io->socket()->emit("typing",nullptr);
+        _io->socket()->emit("typing");
     }
     m_timer.reset(new QTimer(this));
     connect(m_timer.get(),SIGNAL(timeout()),this,SLOT(TypingStop()));
@@ -234,11 +234,6 @@ void MainWindow::OnStopTyping(std::string const& name,message::ptr const& data,b
 
 void MainWindow::OnLogin(std::string const& name,message::ptr const& data,bool hasAck,message::ptr &ack_resp)
 {
-    message::ptr  array = array_message::create();
-    array->get_vector().push_back(string_message::create("arg1"));
-    array->get_vector().push_back(string_message::create("arg2"));
-    _io->socket()->emit("test va",array);
-
     Q_EMIT RequestToggleInputs(true);
     int numUser = data->get_map()["numUsers"]->get_int();
 

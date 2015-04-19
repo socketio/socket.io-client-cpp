@@ -293,6 +293,7 @@ namespace sio
             message::ptr arr = array_message::create();
             arr->get_vector().push_back(string_message::create(event_name));
             arr->get_vector().insert(arr->get_vector().end(),m_vector.begin(),m_vector.end());
+            return arr;
         }
 
     private:
