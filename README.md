@@ -52,6 +52,8 @@ h.connect("http://127.0.0.1:3000");
 
 Emit a event
 ```C++
+//emit event name only:
+socket->emit("login");
 //emit text
 h.socket()->emit("add user", username);
 //emit binary
@@ -61,6 +63,10 @@ h.socket()->emit("add user", std::make_shared<std::string>(&buf,100));
 h.socket()->emit("add user", string_message::create(username), [&](message::ptr const& msg)
 {
 });
+//emit with `message::list`
+message::list li("arg1");
+li.push(string_message::create("arg2"));
+socket->emit("new va",li);// support io.on("new va",function(arg1,arg2){}); style in server side.
 ```
 
 Bind a event
@@ -114,30 +120,10 @@ Sockets are all managed by `client`, no public constructors.
 You can get it's pointer by `client.socket(namespace)`.
 
 #### Event Emitter
-`void emit(std::string const& name, message::list const& msglist = nullptr, std::function<void (message::ptr const&)> const& ack = nullptr)`
-Universal event emition interface, backward compatible with all previous `emit` interfaces, can be used with multiple styles:
+`void emit(std::string const& name, message::list const& msglist, std::function<void (message::ptr const&)> const& ack)`
 
-```C++
-//emit event name only:
-socket->emit("login");
-//emit with plain text:
-socket->emit("new message",text);
-//emit with single binary
-std::shared_ptr<std::string> voice_buf = std::make_shared<std::string>();
-...
-socket->emit("new voice",voice_buf);
-//emit with message object and requires an ack.
-message::ptr array = array_message::create();
-array->get_vector().push_back(string_message::create("item1"));
-array->get_vector().push_back(string_message::create("item2"));
-socket->emit("new arr",array,[](message::ptr const& ack_message){
-	//handle ack
-});
-//emit with `message::list`
-message::list li("arg1");
-li.push(string_message::create("arg2"));
-socket->emit("new va",li);// support io.on("new va",function(arg1,arg2){}); style in server side.
-```
+Universal event emition interface, by applying implicit conversion magic, it is backward compatible with all previous `emit` interfaces.
+
 * Items in `message::list` will be expanded in server side event callback function as function arguments.
 
 #### Event Bindings
