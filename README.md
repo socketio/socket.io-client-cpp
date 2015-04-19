@@ -68,6 +68,7 @@ message::list li("arg1");
 li.push(string_message::create("arg2"));
 socket->emit("new va",li);// support io.on("new va",function(arg1,arg2){}); style in server side.
 ```
+* Items in `message::list` will be expanded in server side event callback function as function arguments.
 
 Bind a event
 ```C++
@@ -123,8 +124,6 @@ You can get it's pointer by `client.socket(namespace)`.
 `void emit(std::string const& name, message::list const& msglist, std::function<void (message::ptr const&)> const& ack)`
 
 Universal event emition interface, by applying implicit conversion magic, it is backward compatible with all previous `emit` interfaces.
-
-* Items in `message::list` will be expanded in server side event callback function as function arguments.
 
 #### Event Bindings
 `void on(std::string const& event_name,event_listener const& func)`
