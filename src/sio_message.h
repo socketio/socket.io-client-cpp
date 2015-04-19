@@ -232,6 +232,10 @@ namespace sio
     class message::list
     {
     public:
+        list()
+        {
+        }
+
         list(nullptr_t)
         {
         }

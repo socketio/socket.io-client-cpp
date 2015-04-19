@@ -114,23 +114,31 @@ Sockets are all managed by `client`, no public constructors.
 You can get it's pointer by `client.socket(namespace)`.
 
 #### Event Emitter
-`void emit(std::string const& name, std::string const& message)`
+`void emit(std::string const& name, message::list const& msglist = nullptr, std::function<void (message::ptr const&)> const& ack = nullptr)`
+Universal event emition interface, backward compatible with all previous `emit` interfaces, can be used with multiple styles:
 
-`void emit(std::string const& name, std::string const& message, std::function<void (message::ptr const&)> const& ack)`
-
-Emit a plain text message, along with event's name and a optional ack callback function if you need server ack.
-
-`void emit(std::string const& name, message::ptr const& args)`
-
-`void emit(std::string const& name, message::ptr const& args, std::function<void (message::ptr const&)> const& ack)`
-
-Emit a `message` (explained below) object, along with event's name and a optional ack callback function if you need server ack.
-
-`void emit(std::string const& name, std::shared_ptr<const std::string> const& binary_ptr)`
-
-`void emit(std::string const& name, std::shared_ptr<const std::string> const& binary_ptr, std::function<void (message::ptr const&)> const& ack)`
-
-Emit a single binary buffer, along with event's name and a optional ack callback function if you need server ack.
+```C++
+//emit event name only:
+socket->emit("login");
+//emit with plain text:
+socket->emit("new message",text);
+//emit with single binary
+std::shared_ptr<std::string> voice_buf = std::make_shared<std::string>();
+...
+socket->emit("new voice",voice_buf);
+//emit with message object and requires an ack.
+message::ptr array = array_message::create();
+array->get_vector().push_back(string_message::create("item1"));
+array->get_vector().push_back(string_message::create("item2"));
+socket->emit("new arr",array,[](message::ptr const& ack_message){
+	//handle ack
+});
+//emit with `message::list`
+message::list li("arg1");
+li.push(string_message::create("arg2"));
+socket->emit("new va",li);// support io.on("new va",function(arg1,arg2){}); style in server side.
+```
+* Items in `message::list` will be expanded in server side event callback function as function arguments.
 
 #### Event Bindings
 `void on(std::string const& event_name,event_listener const& func)`
