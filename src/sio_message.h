@@ -28,6 +28,8 @@ namespace sio
             flag_object
         };
         
+        class list;
+
         flag get_flag() const
         {
             return _flag;
@@ -225,6 +227,76 @@ namespace sio
         {
             return _v;
         }
+    };
+
+    class message::list
+    {
+    public:
+        list(nullptr_t)
+        {
+        }
+
+        list(message::ptr const& message)
+        {
+            if(message)
+            {
+                m_vector.push_back(message);
+            }
+        }
+
+        list(string& text)
+        {
+            m_vector.push_back(string_message::create(text));
+        }
+
+        list(const char* text)
+        {
+            if(text)
+            {
+                m_vector.push_back(string_message::create(text));
+            }
+        }
+
+        list(shared_ptr<const string> const& binary)
+        {
+            if(binary)
+            {
+                m_vector.push_back(binary_message::create(binary));
+            }
+        }
+
+        void push(message::ptr const& message)
+        {
+            if(message)
+            {
+                m_vector.push_back(message);
+            }
+        }
+
+        void insert(size_t pos,message::ptr const& message)
+        {
+            m_vector.insert(m_vector.begin()+pos, message);
+        }
+
+        size_t size() const
+        {
+            return m_vector.size();
+        }
+
+        const message::ptr& at(size_t i) const
+        {
+            return m_vector[i];
+        }
+
+        message::ptr to_array_message(string const& event_name) const
+        {
+            message::ptr arr = array_message::create();
+            arr->get_vector().push_back(string_message::create(event_name));
+            arr->get_vector().insert(arr->get_vector().end(),m_vector.begin(),m_vector.end());
+        }
+
+    private:
+        vector<message::ptr> m_vector;
     };
     
     inline

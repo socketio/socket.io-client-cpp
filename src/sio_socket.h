@@ -66,18 +66,8 @@ namespace sio
         void on_error(error_listener const& l);
         
         void off_error();
-        
-        void emit(std::string const& name, std::string const& message);
-        
-        void emit(std::string const& name, std::string const& message, std::function<void (message::ptr const&)> const& ack);
-        
-        void emit(std::string const& name, message::ptr const& args);
-        
-        void emit(std::string const& name, message::ptr const& args, std::function<void (message::ptr const&)> const& ack);
-        
-        void emit(std::string const& name, std::shared_ptr<const std::string> const& binary_ptr);
-        
-        void emit(std::string const& name, std::shared_ptr<const std::string> const& binary_ptr, std::function<void (message::ptr const&)> const& ack);
+
+        void emit(std::string const& name, message::list const& msglist, std::function<void (message::ptr const&)> const& ack = nullptr);
         
         std::string const& get_namespace() const;
         

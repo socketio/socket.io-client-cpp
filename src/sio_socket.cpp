@@ -4,6 +4,7 @@
 #include <boost/asio/deadline_timer.hpp>
 #include <boost/system/error_code.hpp>
 #include <queue>
+#include <cstdarg>
 
 #if DEBUG || _DEBUG
 #define LOG(x) std::cout << x
@@ -114,17 +115,7 @@ void set_##__FIELD__(__TYPE__ const& l) \
         
         void close();
         
-        void emit(std::string const& name, std::string const& message);
-        
-        void emit(std::string const& name, std::string const& message, std::function<void (message::ptr const&)> const& ack);
-        
-        void emit(std::string const& name, message::ptr const& args);
-        
-        void emit(std::string const& name, message::ptr const& args, std::function<void (message::ptr const&)> const& ack);
-        
-        void emit(std::string const& name, std::shared_ptr<const std::string> const& binary_ptr);
-        
-        void emit(std::string const& name, std::shared_ptr<const std::string> const& binary_ptr, std::function<void (message::ptr const&)> const& ack);
+        void emit(std::string const& name, message::list const& msglist, std::function<void (message::ptr const&)> const& ack);
         
         std::string const& get_namespace() const {return m_nsp;}
         
@@ -236,59 +227,12 @@ void set_##__FIELD__(__TYPE__ const& l) \
     
     unsigned int socket::impl::s_global_event_id = 1;
     
-    void socket::impl::emit(std::string const& name, std::string const& message)
+    void socket::impl::emit(std::string const& name, message::list const& msglist, std::function<void (message::ptr const&)> const& ack)
     {
         NULL_GUARD(m_client);
-        message::ptr msg_ptr = make_message(name, message);
-        packet p(m_nsp, msg_ptr);
-        __send_packet(p);
-    }
-    
-    void socket::impl::emit(std::string const& name, std::string const& message, std::function<void (message::ptr const&)> const& ack)
-    {
-        NULL_GUARD(m_client);
-        message::ptr msg_ptr = make_message(name, message);
+        message::ptr msg_ptr = msglist.to_array_message(name);
         packet p(m_nsp, msg_ptr,s_global_event_id);
-        {
-            std::lock_guard<std::mutex> guard(m_event_mutex);
-            m_acks[s_global_event_id++] = ack;
-        }
-        __send_packet(p);
-    }
-    
-    void socket::impl::emit(std::string const& name, message::ptr const& args)
-    {
-        NULL_GUARD(m_client);
-        message::ptr msg_ptr = make_message(name, args);
-        packet p(m_nsp, msg_ptr);
-        __send_packet(p);
-    }
-    
-    void socket::impl::emit(std::string const& name, message::ptr const& args, std::function<void (message::ptr const&)> const& ack)
-    {
-        NULL_GUARD(m_client);
-        message::ptr msg_ptr = make_message(name, args);
-        packet p(m_nsp, msg_ptr,s_global_event_id);
-        {
-            std::lock_guard<std::mutex> guard(m_event_mutex);
-            m_acks[s_global_event_id++] = ack;
-        }
-        __send_packet(p);
-    }
-    
-    void socket::impl::emit(std::string const& name, std::shared_ptr<const std::string> const& binary_ptr)
-    {
-        NULL_GUARD(m_client);
-        message::ptr msg_ptr = make_message(name, binary_ptr);
-        packet p(m_nsp, msg_ptr);
-        __send_packet(p);
-    }
-    
-    void socket::impl::emit(std::string const& name, std::shared_ptr<const std::string> const& binary_ptr, std::function<void (message::ptr const&)> const& ack)
-    {
-        NULL_GUARD(m_client);
-        message::ptr msg_ptr = make_message(name, binary_ptr);
-        packet p(m_nsp, msg_ptr,s_global_event_id);
+        if(ack)
         {
             std::lock_guard<std::mutex> guard(m_event_mutex);
             m_acks[s_global_event_id++] = ack;
@@ -579,40 +523,15 @@ void set_##__FIELD__(__TYPE__ const& l) \
         m_impl->off_error();
     }
 
-    void socket::emit(std::string const& name, std::string const& message)
+    void socket::emit(std::string const& name, message::list const& msglist, std::function<void (message::ptr const&)> const& ack)
     {
-        m_impl->emit(name, message);
-    }
-    
-    void socket::emit(std::string const& name, std::string const& message, std::function<void (message::ptr const&)> const& ack)
-    {
-        m_impl->emit(name, message,ack);
-    }
-    
-    void socket::emit(std::string const& name, message::ptr const& args)
-    {
-        m_impl->emit(name, args);
-    }
-    
-    void socket::emit(std::string const& name, message::ptr const& args, std::function<void (message::ptr const&)> const& ack)
-    {
-        m_impl->emit(name, args,ack);
-    }
-    
-    void socket::emit(std::string const& name, std::shared_ptr<const std::string> const& binary_ptr){
-        m_impl->emit(name, binary_ptr);
-    }
-    
-    void socket::emit(std::string const& name, std::shared_ptr<const std::string> const& binary_ptr, std::function<void (message::ptr const&)> const& ack)
-    {
-        m_impl->emit(name, binary_ptr,ack);
+        m_impl->emit(name, msglist,ack);
     }
     
     std::string const& socket::get_namespace() const
     {
         return m_impl->get_namespace();
     }
-    
     
     void socket::on_connected()
     {
