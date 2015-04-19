@@ -19,15 +19,15 @@ By virtue of being written in C++, this client works in several different platfo
 ###<a name="with_cmake"></a> With CMake
 1. Install boost, see [Boost setup](#boost_setup) section.
 2. Use `git clone --recurse-submodules https://github.com/socketio/socket.io-client-cpp.git` to clone your local repo.
-3. Run `cmake -DBOOST_PATH:STRING=<your boost install folder> -DBOOST_VER:STRING=<your boost version> ./`
+3. Run `cmake -DBOOST_ROOT:STRING=<your boost install folder> -DBOOST_VER:STRING=<your boost version> ./`
 4. Run `make install`(if makefile generated) or open generated project (if project file generated) to build.
 5. Outputs is under `./build`, link with the all static libs under `./build/lib` and  include headers under `./build/include` in your client code where you want to use it.
 
 * If you're using boost without install,you can specify `boost include dir` and `boost lib dir` separately by:
 ```bash
 cmake
--DBOOST_INCLUDE:STRING=<your boost include folder> 
--DBOOST_LIB:STRING=<your boost lib folder>
+-DBOOST_INCLUDEDIR=<your boost include folder> 
+-DBOOST_LIBRARYDIR=<your boost lib folder>
 -DBOOST_VER:STRING=<your boost version>
 ./
 ```
