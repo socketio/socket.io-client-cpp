@@ -13,7 +13,7 @@
 #endif
 
 #define NULL_GUARD(_x_)  \
-if(_x_ == NULL) return
+    if(_x_ == NULL) return
 
 namespace sio
 {
@@ -69,10 +69,10 @@ namespace sio
     
     inline
     event::event(std::string const& nsp,std::string const& name,message::ptr const& message,bool need_ack):
-    m_nsp(nsp),
-    m_name(name),
-    m_message(message),
-    m_need_ack(need_ack)
+        m_nsp(nsp),
+        m_name(name),
+        m_message(message),
+        m_need_ack(need_ack)
     {
     }
     
@@ -102,8 +102,8 @@ namespace sio
         void off_all();
         
 #define SYNTHESIS_SETTER(__TYPE__,__FIELD__) \
-void set_##__FIELD__(__TYPE__ const& l) \
-{ m_##__FIELD__ = l;}
+    void set_##__FIELD__(__TYPE__ const& l) \
+        { m_##__FIELD__ = l;}
         
         SYNTHESIS_SETTER(error_listener, error_listener) //socket io errors
         
@@ -209,9 +209,9 @@ void set_##__FIELD__(__TYPE__ const& l) \
     }
     
     socket::impl::impl(client_impl *client,std::string const& nsp):
-    m_client(client),
-    m_nsp(nsp),
-    m_connected(false)
+        m_client(client),
+        m_nsp(nsp),
+        m_connected(false)
     {
         NULL_GUARD(client);
         if(m_client->opened())
@@ -334,74 +334,74 @@ void set_##__FIELD__(__TYPE__ const& l) \
         {
             switch (p.get_type())
             {
-                    // Connect open
-                case packet::type_connect:
+            // Connect open
+            case packet::type_connect:
+            {
+                LOG("Received Message type (Connect)"<<std::endl);
+
+                this->on_connected();
+                break;
+            }
+            case packet::type_disconnect:
+            {
+                LOG("Received Message type (Disconnect)"<<std::endl);
+                this->on_close();
+                break;
+            }
+            case packet::type_event:
+            case packet::type_binary_event:
+            {
+                LOG("Received Message type (Event)"<<std::endl);
+                const message::ptr ptr = p.get_message();
+                if(ptr->get_flag() == message::flag_array)
                 {
-                    LOG("Received Message type (Connect)"<<std::endl);
-                    
-                    this->on_connected();
-                    break;
-                }
-                case packet::type_disconnect:
-                {
-                    LOG("Received Message type (Disconnect)"<<std::endl);
-                    this->on_close();
-                    break;
-                }
-                case packet::type_event:
-                case packet::type_binary_event:
-                {
-                    LOG("Received Message type (Event)"<<std::endl);
-                    const message::ptr ptr = p.get_message();
-                    if(ptr->get_flag() == message::flag_array)
+                    const array_message* array_ptr = static_cast<const array_message*>(ptr.get());
+                    if(array_ptr->get_vector().size() >= 1&&array_ptr->get_vector()[0]->get_flag() == message::flag_string)
                     {
-                        const array_message* array_ptr = static_cast<const array_message*>(ptr.get());
-                        if(array_ptr->get_vector().size() >= 1&&array_ptr->get_vector()[0]->get_flag() == message::flag_string)
+                        const string_message* name_ptr = static_cast<const string_message*>(array_ptr->get_vector()[0].get());
+                        message::ptr value_ptr;
+                        if(array_ptr->get_vector().size()>1)
                         {
-                            const string_message* name_ptr = static_cast<const string_message*>(array_ptr->get_vector()[0].get());
-                            message::ptr value_ptr;
-                            if(array_ptr->get_vector().size()>1)
-                            {
-                                value_ptr = array_ptr->get_vector()[1];
-                            }
-                            this->on_socketio_event(p.get_nsp(), p.get_pack_id(),name_ptr->get_string(), value_ptr);
+                            value_ptr = array_ptr->get_vector()[1];
                         }
+                        this->on_socketio_event(p.get_nsp(), p.get_pack_id(),name_ptr->get_string(), value_ptr);
                     }
-                    
-                    break;
                 }
-                    // Ack
-                case packet::type_ack:
-                case packet::type_binary_ack:
+
+                break;
+            }
+                // Ack
+            case packet::type_ack:
+            case packet::type_binary_ack:
+            {
+                LOG("Received Message type (ACK)"<<std::endl);
+                const message::ptr ptr = p.get_message();
+                if(ptr->get_flag() == message::flag_array)
                 {
-                    LOG("Received Message type (ACK)"<<std::endl);
-                    const message::ptr ptr = p.get_message();
-                    if(ptr->get_flag() == message::flag_array)
+                    const array_message* array_ptr = static_cast<const array_message*>(ptr.get());
+                    if(array_ptr->get_vector().size() >= 1&&array_ptr->get_vector()[0]->get_flag() == message::flag_string)
                     {
-                        const array_message* array_ptr = static_cast<const array_message*>(ptr.get());
-                        if(array_ptr->get_vector().size() >= 1&&array_ptr->get_vector()[0]->get_flag() == message::flag_string)
+                        message::ptr value_ptr;
+                        if(array_ptr->get_vector().size()>1)
                         {
-                            message::ptr value_ptr;
-                            if(array_ptr->get_vector().size()>1)
-                            {
-                                value_ptr = array_ptr->get_vector()[1];
-                            }
-                            this->on_socketio_ack(p.get_pack_id(), value_ptr);
-                            break;
+                            value_ptr = array_ptr->get_vector()[1];
                         }
+                        this->on_socketio_ack(p.get_pack_id(), value_ptr);
+                        break;
                     }
-                    this->on_socketio_ack(p.get_pack_id(),ptr);
-                    break;
                 }
-                    // Error
-                case packet::type_error:
-                {
-                    LOG("Received Message type (ERROR)"<<std::endl);
-                    this->on_socketio_error(p.get_message());
-                    break;
-                }
-                default:
-                    break;
+                this->on_socketio_ack(p.get_pack_id(),ptr);
+                break;
+            }
+                // Error
+            case packet::type_error:
+            {
+                LOG("Received Message type (ERROR)"<<std::endl);
+                this->on_socketio_error(p.get_message());
+                break;
+            }
+            default:
+                break;
             }
         }
     }
@@ -486,7 +486,7 @@ void set_##__FIELD__(__TYPE__ const& l) \
     }
     
     socket::socket(client_impl* client,std::string const& nsp):
-    m_impl(new impl(client,nsp))
+        m_impl(new impl(client,nsp))
     {
     }
     

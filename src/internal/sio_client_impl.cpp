@@ -22,7 +22,7 @@ using boost::posix_time::milliseconds;
 
 namespace sio
 {
-/*************************public:*************************/
+    /*************************public:*************************/
     client_impl::client_impl() :
         m_con_state(con_closed),
         m_ping_interval(0),
@@ -34,10 +34,10 @@ namespace sio
         m_reconn_delay_max(25000)
     {
         using websocketpp::log::alevel;
-    #ifndef DEBUG
+#ifndef DEBUG
         m_client.clear_access_channels(alevel::all);
         m_client.set_access_channels(alevel::connect|alevel::disconnect|alevel::app);
-    #endif
+#endif
         // Initialize the Asio transport policy
         m_client.init_asio();
 
@@ -141,7 +141,7 @@ namespace sio
         }
     }
 
-/*************************protected:*************************/
+    /*************************protected:*************************/
     void client_impl::send(packet& p)
     {
         m_packet_mgr.encode(p);
@@ -172,7 +172,7 @@ namespace sio
         if(m_socket_open_listener)m_socket_open_listener(nsp);
     }
 
-/*************************private:*************************/
+    /*************************private:*************************/
     void client_impl::run_loop()
     {
 
@@ -261,10 +261,10 @@ namespace sio
         packet p(packet::frame_ping);
         m_packet_mgr.encode(p,
                             [&](bool isBin,shared_ptr<const string> payload)
-                            {
-                                lib::error_code ec;
-                                this->m_client.send(this->m_con, *payload, frame::opcode::text, ec);
-                            });
+        {
+            lib::error_code ec;
+            this->m_client.send(this->m_con, *payload, frame::opcode::text, ec);
+        });
         if(m_ping_timer)
         {
             boost::system::error_code e_code;
@@ -347,7 +347,7 @@ namespace sio
         LOG("Connection failed." << std::endl);
         if(m_reconn_made<m_reconn_attempts)
         {
-			LOG("Reconnect for attempt:"<<m_reconn_made<<std::endl);
+            LOG("Reconnect for attempt:"<<m_reconn_made<<std::endl);
             unsigned delay = this->next_delay();
             if(m_reconnect_listener) m_reconnect_listener(m_reconn_made,delay);
             m_reconn_timer.reset(new boost::asio::deadline_timer(m_client.get_io_service()));
@@ -366,7 +366,7 @@ namespace sio
         LOG("Connected." << std::endl);
         m_con_state = con_opened;
         m_con = con;
-		m_reconn_made = 0;
+        m_reconn_made = 0;
         this->sockets_invoke_void(&sio::socket::on_open);
         if(m_open_listener)m_open_listener();
     }
@@ -399,7 +399,7 @@ namespace sio
             this->sockets_invoke_void(&sio::socket::on_disconnect);
             if(m_reconn_made<m_reconn_attempts)
             {
-				LOG("Reconnect for attempt:"<<m_reconn_made<<std::endl);
+                LOG("Reconnect for attempt:"<<m_reconn_made<<std::endl);
                 unsigned delay = this->next_delay();
                 if(m_reconnect_listener) m_reconnect_listener(m_reconn_made,delay);
                 m_reconn_timer.reset(new boost::asio::deadline_timer(m_client.get_io_service()));
@@ -468,12 +468,12 @@ namespace sio
             LOG("On handshake,sid:"<<m_sid<<",ping interval:"<<m_ping_interval<<",ping timeout"<<m_ping_timeout<<std::endl);
             return;
         }
-    failed:
+failed:
         //just close it.
         m_client.get_io_service().dispatch(lib::bind(&client_impl::close_impl, this,close::status::policy_violation,"Handshake error"));
     }
 
-	void client_impl::on_pong()
+    void client_impl::on_pong()
     {
         if(m_ping_timeout_timer)
         {
@@ -486,25 +486,25 @@ namespace sio
     {
         switch(p.get_frame())
         {
-            case packet::frame_message:
-            {
-                socket::ptr so_ptr = get_socket_locked(p.get_nsp());
-                if(so_ptr)so_ptr->on_message_packet(p);
-                break;
-            }
-            case packet::frame_open:
-                this->on_handshake(p.get_message());
-                break;
-            case packet::frame_close:
-                //FIXME how to deal?
-                this->close_impl(close::status::abnormal_close, "End by server");
-                break;
-            case packet::frame_pong:
-                this->on_pong();
-                break;
-                
-            default:
-                break;
+        case packet::frame_message:
+        {
+            socket::ptr so_ptr = get_socket_locked(p.get_nsp());
+            if(so_ptr)so_ptr->on_message_packet(p);
+            break;
+        }
+        case packet::frame_open:
+            this->on_handshake(p.get_message());
+            break;
+        case packet::frame_close:
+            //FIXME how to deal?
+            this->close_impl(close::status::abnormal_close, "End by server");
+            break;
+        case packet::frame_pong:
+            this->on_pong();
+            break;
+
+        default:
+            break;
         }
     }
     

@@ -51,8 +51,8 @@ namespace sio
         
         //set listeners and event bindings.
 #define SYNTHESIS_SETTER(__TYPE__,__FIELD__) \
-void set_##__FIELD__(__TYPE__ const& l) \
-{ m_##__FIELD__ = l;}
+    void set_##__FIELD__(__TYPE__ const& l) \
+        { m_##__FIELD__ = l;}
         
         SYNTHESIS_SETTER(client::con_listener,open_listener)
         

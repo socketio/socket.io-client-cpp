@@ -243,9 +243,7 @@ namespace sio
         list(message::ptr const& message)
         {
             if(message)
-                {
-                    m_vector.push_back(message);
-                }
+                m_vector.push_back(message);
         }
 
         list(string& text)
@@ -256,25 +254,20 @@ namespace sio
         list(const char* text)
         {
             if(text)
-                {
-                    m_vector.push_back(string_message::create(text));
-                }
+                m_vector.push_back(string_message::create(text));
         }
 
         list(shared_ptr<const string> const& binary)
         {
             if(binary)
-                {
-                    m_vector.push_back(binary_message::create(binary));
-                }
+                m_vector.push_back(binary_message::create(binary));
         }
 
         void push(message::ptr const& message)
         {
             if(message)
-                {
-                    m_vector.push_back(message);
-                }
+                m_vector.push_back(message);
+
         }
 
         void insert(size_t pos,message::ptr const& message)
