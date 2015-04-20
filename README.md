@@ -326,4 +326,4 @@ Use this [shell](https://gist.github.com/melode11/a90114a2abf009ca22ea) to downl
 It installs boost to `<shell folder>/prefix`.
 
 ##License
-BSD
+MIT
