@@ -40,20 +40,20 @@ namespace sio
         virtual int64_t get_int() const
         {
             assert(false);
-			return 0;
+            return 0;
         }
         
         virtual double get_double() const
         {
             assert(false);
-			return 0;
+            return 0;
         }
         
         virtual string const& get_string() const
         {
             assert(false);
             static string s_empty_string;
-			s_empty_string.clear();
+            s_empty_string.clear();
             return s_empty_string;
         }
         
@@ -61,22 +61,22 @@ namespace sio
         {
             assert(false);
             static shared_ptr<const string> s_empty_binary;
-			s_empty_binary = nullptr;
-			return s_empty_binary;
+            s_empty_binary = nullptr;
+            return s_empty_binary;
         }
         
         virtual const vector<ptr>& get_vector() const
         {
             assert(false);
-			static vector<ptr> s_empty_vector;
+            static vector<ptr> s_empty_vector;
             s_empty_vector.clear();
-			return s_empty_vector;
+            return s_empty_vector;
         }
 
         virtual vector<ptr>& get_vector()
         {
             assert(false);
-			static vector<ptr> s_empty_vector;
+            static vector<ptr> s_empty_vector;
             s_empty_vector.clear();
             return s_empty_vector;
         }
@@ -84,7 +84,7 @@ namespace sio
         virtual const map<string,message::ptr>& get_map() const
         {
             assert(false);
-			static map<string,message::ptr> s_empty_map;
+            static map<string,message::ptr> s_empty_map;
             s_empty_map.clear();
             return s_empty_map;
         }
@@ -93,11 +93,11 @@ namespace sio
         {
             assert(false);
             static map<string,message::ptr> s_empty_map;
-			s_empty_map.clear();
-			return s_empty_map;
+            s_empty_map.clear();
+            return s_empty_map;
         }
     private:
-		flag _flag;
+        flag _flag;
         
     protected:
         message(flag f):_flag(f){}
@@ -108,7 +108,7 @@ namespace sio
         int64_t _v;
     protected:
         int_message(int64_t v)
-        :message(flag_integer),_v(v)
+            :message(flag_integer),_v(v)
         {
         }
         
@@ -128,7 +128,7 @@ namespace sio
     {
         double _v;
         double_message(double v)
-        :message(flag_double),_v(v)
+            :message(flag_double),_v(v)
         {
         }
         
@@ -148,7 +148,7 @@ namespace sio
     {
         string _v;
         string_message(string const& v)
-        :message(flag_string),_v(v)
+            :message(flag_string),_v(v)
         {
         }
     public:
@@ -167,7 +167,7 @@ namespace sio
     {
         shared_ptr<const string> _v;
         binary_message(shared_ptr<const string> const& v)
-        :message(flag_binary),_v(v)
+            :message(flag_binary),_v(v)
         {
         }
     public:
@@ -243,9 +243,9 @@ namespace sio
         list(message::ptr const& message)
         {
             if(message)
-            {
-                m_vector.push_back(message);
-            }
+                {
+                    m_vector.push_back(message);
+                }
         }
 
         list(string& text)
@@ -256,25 +256,25 @@ namespace sio
         list(const char* text)
         {
             if(text)
-            {
-                m_vector.push_back(string_message::create(text));
-            }
+                {
+                    m_vector.push_back(string_message::create(text));
+                }
         }
 
         list(shared_ptr<const string> const& binary)
         {
             if(binary)
-            {
-                m_vector.push_back(binary_message::create(binary));
-            }
+                {
+                    m_vector.push_back(binary_message::create(binary));
+                }
         }
 
         void push(message::ptr const& message)
         {
             if(message)
-            {
-                m_vector.push_back(message);
-            }
+                {
+                    m_vector.push_back(message);
+                }
         }
 
         void insert(size_t pos,message::ptr const& message)
@@ -303,42 +303,6 @@ namespace sio
     private:
         vector<message::ptr> m_vector;
     };
-    
-    inline
-    message::ptr make_message(string const& event_name, message::ptr const& event_args)
-    {
-        message::ptr msg_ptr = array_message::create();
-        array_message* ptr = static_cast<array_message*>(msg_ptr.get());
-        ptr->get_vector().push_back(string_message::create(event_name));
-        if(event_args)
-        {
-            ptr->get_vector().push_back(event_args);
-        }
-        return msg_ptr;
-    }
-    
-    inline
-    message::ptr make_message(string const& event_name, string const& single_message)
-    {
-        message::ptr msg_ptr = array_message::create();
-        array_message* ptr = static_cast<array_message*>(msg_ptr.get());
-        ptr->get_vector().push_back(string_message::create(event_name));
-        ptr->get_vector().push_back(string_message::create(single_message));
-        return msg_ptr;
-    }
-    
-    inline
-    message::ptr make_message(string const& event_name, shared_ptr<const string> const& single_binary)
-    {
-        message::ptr msg_ptr = array_message::create();
-        array_message* ptr = static_cast<array_message*>(msg_ptr.get());
-        ptr->get_vector().push_back(string_message::create(event_name));
-        if(single_binary)
-        {
-            ptr->get_vector().push_back(binary_message::create(single_binary));
-        }
-        return msg_ptr;
-    }
 }
 
 #endif

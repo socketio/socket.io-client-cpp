@@ -24,7 +24,7 @@ namespace sio
     protected:
         event(std::string const& nsp,std::string const& name,message::ptr const& message,bool need_ack);
         
-        message::ptr& __get_ack_message();
+        message::ptr& get_ack_message_impl();
         
     private:
         const std::string m_nsp;
