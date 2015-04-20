@@ -420,7 +420,8 @@ void set_##__FIELD__(__TYPE__ const& l) \
     
     void socket::impl::ack(int msgId, const string &name, const message::ptr &ack_message)
     {
-        packet p(m_nsp, make_message(name, ack_message),msgId,true);
+        message::list li(ack_message);
+        packet p(m_nsp, li.to_array_message(name),msgId,true);
         send_packet(p);
     }
     
