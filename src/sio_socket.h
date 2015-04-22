@@ -14,6 +14,8 @@ namespace sio
         const std::string& get_name() const;
         
         const message::ptr& get_message() const;
+
+        const message::list& get_messages() const;
         
         bool need_ack() const;
         
@@ -22,14 +24,15 @@ namespace sio
         message::ptr const& get_ack_message() const;
         
     protected:
-        event(std::string const& nsp,std::string const& name,message::ptr const& message,bool need_ack);
-        
+        event(std::string const& nsp,std::string const& name,message::list const& messages,bool need_ack);
+        event(std::string const& nsp,std::string const& name,message::list&& messages,bool need_ack);
+
         message::ptr& get_ack_message_impl();
         
     private:
         const std::string m_nsp;
         const std::string m_name;
-        const message::ptr m_message;
+        const message::list m_messages;
         const bool m_need_ack;
         message::ptr m_ack_message;
         

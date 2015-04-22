@@ -107,8 +107,8 @@ BOOST_AUTO_TEST_CASE( test_packet_accept_4 )
     std::string json = payload.substr(json_start);
     nlohmann::json j = nlohmann::json::parse(json);
     BOOST_CHECK_MESSAGE(j["desc"].get<std::string>() == "Bin of 100 bytes", std::string("outputing payload desc:") + j["desc"].get<std::string>());
-    BOOST_CHECK_MESSAGE(j["bin1"]["_placeholder"] == true , std::string("outputing payload bin1:") + j["bin1"].dump());
-    BOOST_CHECK_MESSAGE(j["bin2"]["_placeholder"] == true , std::string("outputing payload bin2:") + j["bin2"].dump());
+    BOOST_CHECK_MESSAGE((bool)j["bin1"]["_placeholder"] , std::string("outputing payload bin1:") + j["bin1"].dump());
+    BOOST_CHECK_MESSAGE((bool)j["bin2"]["_placeholder"] , std::string("outputing payload bin2:") + j["bin2"].dump());
     int bin1Num = j["bin1"]["num"].get<int>();
     char numchar[] = {0,0};
     numchar[0] = bin1Num+'0';

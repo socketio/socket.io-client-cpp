@@ -240,6 +240,18 @@ namespace sio
         {
         }
 
+        list(message::list&& rhs):
+            m_vector(std::move(rhs.m_vector))
+        {
+
+        }
+
+        list(message::list const& rhs):
+            m_vector(rhs.m_vector)
+        {
+
+        }
+
         list(message::ptr const& message)
         {
             if(message)
@@ -281,6 +293,11 @@ namespace sio
         }
 
         const message::ptr& at(size_t i) const
+        {
+            return m_vector[i];
+        }
+
+        const message::ptr& operator[] (size_t i) const
         {
             return m_vector[i];
         }

@@ -30,7 +30,7 @@ namespace sio
             return std::bind(&event_adapter::adapt_func, func,std::placeholders::_1);
         }
         
-        static inline event create_event(std::string const& nsp,std::string const& name,message::ptr const& message,bool need_ack)
+        static inline event create_event(std::string const& nsp,std::string const& name,message::list&& message,bool need_ack)
         {
             return event(nsp,name,message,need_ack);
         }
@@ -51,7 +51,19 @@ namespace sio
     inline
     const message::ptr& event::get_message() const
     {
-        return m_message;
+        if(m_messages.size()>0)
+            return m_messages[0];
+        else
+        {
+            static message::ptr null_ptr;
+            return null_ptr;
+        }
+    }
+
+    inline
+    const message::list& event::get_messages() const
+    {
+        return m_messages;
     }
     
     inline
@@ -68,10 +80,19 @@ namespace sio
     }
     
     inline
-    event::event(std::string const& nsp,std::string const& name,message::ptr const& message,bool need_ack):
+    event::event(std::string const& nsp,std::string const& name,message::list&& messages,bool need_ack):
         m_nsp(nsp),
         m_name(name),
-        m_message(message),
+        m_messages(std::move(messages)),
+        m_need_ack(need_ack)
+    {
+    }
+
+    inline
+    event::event(std::string const& nsp,std::string const& name,message::list const& messages,bool need_ack):
+        m_nsp(nsp),
+        m_name(name),
+        m_messages(messages),
         m_need_ack(need_ack)
     {
     }
@@ -133,7 +154,7 @@ namespace sio
     private:
         
         // Message Parsing callbacks.
-        void on_socketio_event(const std::string& nsp, int msgId,const std::string& name, message::ptr const& message);
+        void on_socketio_event(const std::string& nsp, int msgId,const std::string& name, message::list&& message);
         void on_socketio_ack(int msgId, message::ptr const& message);
         void on_socketio_error(message::ptr const& err_message);
         
@@ -359,12 +380,12 @@ namespace sio
                     if(array_ptr->get_vector().size() >= 1&&array_ptr->get_vector()[0]->get_flag() == message::flag_string)
                     {
                         const string_message* name_ptr = static_cast<const string_message*>(array_ptr->get_vector()[0].get());
-                        message::ptr value_ptr;
-                        if(array_ptr->get_vector().size()>1)
+                        message::list mlist;
+                        for(size_t i = 1;i<array_ptr->get_vector().size();++i)
                         {
-                            value_ptr = array_ptr->get_vector()[1];
+                            mlist.push(array_ptr->get_vector()[i]);
                         }
-                        this->on_socketio_event(p.get_nsp(), p.get_pack_id(),name_ptr->get_string(), value_ptr);
+                        this->on_socketio_event(p.get_nsp(), p.get_pack_id(),name_ptr->get_string(), std::move(mlist));
                     }
                 }
 
@@ -406,10 +427,10 @@ namespace sio
         }
     }
     
-    void socket::impl::on_socketio_event(const std::string& nsp,int msgId,const std::string& name, message::ptr const& message)
+    void socket::impl::on_socketio_event(const std::string& nsp,int msgId,const std::string& name, message::list && message)
     {
         bool needAck = msgId >= 0;
-        event ev = event_adapter::create_event(nsp,name, message,needAck);
+        event ev = event_adapter::create_event(nsp,name, std::move(message),needAck);
         event_listener func = this->get_bind_listener_locked(name);
         if(func)func(ev);
         if(needAck)
