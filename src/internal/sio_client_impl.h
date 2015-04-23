@@ -87,7 +87,7 @@ namespace sio
         }
         
         // Client Functions - such as send, etc.
-        void connect(const std::string& uri);
+        void connect(const std::string& uri, const std::map<string, string>& queryString);
         
         sio::socket::ptr const& socket(const std::string& nsp);
         
@@ -120,7 +120,7 @@ namespace sio
     private:
         void run_loop();
 
-        void connect_impl(const std::string& uri);
+        void connect_impl(const std::string& uri, const std::string& query);
 
         void close_impl(close::status::value const& code,std::string const& reason);
         
@@ -165,6 +165,7 @@ namespace sio
         // Socket.IO server settings
         std::string m_sid;
         std::string m_base_url;
+        std::string m_query_string;
 
         unsigned int m_ping_interval;
         unsigned int m_ping_timeout;

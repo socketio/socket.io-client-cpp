@@ -67,10 +67,16 @@ namespace sio
     {
         m_impl->clear_socket_listeners();
     }
-    
+
     void client::connect(const std::string& uri)
     {
-        m_impl->connect(uri);
+        const std::map<string,string> query;
+        m_impl->connect(uri, query);
+    }
+
+    void client::connect(const std::string& uri, const std::map<string,string>& query)
+    {
+        m_impl->connect(uri, query);
     }
     
     socket::ptr const& client::socket(const std::string& nsp)
