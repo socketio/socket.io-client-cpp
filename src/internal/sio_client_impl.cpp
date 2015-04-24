@@ -60,7 +60,7 @@ namespace sio
         sync_close();
     }
     
-    void client_impl::connect(const std::string& uri)
+    void client_impl::connect(const std::string& uri, const std::map<string,string>& query)
     {
         if(m_reconn_timer)
         {
@@ -86,8 +86,18 @@ namespace sio
         m_con_state = con_opening;
         m_base_url = uri;
         m_reconn_made = 0;
+
+        std::string queryString;
+        for(std::map<std::string,std::string>::const_iterator it=query.begin();it!=query.end();++it){
+            queryString.append("&");
+            queryString.append(it->first);
+            queryString.append("=");
+            queryString.append(it->second);
+        }
+        m_query_string=queryString;
+
         this->reset_states();
-        m_client.get_io_service().dispatch(lib::bind(&client_impl::connect_impl,this,uri));
+        m_client.get_io_service().dispatch(lib::bind(&client_impl::connect_impl,this,uri,queryString));
         m_network_thread.reset(new std::thread(lib::bind(&client_impl::run_loop,this)));//uri lifecycle?
 
     }
@@ -182,17 +192,18 @@ namespace sio
                                   "run loop end");
     }
 
-    void client_impl::connect_impl(const std::string& uri)
+    void client_impl::connect_impl(const std::string& uri, const std::string& queryString)
     {
         do{
             websocketpp::uri uo(uri);
             std::ostringstream ss;
+
             if (m_sid.size()==0) {
-                ss<<"ws://"<<uo.get_host()<<":"<<uo.get_port()<<"/socket.io/?EIO=4&transport=websocket&t="<<time(NULL);
+                ss<<"ws://"<<uo.get_host()<<":"<<uo.get_port()<<"/socket.io/?EIO=4&transport=websocket&t="<<time(NULL)<<queryString;
             }
             else
             {
-                ss<<"ws://"<<uo.get_host()<<":"<<uo.get_port()<<"/socket.io/?EIO=4&transport=websocket&sid="<<m_sid<<"&t="<<time(NULL);
+                ss<<"ws://"<<uo.get_host()<<":"<<uo.get_port()<<"/socket.io/?EIO=4&transport=websocket&sid="<<m_sid<<"&t="<<time(NULL)<<queryString;
             }
             lib::error_code ec;
             client_type::connection_ptr con = m_client.get_connection(ss.str(), ec);
@@ -303,7 +314,7 @@ namespace sio
             this->reset_states();
             LOG("Reconnecting..."<<std::endl);
             if(m_reconnecting_listener) m_reconnecting_listener();
-            m_client.get_io_service().dispatch(lib::bind(&client_impl::connect_impl,this,m_base_url));
+            m_client.get_io_service().dispatch(lib::bind(&client_impl::connect_impl,this,m_base_url,m_query_string));
         }
     }
 
