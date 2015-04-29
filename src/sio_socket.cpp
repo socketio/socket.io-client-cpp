@@ -36,19 +36,16 @@ namespace sio
         }
     };
     
-    inline
     const std::string& event::get_nsp() const
     {
         return m_nsp;
     }
     
-    inline
     const std::string& event::get_name() const
     {
         return m_name;
     }
     
-    inline
     const message::ptr& event::get_message() const
     {
         if(m_messages.size()>0)
@@ -60,19 +57,16 @@ namespace sio
         }
     }
 
-    inline
     const message::list& event::get_messages() const
     {
         return m_messages;
     }
     
-    inline
     bool event::need_ack() const
     {
         return m_need_ack;
     }
     
-    inline
     void event::put_ack_message(message::ptr const& ack_message)
     {
         if(m_need_ack)
@@ -102,6 +96,7 @@ namespace sio
         return m_ack_message;
     }
     
+    inline
     message::ptr& event::get_ack_message_impl()
     {
         return m_ack_message;
