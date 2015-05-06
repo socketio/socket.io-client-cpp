@@ -265,6 +265,10 @@ namespace sio
     void socket::impl::send_connect()
     {
         NULL_GUARD(m_client);
+        if(m_nsp == "/")
+        {
+            return;
+        }
         packet p(packet::type_connect,m_nsp);
         m_client->send(p);
         m_connection_timer.reset(new boost::asio::deadline_timer(m_client->get_io_service()));
@@ -469,8 +473,9 @@ namespace sio
             return;
         }
         m_connection_timer.reset();
-        LOG("Connection timeout"<<std::endl);
-        this->on_disconnect();
+        LOG("Connection timeout,close socket."<<std::endl);
+        //Should close socket if no connected message arrive.Otherwise we'll never ask for open again.
+        this->on_close();
     }
     
     void socket::impl::send_packet(sio::packet &p)

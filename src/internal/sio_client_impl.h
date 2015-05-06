@@ -87,7 +87,7 @@ namespace sio
         }
         
         // Client Functions - such as send, etc.
-        void connect(const std::string& uri, const std::map<string, string>& queryString);
+        void connect(const std::string& uri, const std::map<std::string, std::string>& queryString);
         
         sio::socket::ptr const& socket(const std::string& nsp);
         
