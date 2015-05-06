@@ -265,8 +265,10 @@ namespace sio
     void socket::impl::send_connect()
     {
         NULL_GUARD(m_client);
-        packet p(packet::type_connect,m_nsp);
-        m_client->send(p);
+        if(m_nsp!="/") {
+            packet p(packet::type_connect,m_nsp);
+            m_client->send(p);
+        }
         m_connection_timer.reset(new boost::asio::deadline_timer(m_client->get_io_service()));
         boost::system::error_code ec;
         m_connection_timer->expires_from_now(boost::posix_time::milliseconds(20000), ec);
