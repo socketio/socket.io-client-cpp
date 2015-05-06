@@ -12,7 +12,6 @@
 #include <mutex>
 #include <condition_variable>
 #include <string>
-
 #ifdef WIN32
 #define HIGHLIGHT(__O__) std::cout<<__O__<<std::endl
 #define EM(__O__) std::cout<<__O__<<std::endl
@@ -72,7 +71,7 @@ socket::ptr current_socket;
 
 void bind_events(socket::ptr &socket)
 {
-    current_socket->on("new message", [&](string const& name, message::ptr const& data, bool isAck,message::ptr &ack_resp)
+	current_socket->on("new message",(sio::socket::event_listener_aux) [&](string const& name, message::ptr const& data, bool isAck,message::ptr &ack_resp)
                        {
                            _lock.lock();
                            string user = data->get_map()["username"]->get_string();
@@ -81,7 +80,7 @@ void bind_events(socket::ptr &socket)
                            _lock.unlock();
                        });
     
-    current_socket->on("user joined", [&](string const& name, message::ptr const& data, bool isAck,message::ptr &ack_resp)
+    current_socket->on("user joined", (sio::socket::event_listener_aux)[&](string const& name, message::ptr const& data, bool isAck,message::ptr &ack_resp)
                        {
                            _lock.lock();
                            string user = data->get_map()["username"]->get_string();
@@ -92,7 +91,7 @@ void bind_events(socket::ptr &socket)
                            HIGHLIGHT(user<<" joined"<<"\nthere"<<(plural?" are ":"'s ")<< participants<<(plural?" participants":" participant"));
                            _lock.unlock();
                        });
-    current_socket->on("user left", [&](string const& name, message::ptr const& data, bool isAck,message::ptr &ack_resp)
+    current_socket->on("user left",(sio::socket::event_listener_aux) [&](string const& name, message::ptr const& data, bool isAck,message::ptr &ack_resp)
                        {
                            _lock.lock();
                            string user = data->get_map()["username"]->get_string();
@@ -108,7 +107,7 @@ MAIN_FUNC
 
     sio::client h;
     connection_listener l(h);
-    current_socket = h.socket();
+    
     h.set_open_listener(std::bind(&connection_listener::on_connected, &l));
     h.set_close_listener(std::bind(&connection_listener::on_close, &l,std::placeholders::_1));
     h.set_fail_listener(std::bind(&connection_listener::on_fail, &l));
@@ -119,6 +118,7 @@ MAIN_FUNC
         _cond.wait(_lock);
     }
     _lock.unlock();
+	current_socket = h.socket();
 Login:
     string nickname;
     while (nickname.length() == 0) {
@@ -126,7 +126,7 @@ Login:
         
         getline(cin, nickname);
     }
-    current_socket->on("login", [&](string const& name, message::ptr const& data, bool isAck,message::ptr &ack_resp){
+	current_socket->on("login", (sio::socket::event_listener_aux)[&](string const& name, message::ptr const& data, bool isAck,message::ptr &ack_resp){
         _lock.lock();
         participants = data->get_map()["numUsers"]->get_int();
         bool plural = participants !=1;
