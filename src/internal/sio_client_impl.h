@@ -14,12 +14,22 @@
 #endif
 #include <websocketpp/client.hpp>
 #if _DEBUG || DEBUG
+#if SIO_TLS
+#include <websocketpp/config/debug_asio.hpp>
+typedef websocketpp::config::debug_asio_tls client_config;
+#else
 #include <websocketpp/config/debug_asio_no_tls.hpp>
 typedef websocketpp::config::debug_asio client_config;
+#endif //SIO_TLS
+#else
+#if SIO_TLS
+#include <websocketpp/config/asio_client.hpp>
+typedef websocketpp::config::asio_tls_client client_config;
 #else
 #include <websocketpp/config/asio_no_tls_client.hpp>
 typedef websocketpp::config::asio_client client_config;
-#endif
+#endif //SIO_TLS
+#endif //DEBUG
 #include <boost/asio/deadline_timer.hpp>
 
 #include <memory>
@@ -158,6 +168,12 @@ namespace sio
         void reset_states();
 
         void clear_timers();
+        
+        #if SIO_TLS
+        typedef websocketpp::lib::shared_ptr<boost::asio::ssl::context> context_ptr;
+        
+        context_ptr on_tls_init(connection_hdl con);
+        #endif
         
         // Connection pointer for client functions.
         connection_hdl m_con;

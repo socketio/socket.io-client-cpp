@@ -49,7 +49,9 @@ namespace sio
         m_client.set_close_handler(lib::bind(&client_impl::on_close,this,_1));
         m_client.set_fail_handler(lib::bind(&client_impl::on_fail,this,_1));
         m_client.set_message_handler(lib::bind(&client_impl::on_message,this,_1,_2));
-
+#if SIO_TLS
+        m_client.set_tls_init_handler(lib::bind(&client_impl::on_tls_init,this,_1));
+#endif
         m_packet_mgr.set_decode_callback(lib::bind(&client_impl::on_decode,this,_1));
 
         m_packet_mgr.set_encode_callback(lib::bind(&client_impl::on_encode,this,_1,_2));
@@ -198,13 +200,17 @@ namespace sio
         do{
             websocketpp::uri uo(uri);
             ostringstream ss;
-
+#if SIO_TLS
+            ss<<"wss://";
+#else
+            ss<<"ws://";
+#endif
             if (m_sid.size()==0) {
-                ss<<"ws://"<<uo.get_host()<<":"<<uo.get_port()<<"/socket.io/?EIO=4&transport=websocket&t="<<time(NULL)<<queryString;
+                ss<<uo.get_host()<<":"<<uo.get_port()<<"/socket.io/?EIO=4&transport=websocket&t="<<time(NULL)<<queryString;
             }
             else
             {
-                ss<<"ws://"<<uo.get_host()<<":"<<uo.get_port()<<"/socket.io/?EIO=4&transport=websocket&sid="<<m_sid<<"&t="<<time(NULL)<<queryString;
+                ss<<uo.get_host()<<":"<<uo.get_port()<<"/socket.io/?EIO=4&transport=websocket&sid="<<m_sid<<"&t="<<time(NULL)<<queryString;
             }
             lib::error_code ec;
             client_type::connection_ptr con = m_client.get_connection(ss.str(), ec);
@@ -549,4 +555,21 @@ failed:
         m_sid.clear();
         m_packet_mgr.reset();
     }
+    
+#if SIO_TLS
+    client_impl::context_ptr client_impl::on_tls_init(connection_hdl conn)
+    {
+        context_ptr ctx = context_ptr(new  boost::asio::ssl::context(boost::asio::ssl::context::tlsv1));
+        boost::system::error_code ec;
+        ctx->set_options(boost::asio::ssl::context::default_workarounds |
+                             boost::asio::ssl::context::no_sslv2 |
+                             boost::asio::ssl::context::single_dh_use,ec);
+        if(ec)
+        {
+            cerr<<"Init tls failed,reason:"<< ec.message()<<endl;
+        }
+        
+        return ctx;
+    }
+#endif
 }
