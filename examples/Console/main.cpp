@@ -71,16 +71,16 @@ socket::ptr current_socket;
 
 void bind_events(socket::ptr &socket)
 {
-	current_socket->on("new message",(sio::socket::event_listener_aux) [&](string const& name, message::ptr const& data, bool isAck,message::ptr &ack_resp)
+	current_socket->on("new message", sio::socket::event_listener_aux([&](string const& name, message::ptr const& data, bool isAck,message::ptr &ack_resp)
                        {
                            _lock.lock();
                            string user = data->get_map()["username"]->get_string();
                            string message = data->get_map()["message"]->get_string();
                            EM(user<<":"<<message);
                            _lock.unlock();
-                       });
+                       }));
     
-    current_socket->on("user joined", (sio::socket::event_listener_aux)[&](string const& name, message::ptr const& data, bool isAck,message::ptr &ack_resp)
+    current_socket->on("user joined",sio::socket::event_listener_aux([&](string const& name, message::ptr const& data, bool isAck,message::ptr &ack_resp)
                        {
                            _lock.lock();
                            string user = data->get_map()["username"]->get_string();
@@ -90,8 +90,8 @@ void bind_events(socket::ptr &socket)
                            //     abc "
                            HIGHLIGHT(user<<" joined"<<"\nthere"<<(plural?" are ":"'s ")<< participants<<(plural?" participants":" participant"));
                            _lock.unlock();
-                       });
-    current_socket->on("user left",(sio::socket::event_listener_aux) [&](string const& name, message::ptr const& data, bool isAck,message::ptr &ack_resp)
+                       }));
+    current_socket->on("user left", sio::socket::event_listener_aux([&](string const& name, message::ptr const& data, bool isAck,message::ptr &ack_resp)
                        {
                            _lock.lock();
                            string user = data->get_map()["username"]->get_string();
@@ -99,7 +99,7 @@ void bind_events(socket::ptr &socket)
                            bool plural = participants !=1;
                            HIGHLIGHT(user<<" left"<<"\nthere"<<(plural?" are ":"'s ")<< participants<<(plural?" participants":" participant"));
                            _lock.unlock();
-                       });
+                       }));
 }
 
 MAIN_FUNC
@@ -126,7 +126,7 @@ Login:
         
         getline(cin, nickname);
     }
-	current_socket->on("login", (sio::socket::event_listener_aux)[&](string const& name, message::ptr const& data, bool isAck,message::ptr &ack_resp){
+	current_socket->on("login", sio::socket::event_listener_aux([&](string const& name, message::ptr const& data, bool isAck,message::ptr &ack_resp){
         _lock.lock();
         participants = data->get_map()["numUsers"]->get_int();
         bool plural = participants !=1;
@@ -134,7 +134,7 @@ Login:
         _cond.notify_all();
         _lock.unlock();
         current_socket->off("login");
-    });
+    }));
     current_socket->emit("add user", nickname);
     _lock.lock();
     if (participants<0) {
