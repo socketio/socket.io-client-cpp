@@ -151,10 +151,20 @@ namespace sio
             :message(flag_string),_v(v)
         {
         }
+
+        string_message(string&& v)
+            :message(flag_string),_v(move(v))
+        {
+        }
     public:
         static message::ptr create(string const& v)
         {
             return ptr(new string_message(v));
+        }
+
+        static message::ptr create(string&& v)
+        {
+            return ptr(new string_message(move(v)));
         }
         
         string const& get_string() const
@@ -258,15 +268,20 @@ namespace sio
                 m_vector.push_back(message);
         }
 
-        list(string& text)
+        list(const string& text)
         {
             m_vector.push_back(string_message::create(text));
         }
 
-        list(const char* text)
+        list(string&& text)
         {
-            if(text)
-                m_vector.push_back(string_message::create(text));
+            m_vector.push_back(string_message::create(move(text)));
+        }
+
+        list(shared_ptr<string> const& binary)
+        {
+            if(binary)
+                m_vector.push_back(binary_message::create(binary));
         }
 
         list(shared_ptr<const string> const& binary)
