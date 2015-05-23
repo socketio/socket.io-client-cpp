@@ -31,6 +31,7 @@ target_include_directories(sioclient PRIVATE ${Boost_INCLUDE_DIRS}
 set_property(TARGET sioclient PROPERTY CXX_STANDARD 11)
 set_property(TARGET sioclient PROPERTY CXX_STANDARD_REQUIRED ON)
 target_link_libraries(sioclient PRIVATE ${Boost_LIBRARIES})
+list(APPEND TARGET_LIBRARIES sioclient)
 
 find_package(OpenSSL)
 if(OPENSSL_FOUND)
@@ -46,6 +47,7 @@ set_property(TARGET sioclient_tls PROPERTY CXX_STANDARD 11)
 set_property(TARGET sioclient_tls PROPERTY CXX_STANDARD_REQUIRED ON)
 target_link_libraries(sioclient_tls PRIVATE ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES} )
 target_compile_definitions(sioclient_tls PRIVATE -DSIO_TLS)
+list(APPEND TARGET_LIBRARIES sioclient_tls)
 
 endif()
 
@@ -53,7 +55,7 @@ install(FILES ${ALL_HEADERS}
     DESTINATION "${CMAKE_CURRENT_LIST_DIR}/build/include"
 )
 
-install(TARGETS sioclient
+install(TARGETS ${TARGET_LIBRARIES}
     DESTINATION "${CMAKE_CURRENT_LIST_DIR}/build/lib/${CMAKE_BUILD_TYPE}"
 )
 
