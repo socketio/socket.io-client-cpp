@@ -328,7 +328,8 @@ namespace sio
     unsigned client_impl::next_delay() const
     {
         //no jitter, fixed power root.
-        return static_cast<unsigned>(min<double>(m_reconn_delay * pow(1.5,m_reconn_made),m_reconn_delay_max));
+        unsigned reconn_made = min<unsigned>(m_reconn_made,32);//protect the pow result to be too big.
+        return static_cast<unsigned>(min<double>(m_reconn_delay * pow(1.5,reconn_made),m_reconn_delay_max));
     }
 
     socket::ptr client_impl::get_socket_locked(string const& nsp)
