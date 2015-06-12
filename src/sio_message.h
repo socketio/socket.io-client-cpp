@@ -122,6 +122,11 @@ namespace sio
         {
             return _v;
         }
+        
+        double get_double() const//add double accessor for integer.
+        {
+            return static_cast<double>(_v);
+        }
     };
     
     class double_message : public message
