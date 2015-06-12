@@ -37,7 +37,7 @@ cmake
 1. Install boost, see [Boost setup](#boost_setup) section.
 2. Use `git clone --recurse-submodules https://github.com/socketio/socket.io-client-cpp.git` to clone your local repo.
 3. Add `<your boost install folder>/include`,`./lib/websocketpp` and `./lib/rapidjson/include` to headers search path.
-4. Include all files under `./src` in your project, add `sio_packet.cpp`,`sio_socket.cpp`,`internal/sio_client_impl.cpp` to source list.
+4. Include all files under `./src` in your project, add `sio_client.cpp`,`sio_socket.cpp`,`internal/sio_client_impl.cpp`, `internal/sio_packet.cpp` to source list.
 5. Add `<your boost install folder>/lib` to library search path, add `boost.lib`(Win32) or `-lboost`(Other) link option.
 6. Include `sio_client.h` in your client code where you want to use it.
 

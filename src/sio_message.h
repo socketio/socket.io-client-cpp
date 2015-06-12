@@ -27,6 +27,8 @@ namespace sio
             flag_array,
             flag_object
         };
+
+        virtual ~message() = default;
         
         class list;
 

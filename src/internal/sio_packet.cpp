@@ -303,7 +303,7 @@ namespace sio
         }
         if (_frame == frame_message && (_type == type_binary_event || _type == type_binary_ack)) {
             //parse later when all buffers are arrived.
-            _buffers.push_back(make_shared<const string>(payload_ptr.data() + json_pos, payload_ptr.length() - json_pos));
+            _buffers.push_back(make_shared<string>(payload_ptr.data() + json_pos, payload_ptr.length() - json_pos));
             return true;
         }
         else
