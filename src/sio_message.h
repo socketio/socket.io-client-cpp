@@ -11,6 +11,7 @@
 #include <vector>
 #include <map>
 #include <cassert>
+#include <type_traits>
 namespace sio
 {
     using namespace std;
@@ -28,7 +29,7 @@ namespace sio
             flag_object
         };
 
-        virtual ~message() = default;
+		virtual ~message(){};
         
         class list;
 
@@ -261,6 +262,13 @@ namespace sio
             m_vector(std::move(rhs.m_vector))
         {
 
+        }
+
+		template <typename T>
+		list(T&& content,
+			typename enable_if<is_same<vector<message::ptr>,typename remove_reference<T>::type>::value>::type* = 0):
+			m_vector(std::forward<T>(content))
+        {
         }
 
         list(message::list const& rhs):
