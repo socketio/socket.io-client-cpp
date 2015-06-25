@@ -316,6 +316,9 @@ namespace sio
     void socket::impl::on_close()
     {
         NULL_GUARD(m_client);
+        sio::client_impl *client = m_client;
+        m_client = NULL;
+
         if(m_connection_timer)
         {
             m_connection_timer->cancel();
@@ -325,9 +328,8 @@ namespace sio
         while (!m_packet_queue.empty()) {
             m_packet_queue.pop();
         }
-        m_client->on_socket_closed(m_nsp);
-        m_client->remove_socket(m_nsp);
-        m_client = NULL;
+        client->on_socket_closed(m_nsp);
+        client->remove_socket(m_nsp);
     }
     
     void socket::impl::on_open()
