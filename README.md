@@ -61,7 +61,7 @@ h.socket()->emit("add user", username);
 char buf[100];
 h.socket()->emit("add user", std::make_shared<std::string>(buf,100));
 //emit message object with lambda ack handler
-h.socket()->emit("add user", string_message::create(username), [&](message::ptr const& msg)
+h.socket()->emit("add user", string_message::create(username), [&](message::list const& msg)
 {
 });
 //emit with `message::list`
