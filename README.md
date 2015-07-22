@@ -321,10 +321,23 @@ In output folder, run:
 lib.exe /OUT:boost.lib *
 ```
 
-#### iOS
-Use this [shell](https://gist.github.com/melode11/a90114a2abf009ca22ea) to download and build boost completely automattically.
+### iOS
 
-It installs boost to `<shell folder>/prefix`.
+##### Option 1: Cocoapods
+
+```
+pod 'SocketIO-Client-CPP'
+```
+
+##### Option 2: Static library
+
+Grab the latest library built for all architectures from https://github.com/hfossli/SocketIO-Client-CPP-iOS-Builds
+
+##### Option 3: Manually
+
+Use this [shell](https://gist.github.com/melode11/a90114a2abf009ca22ea) to download and build boost completely automattically. It installs boost to `<shell folder>/prefix`.
+
+See the [iOS example project](examples/iOS) for how to integrate the rest.
 
 ##License
 MIT
