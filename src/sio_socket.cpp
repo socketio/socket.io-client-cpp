@@ -306,6 +306,7 @@ namespace sio
         {
             m_connected = true;
             m_client->on_socket_opened(m_nsp);
+            std::lock_guard<std::mutex> guard(m_event_mutex);
             while (!m_packet_queue.empty()) {
                 m_client->send(m_packet_queue.front());
                 m_packet_queue.pop();
@@ -477,6 +478,7 @@ namespace sio
     void socket::impl::send_packet(sio::packet &p)
     {
         NULL_GUARD(m_client);
+        std::lock_guard<std::mutex> guard(m_event_mutex);
         if(m_connected)
         {
             while (!m_packet_queue.empty()) {
