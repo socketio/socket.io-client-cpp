@@ -183,6 +183,8 @@ namespace sio
         std::queue<packet> m_packet_queue;
         
         std::mutex m_event_mutex;
+
+		std::mutex m_packet_mutex;
         
         friend class socket;
     };
@@ -306,9 +308,18 @@ namespace sio
         {
             m_connected = true;
             m_client->on_socket_opened(m_nsp);
-            while (!m_packet_queue.empty()) {
-                m_client->send(m_packet_queue.front());
+
+            while (true) {
+				m_packet_mutex.lock();
+				if(m_packet_queue.empty())
+				{
+					m_packet_mutex.unlock();
+					return;
+				}
+				sio::packet front_pack = std::move(m_packet_queue.front());
                 m_packet_queue.pop();
+				m_packet_mutex.unlock();
+				m_client->send(front_pack);
             }
         }
     }
@@ -325,9 +336,12 @@ namespace sio
             m_connection_timer.reset();
         }
         m_connected = false;
-        while (!m_packet_queue.empty()) {
-            m_packet_queue.pop();
-        }
+		{
+			std::lock_guard<std::mutex> guard(m_packet_mutex);
+			while (!m_packet_queue.empty()) {
+				m_packet_queue.pop();
+			}
+		}
         client->on_socket_closed(m_nsp);
         client->remove_socket(m_nsp);
     }
@@ -343,6 +357,7 @@ namespace sio
         if(m_connected)
         {
             m_connected = false;
+			std::lock_guard<std::mutex> guard(m_packet_mutex);
             while (!m_packet_queue.empty()) {
                 m_packet_queue.pop();
             }
@@ -479,14 +494,23 @@ namespace sio
         NULL_GUARD(m_client);
         if(m_connected)
         {
-            while (!m_packet_queue.empty()) {
-                m_client->send(m_packet_queue.front());
+            while (true) {
+				m_packet_mutex.lock();
+				if(m_packet_queue.empty())
+				{
+					m_packet_mutex.unlock();
+					break;
+				}
+				sio::packet front_pack = std::move(m_packet_queue.front());
                 m_packet_queue.pop();
+				m_packet_mutex.unlock();
+				m_client->send(front_pack);
             }
             m_client->send(p);
         }
         else
         {
+			std::lock_guard<std::mutex> guard(m_packet_mutex);
             m_packet_queue.push(p);
         }
     }

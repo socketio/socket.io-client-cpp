@@ -26,7 +26,8 @@ namespace sio
             flag_string,
             flag_binary,
             flag_array,
-            flag_object
+            flag_object,
+			flag_boolean
         };
 
 		virtual ~message(){};
@@ -39,6 +40,12 @@ namespace sio
         }
         
         typedef shared_ptr<message> ptr;
+
+		virtual bool get_bool() const
+		{
+			assert(false);
+			return false;
+		}
         
         virtual int64_t get_int() const
         {
@@ -105,6 +112,28 @@ namespace sio
     protected:
         message(flag f):_flag(f){}
     };
+
+	class bool_message : public message
+	{
+		bool _v;
+
+	protected:
+        bool_message(bool v)
+            :message(flag_boolean),_v(v)
+        {
+        }
+        
+    public:
+        static message::ptr create(bool v)
+        {
+            return ptr(new bool_message(v));
+        }
+        
+        bool get_bool() const
+        {
+            return _v;
+        }
+	};
     
     class int_message : public message
     {

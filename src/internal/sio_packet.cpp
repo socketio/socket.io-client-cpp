@@ -19,6 +19,11 @@ namespace sio
     using namespace std;
     void accept_message(message const& msg,Value& val, Document& doc,vector<shared_ptr<const string> >& buffers);
 
+	void accept_bool_message(bool_message const& msg, Value& val)
+	{
+		val.SetBool(msg.get_bool());
+	}
+
     void accept_int_message(int_message const& msg, Value& val)
     {
         val.SetInt64(msg.get_int());
@@ -95,6 +100,11 @@ namespace sio
             accept_string_message(*(static_cast<const string_message*>(msg_ptr)), val);
             break;
         }
+		case message::flag_boolean:
+		{
+			accept_bool_message(*(static_cast<const bool_message*>(msg_ptr)), val);
+			break;
+		}
         case message::flag_binary:
         {
             accept_binary_message(*(static_cast<const binary_message*>(msg_ptr)), val,doc,buffers);
@@ -163,6 +173,10 @@ namespace sio
             }
             return ptr;
         }
+		else if(value.IsBool())
+		{
+			return bool_message::create(value.GetBool());
+		}
         return message::ptr();
     }
 
