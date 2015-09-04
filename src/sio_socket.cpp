@@ -67,10 +67,10 @@ namespace sio
         return m_need_ack;
     }
     
-    void event::put_ack_message(message::ptr const& ack_message)
+    void event::put_ack_message(message::list const& ack_message)
     {
         if(m_need_ack)
-            m_ack_message = ack_message;
+            m_ack_message = std::move(ack_message);
     }
     
     inline
@@ -91,13 +91,13 @@ namespace sio
     {
     }
     
-    message::ptr const& event::get_ack_message() const
+    message::list const& event::get_ack_message() const
     {
         return m_ack_message;
     }
     
     inline
-    message::ptr& event::get_ack_message_impl()
+    message::list& event::get_ack_message_impl()
     {
         return m_ack_message;
     }
@@ -155,7 +155,7 @@ namespace sio
         
         event_listener get_bind_listener_locked(string const& event);
         
-        void ack(int msgId,string const& name,message::ptr const& ack_message);
+        void ack(int msgId,string const& name,message::list const& ack_message);
         
         void timeout_connection(const boost::system::error_code &ec);
         
@@ -449,10 +449,9 @@ namespace sio
         }
     }
     
-    void socket::impl::ack(int msgId, const string &name, const message::ptr &ack_message)
+    void socket::impl::ack(int msgId, const string &name, const message::list &ack_message)
     {
-        message::list li(ack_message);
-        packet p(m_nsp, li.to_array_message(name),msgId,true);
+        packet p(m_nsp, ack_message.to_array_message(),msgId,true);
         send_packet(p);
     }
     
