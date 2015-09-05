@@ -4,6 +4,10 @@ PROJECT(sioclient)
 option(BUILD_SHARED_LIBS "Build the shared library" OFF)
 option(Boost_USE_STATIC_LIBS "Use Boost static version" ON)
 
+set(MAJOR 1)
+set(MINOR 6)
+set(PATCH 0)
+
 if(NOT CMAKE_BUILD_TYPE )
 MESSAGE(STATUS "not define build type, set to release" )
 set(CMAKE_BUILD_TYPE Release )
@@ -33,6 +37,13 @@ target_include_directories(sioclient PRIVATE ${Boost_INCLUDE_DIRS}
 set_property(TARGET sioclient PROPERTY CXX_STANDARD 11)
 set_property(TARGET sioclient PROPERTY CXX_STANDARD_REQUIRED ON)
 target_link_libraries(sioclient PRIVATE ${Boost_LIBRARIES})
+if(BUILD_SHARED_LIBS)
+set_target_properties(sioclient
+	PROPERTIES
+		SOVERSION ${MAJOR}
+		VERSION ${MAJOR}.${MINOR}.${PATCH}
+	)
+endif()
 list(APPEND TARGET_LIBRARIES sioclient)
 
 find_package(OpenSSL)
@@ -49,6 +60,13 @@ set_property(TARGET sioclient_tls PROPERTY CXX_STANDARD 11)
 set_property(TARGET sioclient_tls PROPERTY CXX_STANDARD_REQUIRED ON)
 target_link_libraries(sioclient_tls PRIVATE ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES} )
 target_compile_definitions(sioclient_tls PRIVATE -DSIO_TLS)
+if(BUILD_SHARED_LIBS)
+set_target_properties(sioclient_tls
+	PROPERTIES
+		SOVERSION ${MAJOR}
+		VERSION ${MAJOR}.${MINOR}.${PATCH}
+	)
+endif()
 list(APPEND TARGET_LIBRARIES sioclient_tls)
 
 endif()
