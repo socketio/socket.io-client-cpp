@@ -71,7 +71,7 @@ socket::ptr current_socket;
 
 void bind_events(socket::ptr &socket)
 {
-	current_socket->on("new message", sio::socket::event_listener_aux([&](string const& name, message::ptr const& data, bool isAck,message::ptr &ack_resp)
+	current_socket->on("new message", sio::socket::event_listener_aux([&](string const& name, message::ptr const& data, bool isAck,message::list &ack_resp)
                        {
                            _lock.lock();
                            string user = data->get_map()["username"]->get_string();
@@ -80,7 +80,7 @@ void bind_events(socket::ptr &socket)
                            _lock.unlock();
                        }));
     
-    current_socket->on("user joined",sio::socket::event_listener_aux([&](string const& name, message::ptr const& data, bool isAck,message::ptr &ack_resp)
+    current_socket->on("user joined",sio::socket::event_listener_aux([&](string const& name, message::ptr const& data, bool isAck,message::list &ack_resp)
                        {
                            _lock.lock();
                            string user = data->get_map()["username"]->get_string();
@@ -91,7 +91,7 @@ void bind_events(socket::ptr &socket)
                            HIGHLIGHT(user<<" joined"<<"\nthere"<<(plural?" are ":"'s ")<< participants<<(plural?" participants":" participant"));
                            _lock.unlock();
                        }));
-    current_socket->on("user left", sio::socket::event_listener_aux([&](string const& name, message::ptr const& data, bool isAck,message::ptr &ack_resp)
+    current_socket->on("user left", sio::socket::event_listener_aux([&](string const& name, message::ptr const& data, bool isAck,message::list &ack_resp)
                        {
                            _lock.lock();
                            string user = data->get_map()["username"]->get_string();
@@ -126,7 +126,7 @@ Login:
         
         getline(cin, nickname);
     }
-	current_socket->on("login", sio::socket::event_listener_aux([&](string const& name, message::ptr const& data, bool isAck,message::ptr &ack_resp){
+	current_socket->on("login", sio::socket::event_listener_aux([&](string const& name, message::ptr const& data, bool isAck,message::list &ack_resp){
         _lock.lock();
         participants = data->get_map()["numUsers"]->get_int();
         bool plural = participants !=1;

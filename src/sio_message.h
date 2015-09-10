@@ -293,6 +293,12 @@ namespace sio
 
         }
 
+        list & operator= (const message::list && rhs)
+        {
+            m_vector = std::move(rhs.m_vector);
+            return *this;
+        }
+
 		template <typename T>
 		list(T&& content,
 			typename enable_if<is_same<vector<message::ptr>,typename remove_reference<T>::type>::value>::type* = 0):
@@ -365,6 +371,13 @@ namespace sio
         {
             message::ptr arr = array_message::create();
             arr->get_vector().push_back(string_message::create(event_name));
+            arr->get_vector().insert(arr->get_vector().end(),m_vector.begin(),m_vector.end());
+            return arr;
+        }
+
+        message::ptr to_array_message() const
+        {
+            message::ptr arr = array_message::create();
             arr->get_vector().insert(arr->get_vector().end(),m_vector.begin(),m_vector.end());
             return arr;
         }
