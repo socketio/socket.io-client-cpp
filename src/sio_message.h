@@ -27,7 +27,8 @@ namespace sio
             flag_binary,
             flag_array,
             flag_object,
-			flag_boolean
+			flag_boolean,
+			flag_null
         };
 
 		virtual ~message(){};
@@ -112,6 +113,21 @@ namespace sio
     protected:
         message(flag f):_flag(f){}
     };
+
+	class null_message : public message
+	{
+	protected:
+        null_message()
+			:message(flag_null)
+        {
+        }
+
+	public:
+        static message::ptr create()
+        {
+            return ptr(new null_message());
+        }
+	};
 
 	class bool_message : public message
 	{

@@ -24,6 +24,11 @@ namespace sio
 		val.SetBool(msg.get_bool());
 	}
 
+	void accept_null_message(Value& val)
+	{
+		val.SetNull();
+	}
+
     void accept_int_message(int_message const& msg, Value& val)
     {
         val.SetInt64(msg.get_int());
@@ -105,6 +110,11 @@ namespace sio
 			accept_bool_message(*(static_cast<const bool_message*>(msg_ptr)), val);
 			break;
 		}
+		case message::flag_null:
+		{
+			accept_null_message(val);
+			break;
+		}
         case message::flag_binary:
         {
             accept_binary_message(*(static_cast<const binary_message*>(msg_ptr)), val,doc,buffers);
@@ -176,6 +186,10 @@ namespace sio
 		else if(value.IsBool())
 		{
 			return bool_message::create(value.GetBool());
+		}
+		else if(value.IsNull())
+		{
+			return null_message::create();
 		}
         return message::ptr();
     }
