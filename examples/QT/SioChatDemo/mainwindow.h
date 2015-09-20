@@ -41,12 +41,12 @@ private Q_SLOTS:
     void NicknameAccept();
     void NicknameCancelled();
 private:
-    void OnNewMessage(std::string const& name,message::ptr const& data,bool hasAck,message::ptr &ack_resp);
-    void OnUserJoined(std::string const& name,message::ptr const& data,bool hasAck,message::ptr &ack_resp);
-    void OnUserLeft(std::string const& name,message::ptr const& data,bool hasAck,message::ptr &ack_resp);
-    void OnTyping(std::string const& name,message::ptr const& data,bool hasAck,message::ptr &ack_resp);
-    void OnStopTyping(std::string const& name,message::ptr const& data,bool hasAck,message::ptr &ack_resp);
-    void OnLogin(std::string const& name,message::ptr const& data,bool hasAck,message::ptr &ack_resp);
+    void OnNewMessage(std::string const& name,message::ptr const& data,bool hasAck,message::list &ack_resp);
+    void OnUserJoined(std::string const& name,message::ptr const& data,bool hasAck,message::list &ack_resp);
+    void OnUserLeft(std::string const& name,message::ptr const& data,bool hasAck,message::list &ack_resp);
+    void OnTyping(std::string const& name,message::ptr const& data,bool hasAck,message::list &ack_resp);
+    void OnStopTyping(std::string const& name,message::ptr const& data,bool hasAck,message::list &ack_resp);
+    void OnLogin(std::string const& name,message::ptr const& data,bool hasAck,message::list &ack_resp);
     void OnConnected(std::string const& nsp);
     void OnClosed(client::close_reason const& reason);
     void OnFailed();

@@ -137,7 +137,7 @@ void MainWindow::RemoveListItem(QListWidgetItem* item)
 }
 
 
-void MainWindow::OnNewMessage(std::string const& name,message::ptr const& data,bool hasAck,message::ptr &ack_resp)
+void MainWindow::OnNewMessage(std::string const& name,message::ptr const& data,bool hasAck,message::list &ack_resp)
 {
 
     if(data->get_flag() == message::flag_object)
@@ -152,7 +152,7 @@ void MainWindow::OnNewMessage(std::string const& name,message::ptr const& data,b
     }
 }
 
-void MainWindow::OnUserJoined(std::string const& name,message::ptr const& data,bool hasAck,message::ptr &ack_resp)
+void MainWindow::OnUserJoined(std::string const& name,message::ptr const& data,bool hasAck,message::list &ack_resp)
 {
     if(data->get_flag() == message::flag_object)
     {
@@ -181,7 +181,7 @@ void MainWindow::OnUserJoined(std::string const& name,message::ptr const& data,b
 
 }
 
-void MainWindow::OnUserLeft(std::string const& name,message::ptr const& data,bool hasAck,message::ptr &ack_resp)
+void MainWindow::OnUserLeft(std::string const& name,message::ptr const& data,bool hasAck,message::list &ack_resp)
 {
     if(data->get_flag() == message::flag_object)
     {
@@ -209,7 +209,7 @@ void MainWindow::OnUserLeft(std::string const& name,message::ptr const& data,boo
     }
 }
 
-void MainWindow::OnTyping(std::string const& name,message::ptr const& data,bool hasAck,message::ptr &ack_resp)
+void MainWindow::OnTyping(std::string const& name,message::ptr const& data,bool hasAck,message::list &ack_resp)
 {
     if(m_typingItem == NULL)
     {
@@ -223,7 +223,7 @@ void MainWindow::OnTyping(std::string const& name,message::ptr const& data,bool 
     }
 }
 
-void MainWindow::OnStopTyping(std::string const& name,message::ptr const& data,bool hasAck,message::ptr &ack_resp)
+void MainWindow::OnStopTyping(std::string const& name,message::ptr const& data,bool hasAck,message::list &ack_resp)
 {
     if(m_typingItem != NULL)
     {
@@ -232,7 +232,7 @@ void MainWindow::OnStopTyping(std::string const& name,message::ptr const& data,b
     }
 }
 
-void MainWindow::OnLogin(std::string const& name,message::ptr const& data,bool hasAck,message::ptr &ack_resp)
+void MainWindow::OnLogin(std::string const& name,message::ptr const& data,bool hasAck,message::list &ack_resp)
 {
     Q_EMIT RequestToggleInputs(true);
     int numUser = data->get_map()["numUsers"]->get_int();

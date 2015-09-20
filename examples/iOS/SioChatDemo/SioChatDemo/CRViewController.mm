@@ -69,7 +69,7 @@ using namespace std;
 
 using namespace sio;
 
-void OnNewMessage(CFTypeRef ctrl,string const& name,sio::message::ptr const& data,bool needACK,sio::message::ptr ackResp)
+void OnNewMessage(CFTypeRef ctrl,string const& name,sio::message::ptr const& data,bool needACK,sio::message::list ackResp)
 {
     if(data->get_flag() == message::flag_object)
     {
@@ -82,7 +82,7 @@ void OnNewMessage(CFTypeRef ctrl,string const& name,sio::message::ptr const& dat
    
 }
 
-void OnTyping(CFTypeRef ctrl,string const& name,sio::message::ptr const& data,bool needACK,sio::message::ptr ackResp)
+void OnTyping(CFTypeRef ctrl,string const& name,sio::message::ptr const& data,bool needACK,sio::message::list ackResp)
 {
     if(data->get_flag() == message::flag_object)
     {
@@ -93,7 +93,7 @@ void OnTyping(CFTypeRef ctrl,string const& name,sio::message::ptr const& data,bo
     }
 }
 
-void OnStopTyping(CFTypeRef ctrl,string const& name,sio::message::ptr const& data,bool needACK,sio::message::ptr ackResp)
+void OnStopTyping(CFTypeRef ctrl,string const& name,sio::message::ptr const& data,bool needACK,sio::message::list ackResp)
 {
     if(data->get_flag() == message::flag_object)
     {
@@ -104,7 +104,7 @@ void OnStopTyping(CFTypeRef ctrl,string const& name,sio::message::ptr const& dat
     }
 }
 
-void OnUserJoined(CFTypeRef ctrl, string const& name, sio::message::ptr const& data, bool needACK, sio::message::ptr ackResp)
+void OnUserJoined(CFTypeRef ctrl, string const& name, sio::message::ptr const& data, bool needACK, sio::message::list ackResp)
 {
     if(data->get_flag() == message::flag_object)
     {
@@ -116,7 +116,7 @@ void OnUserJoined(CFTypeRef ctrl, string const& name, sio::message::ptr const& d
     }
 }
 
-void OnUserLeft(CFTypeRef ctrl, string const& name, sio::message::ptr const& data, bool needACK, sio::message::ptr ackResp)
+void OnUserLeft(CFTypeRef ctrl, string const& name, sio::message::ptr const& data, bool needACK, sio::message::list ackResp)
 {
     if(data->get_flag() == message::flag_object)
     {
@@ -129,7 +129,7 @@ void OnUserLeft(CFTypeRef ctrl, string const& name, sio::message::ptr const& dat
 }
 
 
-void OnLogin(CFTypeRef ctrl, string const& name, sio::message::ptr const& data, bool needACK, sio::message::ptr ackResp)
+void OnLogin(CFTypeRef ctrl, string const& name, sio::message::ptr const& data, bool needACK, sio::message::list ackResp)
 {
     if(data->get_flag() == message::flag_object)
     {
