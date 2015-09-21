@@ -51,10 +51,12 @@ list(APPEND TARGET_LIBRARIES sioclient_tls)
 
 endif()
 
+include(GNUInstallDirs)
+
 install(FILES ${ALL_HEADERS} 
-    DESTINATION "include"
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
 
 install(TARGETS ${TARGET_LIBRARIES}
-    DESTINATION "lib"
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
