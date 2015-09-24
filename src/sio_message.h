@@ -257,7 +257,77 @@ namespace sio
         {
             return ptr(new array_message());
         }
-        
+
+        void push(message::ptr const& message)
+        {
+            if(message)
+                _v.push_back(message);
+        }
+
+        void push(const string& text)
+		{
+			_v.push_back(string_message::create(text));
+		}
+
+        void push(string&& text)
+		{
+			_v.push_back(string_message::create(move(text)));
+		}
+
+        void push(shared_ptr<string> const& binary)
+		{
+			if(binary)
+				_v.push_back(binary_message::create(binary));
+		}
+
+        void push(shared_ptr<const string> const& binary)
+		{
+			if(binary)
+				_v.push_back(binary_message::create(binary));
+		}
+
+        void insert(size_t pos,message::ptr const& message)
+        {
+            _v.insert(_v.begin()+pos, message);
+        }
+
+        void insert(size_t pos,const string& text)
+		{
+			_v.insert(_v.begin()+pos, string_message::create(text));
+		}
+
+        void insert(size_t pos,string&& text)
+		{
+			_v.insert(_v.begin()+pos, string_message::create(move(text)));
+		}
+
+        void insert(size_t pos,shared_ptr<string> const& binary)
+		{
+			if(binary)
+				_v.insert(_v.begin()+pos, binary_message::create(binary));
+		}
+
+        void insert(size_t pos,shared_ptr<const string> const& binary)
+		{
+			if(binary)
+				_v.insert(_v.begin()+pos, binary_message::create(binary));
+		}
+
+        size_t size() const
+        {
+            return _v.size();
+        }
+
+        const message::ptr& at(size_t i) const
+        {
+            return _v[i];
+        }
+
+        const message::ptr& operator[] (size_t i) const
+        {
+            return _v[i];
+        }
+
         vector<ptr>& get_vector()
         {
             return _v;
@@ -280,7 +350,58 @@ namespace sio
         {
             return ptr(new object_message());
         }
-        
+
+        void insert(const string & key,message::ptr const& message)
+        {
+            _v[key] = message;
+        }
+
+        void insert(const string & key,const string& text)
+		{
+			_v[key] = string_message::create(text);
+		}
+
+        void insert(const string & key,string&& text)
+		{
+			_v[key] = string_message::create(move(text));
+		}
+
+        void insert(const string & key,shared_ptr<string> const& binary)
+		{
+			if(binary)
+				_v[key] = binary_message::create(binary);
+		}
+
+        void insert(const string & key,shared_ptr<const string> const& binary)
+		{
+			if(binary)
+				_v[key] = binary_message::create(binary);
+		}
+
+        bool has(const string & key)
+        {
+			return _v.find(key) != _v.end();
+        }
+
+        const message::ptr& at(const string & key) const
+        {
+			static shared_ptr<message> not_found;
+
+			map<string,message::ptr>::const_iterator it = _v.find(key);
+			if (it != _v.end()) return it->second;
+			return not_found;
+        }
+
+        const message::ptr& operator[] (const string & key) const
+        {
+            return at(key);
+        }
+
+        bool has(const string & key) const
+        {
+			return _v.find(key) != _v.end();
+        }
+
         map<string,message::ptr>& get_map()
         {
             return _v;
@@ -332,6 +453,7 @@ namespace sio
         {
             if(message)
                 m_vector.push_back(message);
+
         }
 
         list(const string& text)
@@ -360,13 +482,56 @@ namespace sio
         {
             if(message)
                 m_vector.push_back(message);
-
         }
+
+        void push(const string& text)
+		{
+			m_vector.push_back(string_message::create(text));
+		}
+
+        void push(string&& text)
+		{
+			m_vector.push_back(string_message::create(move(text)));
+		}
+
+        void push(shared_ptr<string> const& binary)
+		{
+			if(binary)
+				m_vector.push_back(binary_message::create(binary));
+		}
+
+        void push(shared_ptr<const string> const& binary)
+		{
+			if(binary)
+				m_vector.push_back(binary_message::create(binary));
+		}
 
         void insert(size_t pos,message::ptr const& message)
         {
             m_vector.insert(m_vector.begin()+pos, message);
         }
+
+        void insert(size_t pos,const string& text)
+		{
+			m_vector.insert(m_vector.begin()+pos, string_message::create(text));
+		}
+
+        void insert(size_t pos,string&& text)
+		{
+			m_vector.insert(m_vector.begin()+pos, string_message::create(move(text)));
+		}
+
+        void insert(size_t pos,shared_ptr<string> const& binary)
+		{
+			if(binary)
+				m_vector.insert(m_vector.begin()+pos, binary_message::create(binary));
+		}
+
+        void insert(size_t pos,shared_ptr<const string> const& binary)
+		{
+			if(binary)
+				m_vector.insert(m_vector.begin()+pos, binary_message::create(binary));
+		}
 
         size_t size() const
         {
