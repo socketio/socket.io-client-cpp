@@ -29,14 +29,6 @@ Pod::Spec.new do |s|
 
     s.dependency              'boost', '~> 1.57.0'
 
-    # s.public_header_files   = 'lib/websocketpp/websocketpp/**/*.{hpp,h}',
-    #                           'lib/rapidjson/include/rapidjson/**/*.{hpp,h}',
-    #                           'src/*.{hpp,h}'
-    #
-    # s.private_header_files  = 'src/internal/*.{hpp,h}'
-    #
-    # s.source_files          = 'src/**/*.{cpp,c}'
-
     s.source_files =        'lib/websocketpp/websocketpp/**/*.{hpp,h}',
                             'lib/rapidjson/include/rapidjson/**/*.{hpp,h}',
                             'src/*.{hpp,h}',
