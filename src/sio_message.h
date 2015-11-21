@@ -27,11 +27,11 @@ namespace sio
             flag_binary,
             flag_array,
             flag_object,
-			flag_boolean,
-			flag_null
+            flag_boolean,
+            flag_null
         };
 
-		virtual ~message(){};
+        virtual ~message(){};
         
         class list;
 
@@ -42,11 +42,11 @@ namespace sio
         
         typedef shared_ptr<message> ptr;
 
-		virtual bool get_bool() const
-		{
-			assert(false);
-			return false;
-		}
+        virtual bool get_bool() const
+        {
+            assert(false);
+            return false;
+        }
         
         virtual int64_t get_int() const
         {
@@ -114,26 +114,26 @@ namespace sio
         message(flag f):_flag(f){}
     };
 
-	class null_message : public message
-	{
-	protected:
+    class null_message : public message
+    {
+    protected:
         null_message()
-			:message(flag_null)
+            :message(flag_null)
         {
         }
 
-	public:
+    public:
         static message::ptr create()
         {
             return ptr(new null_message());
         }
-	};
+    };
 
-	class bool_message : public message
-	{
-		bool _v;
+    class bool_message : public message
+    {
+        bool _v;
 
-	protected:
+    protected:
         bool_message(bool v)
             :message(flag_boolean),_v(v)
         {
@@ -149,7 +149,7 @@ namespace sio
         {
             return _v;
         }
-	};
+    };
     
     class int_message : public message
     {
@@ -265,26 +265,26 @@ namespace sio
         }
 
         void push(const string& text)
-		{
-			_v.push_back(string_message::create(text));
-		}
+        {
+            _v.push_back(string_message::create(text));
+        }
 
         void push(string&& text)
-		{
-			_v.push_back(string_message::create(move(text)));
-		}
+        {
+            _v.push_back(string_message::create(move(text)));
+        }
 
         void push(shared_ptr<string> const& binary)
-		{
-			if(binary)
-				_v.push_back(binary_message::create(binary));
-		}
+        {
+            if(binary)
+                _v.push_back(binary_message::create(binary));
+        }
 
         void push(shared_ptr<const string> const& binary)
-		{
-			if(binary)
-				_v.push_back(binary_message::create(binary));
-		}
+        {
+            if(binary)
+                _v.push_back(binary_message::create(binary));
+        }
 
         void insert(size_t pos,message::ptr const& message)
         {
@@ -292,26 +292,26 @@ namespace sio
         }
 
         void insert(size_t pos,const string& text)
-		{
-			_v.insert(_v.begin()+pos, string_message::create(text));
-		}
+        {
+            _v.insert(_v.begin()+pos, string_message::create(text));
+        }
 
         void insert(size_t pos,string&& text)
-		{
-			_v.insert(_v.begin()+pos, string_message::create(move(text)));
-		}
+        {
+            _v.insert(_v.begin()+pos, string_message::create(move(text)));
+        }
 
         void insert(size_t pos,shared_ptr<string> const& binary)
-		{
-			if(binary)
-				_v.insert(_v.begin()+pos, binary_message::create(binary));
-		}
+        {
+            if(binary)
+                _v.insert(_v.begin()+pos, binary_message::create(binary));
+        }
 
         void insert(size_t pos,shared_ptr<const string> const& binary)
-		{
-			if(binary)
-				_v.insert(_v.begin()+pos, binary_message::create(binary));
-		}
+        {
+            if(binary)
+                _v.insert(_v.begin()+pos, binary_message::create(binary));
+        }
 
         size_t size() const
         {
@@ -357,39 +357,39 @@ namespace sio
         }
 
         void insert(const string & key,const string& text)
-		{
-			_v[key] = string_message::create(text);
-		}
+        {
+            _v[key] = string_message::create(text);
+        }
 
         void insert(const string & key,string&& text)
-		{
-			_v[key] = string_message::create(move(text));
-		}
+        {
+            _v[key] = string_message::create(move(text));
+        }
 
         void insert(const string & key,shared_ptr<string> const& binary)
-		{
-			if(binary)
-				_v[key] = binary_message::create(binary);
-		}
+        {
+            if(binary)
+                _v[key] = binary_message::create(binary);
+        }
 
         void insert(const string & key,shared_ptr<const string> const& binary)
-		{
-			if(binary)
-				_v[key] = binary_message::create(binary);
-		}
+        {
+            if(binary)
+                _v[key] = binary_message::create(binary);
+        }
 
         bool has(const string & key)
         {
-			return _v.find(key) != _v.end();
+            return _v.find(key) != _v.end();
         }
 
         const message::ptr& at(const string & key) const
         {
-			static shared_ptr<message> not_found;
+            static shared_ptr<message> not_found;
 
-			map<string,message::ptr>::const_iterator it = _v.find(key);
-			if (it != _v.end()) return it->second;
-			return not_found;
+            map<string,message::ptr>::const_iterator it = _v.find(key);
+            if (it != _v.end()) return it->second;
+            return not_found;
         }
 
         const message::ptr& operator[] (const string & key) const
@@ -399,7 +399,7 @@ namespace sio
 
         bool has(const string & key) const
         {
-			return _v.find(key) != _v.end();
+            return _v.find(key) != _v.end();
         }
 
         map<string,message::ptr>& get_map()
@@ -436,10 +436,10 @@ namespace sio
             return *this;
         }
 
-		template <typename T>
-		list(T&& content,
-			typename enable_if<is_same<vector<message::ptr>,typename remove_reference<T>::type>::value>::type* = 0):
-			m_vector(std::forward<T>(content))
+        template <typename T>
+        list(T&& content,
+            typename enable_if<is_same<vector<message::ptr>,typename remove_reference<T>::type>::value>::type* = 0):
+            m_vector(std::forward<T>(content))
         {
         }
 
@@ -485,26 +485,26 @@ namespace sio
         }
 
         void push(const string& text)
-		{
-			m_vector.push_back(string_message::create(text));
-		}
+        {
+            m_vector.push_back(string_message::create(text));
+        }
 
         void push(string&& text)
-		{
-			m_vector.push_back(string_message::create(move(text)));
-		}
+        {
+            m_vector.push_back(string_message::create(move(text)));
+        }
 
         void push(shared_ptr<string> const& binary)
-		{
-			if(binary)
-				m_vector.push_back(binary_message::create(binary));
-		}
+        {
+            if(binary)
+                m_vector.push_back(binary_message::create(binary));
+        }
 
         void push(shared_ptr<const string> const& binary)
-		{
-			if(binary)
-				m_vector.push_back(binary_message::create(binary));
-		}
+        {
+            if(binary)
+                m_vector.push_back(binary_message::create(binary));
+        }
 
         void insert(size_t pos,message::ptr const& message)
         {
@@ -512,26 +512,26 @@ namespace sio
         }
 
         void insert(size_t pos,const string& text)
-		{
-			m_vector.insert(m_vector.begin()+pos, string_message::create(text));
-		}
+        {
+            m_vector.insert(m_vector.begin()+pos, string_message::create(text));
+        }
 
         void insert(size_t pos,string&& text)
-		{
-			m_vector.insert(m_vector.begin()+pos, string_message::create(move(text)));
-		}
+        {
+            m_vector.insert(m_vector.begin()+pos, string_message::create(move(text)));
+        }
 
         void insert(size_t pos,shared_ptr<string> const& binary)
-		{
-			if(binary)
-				m_vector.insert(m_vector.begin()+pos, binary_message::create(binary));
-		}
+        {
+            if(binary)
+                m_vector.insert(m_vector.begin()+pos, binary_message::create(binary));
+        }
 
         void insert(size_t pos,shared_ptr<const string> const& binary)
-		{
-			if(binary)
-				m_vector.insert(m_vector.begin()+pos, binary_message::create(binary));
-		}
+        {
+            if(binary)
+                m_vector.insert(m_vector.begin()+pos, binary_message::create(binary));
+        }
 
         size_t size() const
         {
