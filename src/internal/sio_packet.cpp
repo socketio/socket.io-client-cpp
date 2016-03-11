@@ -288,7 +288,7 @@ namespace sio
             pos++;
             if (_type == type_binary_event || _type == type_binary_ack) {
                 size_t score_pos = payload_ptr.find('-');
-                _pending_buffers = boost::lexical_cast<unsigned>(payload_ptr.substr(pos,score_pos));
+                _pending_buffers = boost::lexical_cast<unsigned>(payload_ptr.substr(pos,score_pos - pos));
                 pos = score_pos+1;
             }
         }
