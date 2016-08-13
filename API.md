@@ -1,16 +1,16 @@
 ## API
 ### *Overview*
-There're just 3 roles in this library - `socket`,`client` and `message`.
+There're just 3 roles in this library - `socket`, `client` and `message`.
 
-`client` is for physical connection while `socket` is for "namespace"(which is like a logical channel), which means one `socket` paired with one namespace, and one `client` paired with one physical connection.
+`client` is for physical connection while `socket` is for "namespace" (which is like a logical channel), which means one `socket` paired with one namespace, and one `client` paired with one physical connection.
 
-Since a physical connection can have multiple namespaces (which is called multiplex), a `client` object may have multiple `socket` objects, each is bind to a distinct `namespace`.
+Since a physical connection can have multiple namespaces (which is called multiplex), a `client` object may have multiple `socket` objects, each of which is bound to a distinct `namespace`.
 
 Use `client` to setup the connection to the server, manange the connection status, also session id for the connection.
 
 Use `socket` to send messages under namespace and receives messages in the namespace, also handle special types of message.
 
-The `message` is just about the content you want to send, with text,binary or structured combinations.
+The `message` is just about the content you want to send, with text, binary or structured combinations.
 
 ### *Socket*
 #### Constructors
@@ -28,7 +28,7 @@ Universal event emition interface, by applying implicit conversion magic, it is 
 
 `void on(std::string const& event_name,event_listener_aux const& func)`
 
-Bind a callback to specified event name. Same as `socket.on()` function in JS, `event_listener` is for full content event object,`event_listener_aux` is for convinience.
+Bind a callback to specified event name. Same as `socket.on()` function in JS, `event_listener` is for full content event object, `event_listener_aux` is for convenience.
 
 `void off(std::string const& event_name)`
 
@@ -132,7 +132,7 @@ Set listener for socket close event, called when any sockets being closed, after
 #### Connect and Close
 `void connect(const std::string& uri)`
 
-Connect to socket.io server, eg. `client.connect("ws://localhost:3000");`
+Connect to socket.io server, e.g., `client.connect("ws://localhost:3000");`
 
 `void close()`
 
