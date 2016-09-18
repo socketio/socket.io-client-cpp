@@ -58,6 +58,9 @@ namespace sio
 
         void connect(const std::string& uri, const std::map<std::string,std::string>& query);
 
+        void connect(const std::string& uri, const std::map<std::string,std::string>& query,
+                     const std::map<std::string,std::string>& http_extra_headers);
+
         void set_reconnect_attempts(int attempts);
 
         void set_reconnect_delay(unsigned millis);

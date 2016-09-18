@@ -63,7 +63,7 @@ namespace sio
         sync_close();
     }
     
-    void client_impl::connect(const string& uri, const map<string,string>& query)
+    void client_impl::connect(const string& uri, const map<string,string>& query, const map<string, string>& headers)
     {
         if(m_reconn_timer)
         {
@@ -98,6 +98,8 @@ namespace sio
             query_str.append(it->second);
         }
         m_query_string=move(query_str);
+
+        m_http_headers = headers;
 
         this->reset_states();
         m_client.get_io_service().dispatch(lib::bind(&client_impl::connect_impl,this,uri,m_query_string));
@@ -223,6 +225,10 @@ namespace sio
                 m_client.get_alog().write(websocketpp::log::alevel::app,
                                           "Get Connection Error: "+ec.message());
                 break;
+            }
+
+            for( auto&& header: m_http_headers ) {
+                con->replace_header(header.first, header.second);
             }
 
             m_client.connect(con);
