@@ -13,23 +13,29 @@
 #define INTIALIZER(__TYPE__) (__TYPE__)
 #endif
 #include <websocketpp/client.hpp>
-#if _DEBUG || DEBUG
-#if SIO_TLS
-#include <websocketpp/config/debug_asio.hpp>
-typedef websocketpp::config::debug_asio_tls client_config;
+#ifdef SIO_CLIENT_DEBUG
+#	if SIO_TLS
+#		include <websocketpp/config/debug_asio.hpp>
+		typedef websocketpp::config::debug_asio_tls client_config;
+#	else
+#		include <websocketpp/config/debug_asio_no_tls.hpp>
+		typedef websocketpp::config::debug_asio client_config;
+#	endif //SIO_TLS
 #else
-#include <websocketpp/config/debug_asio_no_tls.hpp>
-typedef websocketpp::config::debug_asio client_config;
-#endif //SIO_TLS
-#else
-#if SIO_TLS
-#include <websocketpp/config/asio_client.hpp>
-typedef websocketpp::config::asio_tls_client client_config;
-#else
-#include <websocketpp/config/asio_no_tls_client.hpp>
-typedef websocketpp::config::asio_client client_config;
-#endif //SIO_TLS
-#endif //DEBUG
+#	if SIO_TLS
+#		include <websocketpp/config/asio_client.hpp>
+		typedef websocketpp::config::asio_tls_client client_config_base;
+#	else
+#		include <websocketpp/config/asio_no_tls_client.hpp>
+		typedef websocketpp::config::asio_client client_config_base;
+#	endif //SIO_TLS
+	struct client_config : public client_config_base {
+		static const websocketpp::log::level elog_level
+			= websocketpp::log::elevel::none;
+		static const websocketpp::log::level alog_level
+			= websocketpp::log::alevel::none;
+	};
+#endif //SIO_CLIENT_DEBUG
 #include <boost/asio/deadline_timer.hpp>
 
 #include <memory>

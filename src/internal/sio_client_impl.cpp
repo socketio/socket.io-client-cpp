@@ -12,10 +12,10 @@
 #include <mutex>
 #include <cmath>
 // Comment this out to disable handshake logging to stdout
-#if DEBUG || _DEBUG
-#define LOG(x) std::cout << x
+#if SIO_CLIENT_DEBUG
+#	define LOG(x) std::cout << x
 #else
-#define LOG(x)
+#	define LOG(x)
 #endif
 
 using boost::posix_time::milliseconds;
@@ -35,8 +35,8 @@ namespace sio
         m_reconn_delay_max(25000)
     {
         using websocketpp::log::alevel;
-#ifndef DEBUG
         m_client.clear_access_channels(alevel::all);
+#ifdef SIO_CLIENT_DEBUG
         m_client.set_access_channels(alevel::connect|alevel::disconnect|alevel::app);
 #endif
         // Initialize the Asio transport policy
@@ -251,7 +251,7 @@ namespace sio
         }
         if (m_con.expired())
         {
-            cerr << "Error: No active session" << endl;
+            LOG("Error: No active session" << endl);
         }
         else
         {
@@ -275,7 +275,7 @@ namespace sio
             m_client.send(m_con,*payload_ptr,opcode,ec);
             if(ec)
             {
-                cerr<<"Send failed,reason:"<< ec.message()<<endl;
+                LOG("Send failed,reason:"<< ec.message()<<endl);
             }
         }
     }
@@ -579,7 +579,7 @@ failed:
                              boost::asio::ssl::context::single_dh_use,ec);
         if(ec)
         {
-            cerr<<"Init tls failed,reason:"<< ec.message()<<endl;
+            LOG("Init tls failed,reason:"<< ec.message()<<endl);
         }
         
         return ctx;

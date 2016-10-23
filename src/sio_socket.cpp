@@ -6,10 +6,10 @@
 #include <queue>
 #include <cstdarg>
 
-#if DEBUG || _DEBUG
-#define LOG(x) std::cout << x
+#if SIO_CLIENT_DEBUG
+#	define LOG(x) std::cout << x
 #else
-#define LOG(x)
+#	define LOG(x)
 #endif
 
 #define NULL_GUARD(_x_)  \
