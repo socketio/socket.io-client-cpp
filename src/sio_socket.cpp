@@ -157,6 +157,7 @@ namespace sio
         
         void ack(int msgId,string const& name,message::list const& ack_message);
         
+        void timeout_close(const boost::system::error_code& error);
         void timeout_connection(const boost::system::error_code &ec);
         
         void send_connect();
@@ -293,7 +294,7 @@ namespace sio
             }
             boost::system::error_code ec;
             m_connection_timer->expires_from_now(boost::posix_time::milliseconds(3000), ec);
-            m_connection_timer->async_wait(lib::bind(&socket::impl::on_close, this));
+            m_connection_timer->async_wait(std::bind(&socket::impl::timeout_close, this, std::placeholders::_1));
         }
     }
     
@@ -324,6 +325,17 @@ namespace sio
         }
     }
     
+    void socket::impl::timeout_close(const boost::system::error_code& error) {
+        NULL_GUARD(m_client);
+        if(error)
+        {
+            return;
+        }
+        m_connection_timer.reset();
+        LOG("Close timeout,close socket."<<std::endl);
+        this->on_close();
+    }
+
     void socket::impl::on_close()
     {
         NULL_GUARD(m_client);
