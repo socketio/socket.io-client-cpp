@@ -186,6 +186,8 @@ namespace sio
 
 		std::mutex m_packet_mutex;
         
+		std::mutex m_client_mutex;
+
         friend class socket;
     };
     
@@ -281,6 +283,8 @@ namespace sio
     
     void socket::impl::close()
     {
+		std::lock_guard<std::mutex> guard(m_client_mutex);
+
         NULL_GUARD(m_client);
         if(m_connected)
         {
@@ -294,6 +298,8 @@ namespace sio
             boost::system::error_code ec;
             m_connection_timer->expires_from_now(boost::posix_time::milliseconds(3000), ec);
             m_connection_timer->async_wait(lib::bind(&socket::impl::on_close, this));
+			m_connection_timer->cancel();
+			m_connection_timer.reset();
         }
     }
     
@@ -328,13 +334,11 @@ namespace sio
     {
         NULL_GUARD(m_client);
         sio::client_impl *client = m_client;
+
+		std::lock_guard<std::mutex> guard_client(m_client_mutex);
+
         m_client = NULL;
 
-        if(m_connection_timer)
-        {
-            m_connection_timer->cancel();
-            m_connection_timer.reset();
-        }
         m_connected = false;
 		{
 			std::lock_guard<std::mutex> guard(m_packet_mutex);
