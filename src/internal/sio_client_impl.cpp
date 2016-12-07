@@ -214,7 +214,12 @@ namespace sio
             } else {
                 ss<<uo.get_host();
             }
-            ss<<":"<<uo.get_port()<<"/socket.io/?EIO=4&transport=websocket";
+
+            // If a resource path was included in the URI, use that, otherwise
+            // use the default /socket.io/.
+            const std::string path(uo.get_resource() == "/" ? "/socket.io/" : uo.get_resource());
+
+            ss<<":"<<uo.get_port()<<path<<"?EIO=4&transport=websocket";
             if(m_sid.size()>0){
                 ss<<"&sid="<<m_sid;
             }
