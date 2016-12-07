@@ -34,6 +34,10 @@ target_include_directories(sioclient PRIVATE ${Boost_INCLUDE_DIRS}
     ${CMAKE_CURRENT_LIST_DIR}/lib/rapidjson/include
 )
 
+if(SIO_CLIENT_DEBUG)
+  target_compile_definitions(sioclient PRIVATE -DSIO_CLIENT_DEBUG)
+endif()
+
 set_property(TARGET sioclient PROPERTY CXX_STANDARD 11)
 set_property(TARGET sioclient PROPERTY CXX_STANDARD_REQUIRED ON)
 target_link_libraries(sioclient PRIVATE ${Boost_LIBRARIES})
@@ -55,6 +59,10 @@ target_include_directories(sioclient_tls PRIVATE ${Boost_INCLUDE_DIRS}
     ${CMAKE_CURRENT_LIST_DIR}/lib/rapidjson/include
     ${OPENSSL_INCLUDE_DIR}
 )
+
+if(SIO_CLIENT_DEBUG)
+  target_compile_definitions(sioclient_tls PRIVATE -DSIO_CLIENT_DEBUG)
+endif()
 
 set_property(TARGET sioclient_tls PROPERTY CXX_STANDARD 11)
 set_property(TARGET sioclient_tls PROPERTY CXX_STANDARD_REQUIRED ON)
