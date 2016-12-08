@@ -13,10 +13,24 @@ using std::stringstream;
 namespace sio
 {
     client::client():
-        m_impl(new client_impl())
+        m_impl(new client_impl<client_type_no_tls>())
     {
     }
-    
+
+    client::client(const std::string& uri)
+    {
+        if(!client_impl_base::is_tls(uri))
+        {
+            m_impl = new client_impl<client_type_no_tls>(uri);
+        }
+#if SIO_TLS
+        else
+        {
+            m_impl = new client_impl<client_type_tls>(uri);
+        }
+#endif
+    }
+
     client::~client()
     {
         delete m_impl;
@@ -65,6 +79,11 @@ namespace sio
     void client::clear_socket_listeners()
     {
         m_impl->clear_socket_listeners();
+    }
+
+    void client::connect()
+    {
+        m_impl->connect(std::string(), {}, {});
     }
 
     void client::connect(const std::string& uri)
