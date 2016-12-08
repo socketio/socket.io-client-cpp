@@ -13,7 +13,7 @@
 
 namespace sio
 {
-    class client_impl;
+    class client_impl_base;
     
     class client {
     public:
@@ -30,8 +30,19 @@ namespace sio
         typedef std::function<void(unsigned, unsigned)> reconnect_listener;
         
         typedef std::function<void(std::string const& nsp)> socket_listener;
-        
+
+        // The default constructor builds a TLS-only or a non-TLS client depending
+        // on which library you link with.
         client();
+
+        // This version of the constructor takes a given connection URI and selects
+        // TLS or non-TLS as needed. If building the library without SIO_TLS support,
+        // you may only use http:// or ws:// schemes, or an exception is thrown.
+        // When using this constructor, you may later call connect() without passing
+        // the URI again. If you pass another URI later to connect() it must have the
+        // same scheme as the one given here, or an exception will be raised.
+        client(const std::string& uri);
+
         ~client();
         
         //set listeners and event bindings.
@@ -54,6 +65,8 @@ namespace sio
         void clear_socket_listeners();
         
         // Client Functions - such as send, etc.
+        void connect();
+
         void connect(const std::string& uri);
 
         void connect(const std::string& uri, const std::map<std::string,std::string>& query);
@@ -83,7 +96,7 @@ namespace sio
         client(client const&){}
         void operator=(client const&){}
         
-        client_impl* m_impl;
+        client_impl_base* m_impl;
     };
     
 }
