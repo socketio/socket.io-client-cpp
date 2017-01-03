@@ -176,6 +176,9 @@ namespace sio
         context_ptr on_tls_init(connection_hdl con);
         #endif
         
+        // Percent encode query string
+        std::string encode_query_string(const std::string &query);
+
         // Connection pointer for client functions.
         connection_hdl m_con;
         client_type m_client;
