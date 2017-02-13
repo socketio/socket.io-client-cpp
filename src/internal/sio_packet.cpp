@@ -198,8 +198,8 @@ namespace sio
         _frame(frame_message),
         _type((isAck?type_ack : type_event) | type_undetermined),
         _nsp(nsp),
-        _message(msg),
         _pack_id(pack_id),
+        _message(msg),
         _pending_buffers(0)
     {
         assert((!isAck
@@ -210,8 +210,8 @@ namespace sio
         _frame(frame_message),
         _type(type),
         _nsp(nsp),
-        _message(msg),
         _pack_id(-1),
+        _message(msg),
         _pending_buffers(0)
     {
 

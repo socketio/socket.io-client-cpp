@@ -80,8 +80,8 @@ namespace sio
         
     private:
         //disable copy constructor and assign operator.
-        client(client const& cl){}
-        void operator=(client const& cl){}
+        client(client const&){}
+        void operator=(client const&){}
         
         client_impl* m_impl;
     };
