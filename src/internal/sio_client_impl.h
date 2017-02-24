@@ -3,7 +3,9 @@
 
 #include <cstdint>
 #ifdef _WIN32
+#ifndef _USE_MINGW_STD_THREADS
 #define _WEBSOCKETPP_CPP11_THREAD_
+#endif
 #define BOOST_ALL_NO_LIB
 //#define _WEBSOCKETPP_CPP11_RANDOM_DEVICE_
 #define _WEBSOCKETPP_NO_CPP11_FUNCTIONAL_
@@ -35,6 +37,11 @@ typedef websocketpp::config::asio_client client_config;
 #include <memory>
 #include <map>
 #include <thread>
+#include <mutex>
+#ifdef _USE_MINGW_STD_THREADS
+#include "mingw.thread.h"
+#include "mingw.mutex.h"
+#endif
 #include "../sio_client.h"
 #include "sio_packet.h"
 
