@@ -1,0 +1,31 @@
+PODS:
+  - boost (1.57.0):
+    - boost/graph-includes (= 1.57.0)
+    - boost/math-includes (= 1.57.0)
+    - boost/numeric-includes (= 1.57.0)
+    - boost/pointer_cast-includes (= 1.57.0)
+    - boost/preprocessor-includes (= 1.57.0)
+    - boost/shared_ptr-includes (= 1.57.0)
+    - boost/string_algorithms-includes (= 1.57.0)
+  - boost/graph-includes (1.57.0)
+  - boost/math-includes (1.57.0)
+  - boost/numeric-includes (1.57.0)
+  - boost/pointer_cast-includes (1.57.0)
+  - boost/preprocessor-includes (1.57.0)
+  - boost/shared_ptr-includes (1.57.0)
+  - boost/string_algorithms-includes (1.57.0)
+  - SocketIO-Client-CPP (1.6.1):
+    - boost (~> 1.57.0)
+
+DEPENDENCIES:
+  - SocketIO-Client-CPP (from `../SocketIO-Client-CPP.podspec`)
+
+EXTERNAL SOURCES:
+  SocketIO-Client-CPP:
+    :path: ../SocketIO-Client-CPP.podspec
+
+SPEC CHECKSUMS:
+  boost: b6ed834eb7fac13c21eecfa034242649b155ef09
+  SocketIO-Client-CPP: c86fc8ad0774bcc02a4566195e0a08191ce87c64
+
+COCOAPODS: 0.38.2
