@@ -570,9 +570,11 @@ failed:
         ctx->set_options(boost::asio::ssl::context::default_workarounds |
                              boost::asio::ssl::context::no_sslv2 |
                              boost::asio::ssl::context::single_dh_use,ec);
+        ctx->set_verify_mode(boost::asio::ssl::verify_peer |
+                             boost::asio::ssl::verify_fail_if_no_peer_cert, ec);
         if(ec)
         {
-            cerr<<"Init tls failed,reason:"<< ec.message()<<endl;
+            cerr<<"Init tls failed, reason:"<< ec.message()<<endl;
         }
         
         return ctx;
