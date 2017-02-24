@@ -264,13 +264,6 @@ namespace sio
     {
         if(m_con_state == con_opened)
         {
-            //delay the ping, since we already have message to send.
-            boost::system::error_code timeout_ec;
-            if(m_ping_timer)
-            {
-                m_ping_timer->expires_from_now(milliseconds(m_ping_interval),timeout_ec);
-                m_ping_timer->async_wait(lib::bind(&client_impl::ping,this,lib::placeholders::_1));
-            }
             lib::error_code ec;
             m_client.send(m_con,*payload_ptr,opcode,ec);
             if(ec)
