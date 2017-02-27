@@ -71,6 +71,12 @@ list(APPEND TARGET_LIBRARIES sioclient_tls)
 
 endif()
 
+
+find_path(WEBSOCKETPP websocketpp/client.hpp)
+if (NOT WEBSOCKETPP)
+	message(FATAL_ERROR "websocketpp not found. Install it first.")
+endif()
+
 install(FILES ${ALL_HEADERS} 
     DESTINATION "${CMAKE_CURRENT_LIST_DIR}/build/include"
 )
