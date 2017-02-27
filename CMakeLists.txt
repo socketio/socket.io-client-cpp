@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 PROJECT(sioclient)
 
 option(BUILD_SHARED_LIBS "Build the shared library" OFF)
@@ -39,9 +39,12 @@ target_include_directories(sioclient PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/lib/asio/asio/include
 )
 
+if (CMAKE_VERSION VERSION_GREATER "3.1")
 set_property(TARGET sioclient PROPERTY CXX_STANDARD 11)
 set_property(TARGET sioclient PROPERTY CXX_STANDARD_REQUIRED ON)
-
+else()
+set_property(TARGET sioclient APPEND_STRING PROPERTY COMPILE_FLAGS "-std=c++11")
+endif()
 if(BUILD_SHARED_LIBS)
 set_target_properties(sioclient
 	PROPERTIES
@@ -62,9 +65,13 @@ target_include_directories(sioclient_tls PRIVATE
     ${OPENSSL_INCLUDE_DIR}
 )
 
+if (CMAKE_VERSION VERSION_GREATER "3.1")
 set_property(TARGET sioclient_tls PROPERTY CXX_STANDARD 11)
 set_property(TARGET sioclient_tls PROPERTY CXX_STANDARD_REQUIRED ON)
 target_link_libraries(sioclient_tls PRIVATE ${OPENSSL_LIBRARIES} )
+else()
+set_property(TARGET sioclient_tls APPEND_STRING PROPERTY COMPILE_FLAGS "-std=c++11")
+endif()
 target_compile_definitions(sioclient_tls PRIVATE -DSIO_TLS)
 if(BUILD_SHARED_LIBS)
 set_target_properties(sioclient_tls
