@@ -64,6 +64,10 @@ namespace sio
     void set_##__FIELD__(__TYPE__ const& l) \
         { m_##__FIELD__ = l;}
         
+        SYNTHESIS_SETTER(client::con_listener,ping_sent_listener)
+        
+        SYNTHESIS_SETTER(client::con_listener,pong_received_listener)
+        
         SYNTHESIS_SETTER(client::con_listener,open_listener)
         
         SYNTHESIS_SETTER(client::con_listener,fail_listener)
@@ -83,6 +87,9 @@ namespace sio
         
         void clear_con_listeners()
         {
+            m_ping_sent_listener = nullptr;
+            m_pong_received_listener = nullptr;
+            
             m_open_listener = nullptr;
             m_close_listener = nullptr;
             m_fail_listener = nullptr;
@@ -199,6 +206,9 @@ namespace sio
         std::unique_ptr<boost::asio::deadline_timer> m_reconn_timer;
         
         con_state m_con_state;
+        
+        client::con_listener m_ping_sent_listener;
+        client::con_listener m_pong_received_listener;
         
         client::con_listener m_open_listener;
         client::con_listener m_fail_listener;

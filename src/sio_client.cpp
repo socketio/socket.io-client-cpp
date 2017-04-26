@@ -23,6 +23,16 @@ namespace sio
         delete m_impl;
     }
     
+    void client::set_ping_sent_listener(con_listener const& l)
+    {
+        m_impl->set_ping_sent_listener(l);
+    }
+    
+    void client::set_pong_received_listener(con_listener const& l)
+    {
+        m_impl->set_pong_received_listener(l);
+    }
+    
     void client::set_open_listener(con_listener const& l)
     {
         m_impl->set_open_listener(l);
