@@ -27,6 +27,10 @@ aux_source_directory(${CMAKE_CURRENT_LIST_DIR}/src/internal ALL_SRC)
 file(GLOB ALL_HEADERS ${CMAKE_CURRENT_LIST_DIR}/src/*.h )
 set(SIO_INCLUDEDIR ${CMAKE_CURRENT_LIST_DIR})
 
+if(MSVC_VERSION GREATER_EQUAL 1900)
+add_definitions(-D__STDC_LIMIT_MACROS -D_WEBSOCKETPP_NOEXCEPT_ -D_WEBSOCKETPP_CPP11_CHRONO_)
+endif()
+
 add_library(sioclient ${ALL_SRC})
 target_include_directories(sioclient PRIVATE ${Boost_INCLUDE_DIRS} 
     ${CMAKE_CURRENT_LIST_DIR}/src 
