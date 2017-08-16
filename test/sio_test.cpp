@@ -225,6 +225,9 @@ BOOST_AUTO_TEST_CASE( test_packet_parse_4 )
 
 }
 
+/*
+ * Test parsing of UInt64 values. See #174.
+ */
 BOOST_AUTO_TEST_CASE( test_packet_parse_5 )
 {
     packet p;
@@ -238,9 +241,6 @@ BOOST_AUTO_TEST_CASE( test_packet_parse_5 )
     BOOST_REQUIRE(p.get_message()->get_vector().size() == 2);
     BOOST_REQUIRE(p.get_message()->get_vector()[0]->get_flag() == message::flag_string);
     BOOST_CHECK(p.get_message()->get_vector()[0]->get_string() == "event");
-    // TODO: decide between returning int64 and double
-    //BOOST_REQUIRE(p.get_message()->get_vector()[1]->get_flag() == message::flag_double);
-    //BOOST_CHECK(p.get_message()->get_vector()[1]->get_double() == 17657333360744292000U);
     BOOST_REQUIRE(p.get_message()->get_vector()[1]->get_flag() == message::flag_integer);
     BOOST_CHECK(p.get_message()->get_vector()[1]->get_int() == 17657333360744292000U);
 }
