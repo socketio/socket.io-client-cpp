@@ -225,5 +225,25 @@ BOOST_AUTO_TEST_CASE( test_packet_parse_4 )
 
 }
 
+BOOST_AUTO_TEST_CASE( test_packet_parse_5 )
+{
+    packet p;
+    bool hasbin = p.parse("42/nsp,1001[\"event\",17657333360744292000]");
+    BOOST_CHECK(!hasbin);
+    BOOST_CHECK(p.get_frame() == packet::frame_message);
+    BOOST_CHECK(p.get_type() == packet::type_event);
+    BOOST_CHECK(p.get_nsp() == "/nsp");
+    BOOST_CHECK(p.get_pack_id() == 1001);
+    BOOST_CHECK(p.get_message()->get_flag() == message::flag_array);
+    BOOST_REQUIRE(p.get_message()->get_vector().size() == 2);
+    BOOST_REQUIRE(p.get_message()->get_vector()[0]->get_flag() == message::flag_string);
+    BOOST_CHECK(p.get_message()->get_vector()[0]->get_string() == "event");
+    // TODO: decide between returning int64 and double
+    //BOOST_REQUIRE(p.get_message()->get_vector()[1]->get_flag() == message::flag_double);
+    //BOOST_CHECK(p.get_message()->get_vector()[1]->get_double() == 17657333360744292000U);
+    BOOST_REQUIRE(p.get_message()->get_vector()[1]->get_flag() == message::flag_integer);
+    BOOST_CHECK(p.get_message()->get_vector()[1]->get_int() == 17657333360744292000U);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 

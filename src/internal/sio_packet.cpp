@@ -141,6 +141,18 @@ namespace sio
         {
             return int_message::create(value.GetInt64());
         }
+        // TODO: decide between returning int64 and double
+#if 1
+        else if (value.IsUint64())
+        {
+          return int_message::create(value.GetInt64());
+        }
+#else
+        else if (value.IsUint64())
+        {
+          return double_message::create(value.GetDouble());
+        }
+#endif
         else if(value.IsDouble())
         {
             return double_message::create(value.GetDouble());
