@@ -11,6 +11,7 @@ before_install:
   - sudo apt-get install -y cmake g++-4.8
   - sed -i -e 's/cmake_minimum_required(VERSION 3.1.0/cmake_minimum_required(VERSION 2.8.12/' ./CMakeLists.txt
 script:
-  - cmake -D CMAKE_CXX_FLAGS=-std=c++11 .
+  - cmake -D CMAKE_CXX_FLAGS=-std=c++11 -D BUILD_UNIT_TESTS=ON .
   - make
+  - make test
   - make install

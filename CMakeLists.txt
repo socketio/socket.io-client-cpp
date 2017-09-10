@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.1.0 FATAL_ERROR)
 PROJECT(sioclient)
 
 option(BUILD_SHARED_LIBS "Build the shared library" OFF)
+option(BUILD_UNIT_TESTS  "Builds unit tests target" OFF)
 
 set(MAJOR 1)
 set(MINOR 6)
@@ -83,3 +84,9 @@ install(FILES ${ALL_HEADERS}
 install(TARGETS ${TARGET_LIBRARIES}
     DESTINATION "${CMAKE_CURRENT_LIST_DIR}/build/lib/${CMAKE_BUILD_TYPE}"
 )
+
+if(BUILD_UNIT_TESTS)
+message(STATUS "Building with unit test support.")
+enable_testing()
+add_subdirectory(test)
+endif()
