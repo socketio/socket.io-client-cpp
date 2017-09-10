@@ -105,21 +105,29 @@ TEST_CASE( "test_packet_accept_4" )
     size_t json_start = payload.find("{");
     REQUIRE(json_start!=std::string::npos);
     std::string header = payload.substr(0,json_start);
-    CHECK(header=="452-/nsp,1001",std::string("outputing payload header:")+header);
+    CHECK(header=="452-/nsp,1001");
+    INFO("outputing payload:" << payload)
     std::string json = payload.substr(json_start);
     nlohmann::json j = nlohmann::json::parse(json);
-    CHECK(j["desc"].get<std::string>() == "Bin of 100 bytes", std::string("outputing payload desc:") + j["desc"].get<std::string>());
-    CHECK((bool)j["bin1"]["_placeholder"] , std::string("outputing payload bin1:") + j["bin1"].dump());
-    CHECK((bool)j["bin2"]["_placeholder"] , std::string("outputing payload bin2:") + j["bin2"].dump());
+    CHECK(j["desc"].get<std::string>() == "Bin of 100 bytes");
+    INFO("outputing payload desc::" << j["desc"].get<std::string>())
+    CHECK((bool)j["bin1"]["_placeholder"]);
+    INFO("outputing payload bin1:" << j["bin1"].dump())
+    CHECK((bool)j["bin2"]["_placeholder"]);
+    INFO("outputing payload bin2:" << j["bin2"].dump())
     int bin1Num = j["bin1"]["num"].get<int>();
     char numchar[] = {0,0};
     numchar[0] = bin1Num+'0';
-    CHECK(buffers[bin1Num]->length()==101 , std::string("outputing payload bin1 num:")+numchar);
-    CHECK(buffers[bin1Num]->at(50)==0 && buffers[bin1Num]->at(0) == packet::frame_message);
+    CHECK(buffers[bin1Num]->length()==101);
+    INFO("outputing payload bin1 num:" << numchar)
+    CHECK(buffers[bin1Num]->at(50)==0);
+    CHECK(buffers[bin1Num]->at(0) == packet::frame_message);
     int bin2Num = j["bin2"]["num"].get<int>();
     numchar[0] = bin2Num+'0';
-    CHECK(buffers[bin2Num]->length()==51 , std::string("outputing payload bin2 num:") + numchar);
-    CHECK(buffers[bin2Num]->at(25)==1 && buffers[bin2Num]->at(0) == packet::frame_message);
+    CHECK(buffers[bin2Num]->length()==51);
+    INFO("outputing payload bin2 num:" << numchar)
+    CHECK(buffers[bin2Num]->at(25)==1);
+    CHECK(buffers[bin2Num]->at(0) == packet::frame_message);
 }
 #endif
 
