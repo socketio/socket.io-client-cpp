@@ -4,7 +4,6 @@
 #include <cstdint>
 #ifdef _WIN32
 #define _WEBSOCKETPP_CPP11_THREAD_
-#define BOOST_ALL_NO_LIB
 //#define _WEBSOCKETPP_CPP11_RANDOM_DEVICE_
 #define _WEBSOCKETPP_NO_CPP11_FUNCTIONAL_
 #define INTIALIZER(__TYPE__)
@@ -30,7 +29,14 @@ typedef websocketpp::config::asio_tls_client client_config;
 typedef websocketpp::config::asio_client client_config;
 #endif //SIO_TLS
 #endif //DEBUG
-#include <boost/asio/deadline_timer.hpp>
+
+#if SIO_TLS
+#include <asio/ssl/context.hpp>
+#endif
+
+#include <asio/steady_timer.hpp>
+#include <asio/error_code.hpp>
+#include <asio/io_service.hpp>
 
 #include <memory>
 #include <map>
@@ -122,7 +128,7 @@ namespace sio
         
         void remove_socket(std::string const& nsp);
         
-        boost::asio::io_service& get_io_service();
+        asio::io_service& get_io_service();
         
         void on_socket_closed(std::string const& nsp);
         
@@ -137,11 +143,11 @@ namespace sio
         
         void send_impl(std::shared_ptr<const std::string> const&  payload_ptr,frame::opcode::value opcode);
         
-        void ping(const boost::system::error_code& ec);
+        void ping(const asio::error_code& ec);
         
-        void timeout_pong(const boost::system::error_code& ec);
+        void timeout_pong(const asio::error_code& ec);
 
-        void timeout_reconnect(boost::system::error_code const& ec);
+        void timeout_reconnect(asio::error_code const& ec);
 
         unsigned next_delay() const;
 
@@ -171,7 +177,7 @@ namespace sio
         void clear_timers();
         
         #if SIO_TLS
-        typedef websocketpp::lib::shared_ptr<boost::asio::ssl::context> context_ptr;
+        typedef websocketpp::lib::shared_ptr<asio::ssl::context> context_ptr;
         
         context_ptr on_tls_init(connection_hdl con);
         #endif
@@ -192,11 +198,11 @@ namespace sio
         
         packet_manager m_packet_mgr;
         
-        std::unique_ptr<boost::asio::deadline_timer> m_ping_timer;
+        std::unique_ptr<asio::steady_timer> m_ping_timer;
         
-        std::unique_ptr<boost::asio::deadline_timer> m_ping_timeout_timer;
+        std::unique_ptr<asio::steady_timer> m_ping_timeout_timer;
 
-        std::unique_ptr<boost::asio::deadline_timer> m_reconn_timer;
+        std::unique_ptr<asio::steady_timer> m_reconn_timer;
         
         con_state m_con_state;
         
