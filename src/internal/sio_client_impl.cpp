@@ -95,7 +95,8 @@ namespace sio
             query_str.append("&");
             query_str.append(it->first);
             query_str.append("=");
-            query_str.append(it->second);
+            string query_str_value=encode_query_string(it->second);
+            query_str.append(query_str_value);
         }
         m_query_string=move(query_str);
 
@@ -582,4 +583,19 @@ failed:
         return ctx;
     }
 #endif
+
+    std::string client_impl::encode_query_string(const std::string &query){
+        ostringstream ss;
+        ss << std::hex;
+        // Percent-encode (RFC3986) non-alphanumeric characters.
+        for(const char c : query){
+            if((c >= 'a' && c <= 'z') || (c>= 'A' && c<= 'Z') || (c >= '0' && c<= '9')){
+                ss << c;
+            } else {
+                ss << '%' << std::uppercase << std::setw(2) << int((unsigned char) c) << std::nouppercase;
+            }
+        }
+        ss << std::dec;
+        return ss.str();
+    }
 }
