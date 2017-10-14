@@ -399,6 +399,7 @@ namespace sio
     void client_impl::on_close(connection_hdl con)
     {
         LOG("Client Disconnected." << endl);
+        con_state m_con_state_was = m_con_state;
         m_con_state = con_closed;
         lib::error_code ec;
         close::status::value code = close::status::normal;
@@ -414,7 +415,11 @@ namespace sio
         m_con.reset();
         this->clear_timers();
         client::close_reason reason;
-        if(code == close::status::normal)
+
+        // If we initiated the close, no matter what the close status was,
+        // we'll consider it a normal close. (When using TLS, we can
+        // sometimes get a TLS Short Read error when closing.)
+        if(code == close::status::normal || m_con_state_was == con_closing)
         {
             this->sockets_invoke_void(&sio::socket::on_disconnect);
             reason = client::close_reason_normal;
