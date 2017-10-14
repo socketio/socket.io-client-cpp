@@ -16,6 +16,7 @@ cmake
 ./
 ```
 * CMake didn't allow merging static libraries,but they're all copied to `./build/lib`, you can DIY if you like.
+* If you are compiling with MinGW, you might need to use [mingw-std-threads](https://github.com/meganz/mingw-std-threads). Use `-DMINGW_STD_THREADS=<path to mingw-std-threads>` to enable.
 
 ### Without CMake
 1. Install boost, see [Boost setup](#boost_setup) section.
