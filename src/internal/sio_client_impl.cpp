@@ -25,14 +25,14 @@ namespace sio
 {
     /*************************public:*************************/
     client_impl::client_impl() :
-        m_con_state(con_closed),
         m_ping_interval(0),
         m_ping_timeout(0),
         m_network_thread(),
-        m_reconn_attempts(0xFFFFFFFF),
-        m_reconn_made(0),
+        m_con_state(con_closed),
         m_reconn_delay(5000),
-        m_reconn_delay_max(25000)
+        m_reconn_delay_max(25000),
+        m_reconn_attempts(0xFFFFFFFF),
+        m_reconn_made(0)
     {
         using websocketpp::log::alevel;
 #ifndef DEBUG
@@ -278,12 +278,11 @@ namespace sio
         if(ec || m_con.expired())
         {
             if (ec != boost::asio::error::operation_aborted)
-                LOG("ping exit,con is expired?"<<m_con.expired()<<",ec:"<<ec.message()<<endl);
+                LOG("ping exit,con is expired?"<<m_con.expired()<<",ec:"<<ec.message()<<endl){};
             return;
         }
         packet p(packet::frame_ping);
-        m_packet_mgr.encode(p,
-                            [&](bool isBin,shared_ptr<const string> payload)
+        m_packet_mgr.encode(p, [&](bool /*isBin*/,shared_ptr<const string> payload)
         {
             lib::error_code ec;
             this->m_client.send(this->m_con, *payload, frame::opcode::text, ec);
@@ -363,7 +362,7 @@ namespace sio
         }
     }
 
-    void client_impl::on_fail(connection_hdl con)
+    void client_impl::on_fail(connection_hdl)
     {
         m_con.reset();
         m_con_state = con_closed;
@@ -447,7 +446,7 @@ namespace sio
         }
     }
     
-    void client_impl::on_message(connection_hdl con, client_type::message_ptr msg)
+    void client_impl::on_message(connection_hdl, client_type::message_ptr msg)
     {
         if (m_ping_timeout_timer) {
             boost::system::error_code ec;
@@ -493,7 +492,7 @@ namespace sio
             m_ping_timer.reset(new boost::asio::deadline_timer(m_client.get_io_service()));
             boost::system::error_code ec;
             m_ping_timer->expires_from_now(milliseconds(m_ping_interval), ec);
-            if(ec)LOG("ec:"<<ec.message()<<endl);
+            if(ec)LOG("ec:"<<ec.message()<<endl){};
             m_ping_timer->async_wait(lib::bind(&client_impl::ping,this,lib::placeholders::_1));
             LOG("On handshake,sid:"<<m_sid<<",ping interval:"<<m_ping_interval<<",ping timeout"<<m_ping_timeout<<endl);
             return;
