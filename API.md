@@ -193,4 +193,4 @@ Get socket.io session id.
 
 `message::ptr` pointer to `message` object, it will be one of its derived classes, judge by `message.get_flag()`.
 
-All designated constructor of `message` objects is hidden, you need to create message and get the `message::ptr` by `[derived]_message:create()`.
+All designated constructor of `message` objects is hidden, you need to create message and get the `message::ptr` by `[derived]_message::create()`.
