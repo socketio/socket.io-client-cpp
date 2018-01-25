@@ -165,6 +165,8 @@ namespace sio
 
         void on_pong();
 
+        void on_ping();
+
         void reset_states();
 
         void clear_timers();

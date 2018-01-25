@@ -503,6 +503,18 @@ failed:
         }
     }
 
+    void client_impl::on_ping()
+    {
+        packet p(packet::frame_pong);
+        m_packet_mgr.encode(p,
+                            [&](bool isBin,shared_ptr<const string> payload)
+        {
+            lib::error_code ec;
+            this->m_client.send(this->m_con, *payload, frame::opcode::text, ec);
+        });
+    }
+
+
     void client_impl::on_decode(packet const& p)
     {
         switch(p.get_frame())
@@ -519,6 +531,9 @@ failed:
         case packet::frame_close:
             //FIXME how to deal?
             this->close_impl(close::status::abnormal_close, "End by server");
+            break;
+        case packet::frame_ping:
+            this->on_ping();
             break;
         case packet::frame_pong:
             this->on_pong();
