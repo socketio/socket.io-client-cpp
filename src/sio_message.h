@@ -12,11 +12,13 @@
 #include <map>
 #include <cassert>
 #include <type_traits>
+#include "internal/sio_export.h"
+
 namespace sio
 {
     using namespace std;
     
-    class message
+    class SIOCLIENT_EXPORT message
     {
     public:
         enum flag

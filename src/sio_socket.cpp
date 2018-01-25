@@ -390,7 +390,7 @@ namespace sio
             {
                 LOG("Received Message type (Event)"<<std::endl);
                 const message::ptr ptr = p.get_message();
-                if(ptr->get_flag() == message::flag_array)
+                if(ptr && ptr->get_flag() == message::flag_array)
                 {
                     const array_message* array_ptr = static_cast<const array_message*>(ptr.get());
                     if(array_ptr->get_vector().size() >= 1&&array_ptr->get_vector()[0]->get_flag() == message::flag_string)
@@ -413,7 +413,7 @@ namespace sio
             {
                 LOG("Received Message type (ACK)"<<std::endl);
                 const message::ptr ptr = p.get_message();
-                if(ptr->get_flag() == message::flag_array)
+                if(ptr && ptr->get_flag() == message::flag_array)
                 {
 					message::list msglist(ptr->get_vector());
 					this->on_socketio_ack(p.get_pack_id(),msglist);
