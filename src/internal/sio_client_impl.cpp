@@ -576,10 +576,12 @@ failed:
 #if SIO_TLS
     client_impl::context_ptr client_impl::on_tls_init(connection_hdl conn)
     {
-        context_ptr ctx = context_ptr(new  boost::asio::ssl::context(boost::asio::ssl::context::tlsv1));
+        context_ptr ctx = context_ptr(new  boost::asio::ssl::context(boost::asio::ssl::context::tlsv12));
         boost::system::error_code ec;
         ctx->set_options(boost::asio::ssl::context::default_workarounds |
                              boost::asio::ssl::context::no_sslv2 |
+                             boost::asio::ssl::context::no_sslv3 |
+                             boost::asio::ssl::context::no_tlsv1 |
                              boost::asio::ssl::context::single_dh_use,ec);
         if(ec)
         {
