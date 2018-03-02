@@ -170,6 +170,7 @@ namespace sio
         void reset_states();
 
         void clear_timers();
+        void stop();
         
         #if SIO_TLS
         typedef websocketpp::lib::shared_ptr<boost::asio::ssl::context> context_ptr;

@@ -119,5 +119,10 @@ namespace sio
     {
         m_impl->set_reconnect_delay_max(millis);
     }
+
+    void client::stop()
+    {
+      m_impl->stop();
+    }
     
 }
