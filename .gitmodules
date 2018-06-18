@@ -4,3 +4,6 @@
 [submodule "lib/rapidjson"]
 	path = lib/rapidjson
 	url = https://github.com/miloyip/rapidjson.git
+[submodule "ios-cmake"]
+	path = ios-cmake
+	url = https://github.com/leetal/ios-cmake.git

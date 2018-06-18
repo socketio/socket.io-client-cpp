@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.1.0 FATAL_ERROR)
 PROJECT(sioclient)
 
+include(${CMAKE_BINARY_DIR}/conan_paths.cmake)
+
+
 option(BUILD_SHARED_LIBS "Build the shared library" OFF)
 option(Boost_USE_STATIC_LIBS "Use Boost static version" ON)
 
@@ -21,6 +24,8 @@ set(BOOST_VER "1.55.0" CACHE STRING "boost version" )
 set(Boost_USE_MULTITHREADED ON) 
 set(Boost_USE_STATIC_RUNTIME OFF) 
 find_package(Boost ${BOOST_VER} REQUIRED COMPONENTS system date_time random) 
+set(Boost_INCLUDE_DIRS ${boost_INCLUDE_DIRS})
+set(Boost_LIBRARIES ${boost_LIBRARIES})
 
 aux_source_directory(${CMAKE_CURRENT_LIST_DIR}/src ALL_SRC)
 aux_source_directory(${CMAKE_CURRENT_LIST_DIR}/src/internal ALL_SRC)
@@ -47,7 +52,10 @@ endif()
 list(APPEND TARGET_LIBRARIES sioclient)
 
 find_package(OpenSSL)
-if(OPENSSL_FOUND)
+set(OPENSSL_INCLUDE_DIR ${OpenSSL_INCLUDE_DIRS})
+set(OPENSSL_LIBRARIES ${OpenSSL_LIBRARIES})
+
+if(OpenSSL_FOUND)
 add_library(sioclient_tls ${ALL_SRC})
 target_include_directories(sioclient_tls PRIVATE ${Boost_INCLUDE_DIRS} 
     ${CMAKE_CURRENT_LIST_DIR}/src 
