@@ -1,0 +1,19 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/socket.io-client-cpp
+    macos:
+      xcode: "9.0"
+    steps:
+      - checkout
+      - run:
+          name: "Pull Submodules"
+          command: |
+            git submodule init
+            git submodule update --remote
+      - run:
+          name: Install dependencies
+          command: brew install conan cmake
+      - run:
+          name: Building
+          command: ./build_ios_fat.sh Release --build
