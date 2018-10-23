@@ -7,6 +7,7 @@
 #ifndef SIO_CLIENT_H
 #define SIO_CLIENT_H
 #include <string>
+#include <memory>
 #include <functional>
 #include "sio_message.h"
 #include "sio_socket.h"
@@ -96,7 +97,7 @@ namespace sio
         client(client const&){}
         void operator=(client const&){}
         
-        client_impl_base* m_impl;
+        std::unique_ptr<client_impl_base> m_impl;
     };
     
 }
