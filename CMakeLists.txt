@@ -3,7 +3,6 @@ PROJECT(sioclient)
 
 include(${CMAKE_BINARY_DIR}/conan_paths.cmake)
 
-
 option(BUILD_SHARED_LIBS "Build the shared library" OFF)
 option(Boost_USE_STATIC_LIBS "Use Boost static version" ON)
 
@@ -32,11 +31,13 @@ aux_source_directory(${CMAKE_CURRENT_LIST_DIR}/src/internal ALL_SRC)
 file(GLOB ALL_HEADERS ${CMAKE_CURRENT_LIST_DIR}/src/*.h )
 set(SIO_INCLUDEDIR ${CMAKE_CURRENT_LIST_DIR})
 
+find_package(rapidjson)
+
 add_library(sioclient ${ALL_SRC})
 target_include_directories(sioclient PRIVATE ${Boost_INCLUDE_DIRS} 
     ${CMAKE_CURRENT_LIST_DIR}/src 
-    ${CMAKE_CURRENT_LIST_DIR}/lib/websocketpp 
-    ${CMAKE_CURRENT_LIST_DIR}/lib/rapidjson/include
+    ${CMAKE_CURRENT_LIST_DIR}/lib/websocketpp
+    ${rapidjson_INCLUDE_DIRS}
 )
 
 set_property(TARGET sioclient PROPERTY CXX_STANDARD 11)
@@ -61,6 +62,7 @@ target_include_directories(sioclient_tls PRIVATE ${Boost_INCLUDE_DIRS}
     ${CMAKE_CURRENT_LIST_DIR}/src 
     ${CMAKE_CURRENT_LIST_DIR}/lib/websocketpp 
     ${CMAKE_CURRENT_LIST_DIR}/lib/rapidjson/include
+    ${rapidjson_INCLUDE_DIRS}
     ${OPENSSL_INCLUDE_DIR}
 )
 

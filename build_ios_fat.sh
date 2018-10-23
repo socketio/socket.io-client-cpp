@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # git clone --recurse-submodules https://github.com/socketio/socket.io-client-cpp.git
-# cd socket.io-client-cpp
 # git clone https://github.com/leetal/ios-cmake
+# cd socket.io-client-cpp
 
 export DARWIN_DEPLOYMENT_TARGET=8.0
 
@@ -34,10 +34,10 @@ done
 
 lipo -create build-ios-arm64/libsioclient_tls.a build-ios-x86_64/libsioclient_tls.a build-ios-i386/libsioclient_tls.a -output libsioclient_tls.a
 
-lipo -create /Users/camobap/.conan/data/OpenSSL/1.0.2o/conan/stable/package/*/lib/libssl.a -output libssl.a
-lipo -create /Users/camobap/.conan/data/OpenSSL/1.0.2o/conan/stable/package/*/lib/libcrypto.a -output libcrypto.a
+lipo -create ~/.conan/data/OpenSSL/1.1.1/conan/stable/package/*/lib/libssl.a -output libssl.a
+lipo -create ~/.conan/data/OpenSSL/1.1.1/conan/stable/package/*/lib/libcrypto.a -output libcrypto.a
 
-lipo -create /Users/camobap/.conan/data/boost/1.67.0/conan/stable/package/*/lib/libboost_contract.a -output libboost_contract.a
-lipo -create /Users/camobap/.conan/data/boost/1.67.0/conan/stable/package/*/lib/libboost_system.a -output libboost_system.a
-lipo -create /Users/camobap/.conan/data/boost/1.67.0/conan/stable/package/*/lib/libboost_random.a -output libboost_random.a
-lipo -create /Users/camobap/.conan/data/boost/1.67.0/conan/stable/package/*/lib/libboost_date_time.a -output libboost_date_time.a
+lipo -create ~/.conan/data/boost/1.67.0/conan/stable/package/*/lib/libboost_contract.a -output libboost_contract.a
+lipo -create ~/.conan/data/boost/1.67.0/conan/stable/package/*/lib/libboost_system.a -output libboost_system.a
+lipo -create ~/.conan/data/boost/1.67.0/conan/stable/package/*/lib/libboost_random.a -output libboost_random.a
+lipo -create ~/.conan/data/boost/1.67.0/conan/stable/package/*/lib/libboost_date_time.a -output libboost_date_time.a
