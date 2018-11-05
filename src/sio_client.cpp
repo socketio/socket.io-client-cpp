@@ -14,13 +14,26 @@ using std::stringstream;
 namespace sio
 {
     client::client():
-        m_impl(new client_impl())
+        m_impl(new client_impl<client_type_no_tls>())
     {
     }
-    
+
+    client::client(const std::string& uri)
+    {
+        if(!client_impl_base::is_tls(uri))
+        {
+            m_impl = std::unique_ptr<client_impl<client_type_no_tls>>(new client_impl<client_type_no_tls>(uri));
+        }
+#if SIO_TLS
+        else
+        {
+            m_impl = std::unique_ptr<client_impl<client_type_tls>>(new client_impl<client_type_tls>(uri));
+        }
+#endif
+    }
+
     client::~client()
     {
-        delete m_impl;
     }
     
     void client::set_open_listener(con_listener const& l)
@@ -68,14 +81,19 @@ namespace sio
         m_impl->clear_socket_listeners();
     }
 
+    void client::connect()
+    {
+        this->connect(std::string(), {}, {});
+    }
+
     void client::connect(const std::string& uri)
     {
-        m_impl->connect(uri, {}, {});
+        this->connect(uri, {}, {});
     }
 
     void client::connect(const std::string& uri, const std::map<string,string>& query)
     {
-        m_impl->connect(uri, query, {});
+        this->connect(uri, query, {});
     }
 
     void client::connect(const std::string& uri, const std::map<std::string,std::string>& query,

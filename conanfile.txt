@@ -1,6 +1,7 @@
 [requires]
 boost/1.67.0@conan/stable
-OpenSSL/1.0.2o@conan/stable
+OpenSSL/1.1.1@conan/stable
+rapidjson/1.1.0@bincrafters/stable
 
 [generators]
 cmake_find_package
