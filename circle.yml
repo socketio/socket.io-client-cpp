@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: ~/socket.io-client-cpp
     macos:
-      xcode: "9.0"
+      xcode: "10.0"
     steps:
       - checkout
       - run:
