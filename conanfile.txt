@@ -9,6 +9,7 @@ cmake_paths
 
 [options]
 OpenSSL:no_zlib=True
+OpenSSL:no_async=True
 boost:without_python=True
 boost:without_context=True
 boost:without_container=True
