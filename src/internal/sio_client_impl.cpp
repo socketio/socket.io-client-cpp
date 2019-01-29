@@ -165,6 +165,18 @@ namespace sio
         }
     }
 
+    template<typename client_type>
+    void client_impl<client_type>::set_user_agent(std::string const& ua)
+    {
+        m_client.set_user_agent(ua);
+    }
+
+    template<typename client_type>
+    std::string client_impl<client_type>::get_user_agent()
+    {
+        return m_client.get_user_agent();
+    }
+
     /*************************protected:*************************/
     template<typename client_type>
     void client_impl<client_type>::send(packet& p)

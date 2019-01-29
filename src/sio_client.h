@@ -80,6 +80,10 @@ namespace sio
         void set_reconnect_delay(unsigned millis);
 
         void set_reconnect_delay_max(unsigned millis);
+
+        std::string get_user_agent() const;
+
+        void set_user_agent(std::string const& ua);
         
         sio::socket::ptr const& socket(const std::string& nsp = "");
         
@@ -94,8 +98,8 @@ namespace sio
         
     private:
         //disable copy constructor and assign operator.
-        client(client const&){}
-        void operator=(client const&){}
+        client(client const&) = delete;
+        void operator=(client const&) = delete;
         
         std::unique_ptr<client_impl_base> m_impl;
     };

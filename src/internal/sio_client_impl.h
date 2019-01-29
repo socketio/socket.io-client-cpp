@@ -80,6 +80,9 @@ namespace sio
         virtual void set_reconnect_delay(unsigned millis)=0;
         virtual void set_reconnect_delay_max(unsigned millis)=0;
 
+        virtual void set_user_agent(std::string const& ua)=0;
+        virtual std::string get_user_agent()=0;
+
         // used by sio::socket
         virtual void send(packet& p)=0;
         virtual void remove_socket(std::string const& nsp)=0;
@@ -178,6 +181,10 @@ namespace sio
         void on_socket_closed(std::string const& nsp);
         
         void on_socket_opened(std::string const& nsp);
+
+        void set_user_agent(std::string const& ua);
+
+        std::string get_user_agent();
         
     private:
         void run_loop();

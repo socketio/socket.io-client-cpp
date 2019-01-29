@@ -142,5 +142,14 @@ namespace sio
     {
         m_impl->set_reconnect_delay_max(millis);
     }
-    
+
+    std::string client::get_user_agent() const
+    {
+        return m_impl->get_user_agent();
+    }
+
+    void client::set_user_agent(std::string const& ua)
+    {
+        m_impl->set_user_agent(ua);
+    }
 }
