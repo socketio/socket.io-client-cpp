@@ -16,7 +16,7 @@
 #if DEBUG || _DEBUG
 #define LOG(x) std::cout << x
 #else
-#define LOG(x)
+#define LOG(x) do {} while (0)
 #endif
 
 #if SIO_TLS
