@@ -19,6 +19,7 @@ By virtue of being written in C++, this client works in several different platfo
 
 * [With CMAKE](./INSTALL.md#with-cmake)
 * [Without CMAKE](./INSTALL.md#without-cmake)
+* [With VCPKG](./INSTALL.md#with-vcpkg)
 * [iOS and OS X](./INSTALL_IOS.md)
  * Option 1: Cocoapods
  * Option 2: Create a static library
