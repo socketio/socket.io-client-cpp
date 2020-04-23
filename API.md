@@ -168,6 +168,19 @@ Set listener for reconnecting is in process.
 
 Set listener for reconnecting event, called once a delayed connecting is scheduled.
 
+#### Logs
+`void set_logs_default()`
+
+Configure logs to the default level (connect, disconnect, app)
+
+`void set_logs_quiet()`
+
+Configure logs to the quiet level
+
+`void set_logs_verbose()`
+
+Configure logs to the verbose level
+
 #### Namespace
 `socket::ptr socket(std::string const& nsp)`
 

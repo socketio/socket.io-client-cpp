@@ -66,7 +66,13 @@ namespace sio
         void set_reconnect_delay(unsigned millis);
 
         void set_reconnect_delay_max(unsigned millis);
-        
+
+        void set_logs_default();
+
+        void set_logs_quiet();
+
+        void set_logs_verbose();
+
         sio::socket::ptr const& socket(const std::string& nsp = "");
         
         // Closes the connection
