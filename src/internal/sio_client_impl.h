@@ -122,7 +122,13 @@ namespace sio
         void set_reconnect_delay(unsigned millis) {m_reconn_delay = millis;if(m_reconn_delay_max<millis) m_reconn_delay_max = millis;}
 
         void set_reconnect_delay_max(unsigned millis) {m_reconn_delay_max = millis;if(m_reconn_delay>millis) m_reconn_delay = millis;}
-        
+
+        void set_logs_default();
+
+        void set_logs_quiet();
+
+        void set_logs_verbose();
+
     protected:
         void send(packet& p);
         

@@ -164,6 +164,22 @@ namespace sio
         }
     }
 
+    void client_impl::set_logs_default()
+    {
+        m_client.clear_access_channels(websocketpp::log::alevel::all);
+        m_client.set_access_channels(websocketpp::log::alevel::connect | websocketpp::log::alevel::disconnect | websocketpp::log::alevel::app);
+    }
+
+    void client_impl::set_logs_quiet()
+    {
+        m_client.clear_access_channels(websocketpp::log::alevel::all);
+    }
+
+    void client_impl::set_logs_verbose()
+    {
+        m_client.set_access_channels(websocketpp::log::alevel::all);
+    }
+
     /*************************protected:*************************/
     void client_impl::send(packet& p)
     {
