@@ -6,6 +6,11 @@
 
 #ifndef SIO_CLIENT_H
 #define SIO_CLIENT_H
+
+#ifdef emit
+#undef emit
+#endif
+
 #include <string>
 #include <functional>
 #include "sio_message.h"
