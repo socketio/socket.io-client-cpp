@@ -16,7 +16,7 @@ MESSAGE(SEND_ERROR "CMAKE_BUILD_TYPE must be either Release or Debug")
 return()
 endif()
 
-set(BOOST_VER "1.55.0" CACHE STRING "boost version" )
+set(BOOST_VER "1.75.0" CACHE STRING "boost version" )
 
 set(Boost_USE_MULTITHREADED ON) 
 set(Boost_USE_STATIC_RUNTIME OFF) 
@@ -28,7 +28,7 @@ file(GLOB ALL_HEADERS ${CMAKE_CURRENT_LIST_DIR}/src/*.h )
 set(SIO_INCLUDEDIR ${CMAKE_CURRENT_LIST_DIR})
 
 add_library(sioclient ${ALL_SRC})
-target_include_directories(sioclient PRIVATE ${Boost_INCLUDE_DIRS} 
+target_include_directories(sioclient PRIVATE ${BOOST_INCLUDEDIR} 
     ${CMAKE_CURRENT_LIST_DIR}/src 
     ${CMAKE_CURRENT_LIST_DIR}/lib/websocketpp 
     ${CMAKE_CURRENT_LIST_DIR}/lib/rapidjson/include
@@ -36,7 +36,9 @@ target_include_directories(sioclient PRIVATE ${Boost_INCLUDE_DIRS}
 
 set_property(TARGET sioclient PROPERTY CXX_STANDARD 11)
 set_property(TARGET sioclient PROPERTY CXX_STANDARD_REQUIRED ON)
-target_link_libraries(sioclient PRIVATE ${Boost_LIBRARIES})
+target_link_libraries(sioclient PRIVATE ${BOOST_LIBRARIES})
+target_compile_definitions(sioclient PRIVATE -D_WEBSOCKETPP_NOEXCEPT_)
+
 if(BUILD_SHARED_LIBS)
 set_target_properties(sioclient
 	PROPERTIES
@@ -49,7 +51,7 @@ list(APPEND TARGET_LIBRARIES sioclient)
 find_package(OpenSSL)
 if(OPENSSL_FOUND)
 add_library(sioclient_tls ${ALL_SRC})
-target_include_directories(sioclient_tls PRIVATE ${Boost_INCLUDE_DIRS} 
+target_include_directories(sioclient_tls PRIVATE ${BOOST_INCLUDEDIR} 
     ${CMAKE_CURRENT_LIST_DIR}/src 
     ${CMAKE_CURRENT_LIST_DIR}/lib/websocketpp 
     ${CMAKE_CURRENT_LIST_DIR}/lib/rapidjson/include
@@ -58,8 +60,9 @@ target_include_directories(sioclient_tls PRIVATE ${Boost_INCLUDE_DIRS}
 
 set_property(TARGET sioclient_tls PROPERTY CXX_STANDARD 11)
 set_property(TARGET sioclient_tls PROPERTY CXX_STANDARD_REQUIRED ON)
-target_link_libraries(sioclient_tls PRIVATE ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES} )
-target_compile_definitions(sioclient_tls PRIVATE -DSIO_TLS)
+target_link_libraries(sioclient_tls PRIVATE ${BOOST_LIBRARIES} ${OPENSSL_LIBRARIES} )
+target_compile_definitions(sioclient_tls PRIVATE -DSIO_TLS -D_WEBSOCKETPP_NOEXCEPT_)
+
 if(BUILD_SHARED_LIBS)
 set_target_properties(sioclient_tls
 	PROPERTIES
