@@ -3,7 +3,7 @@
 	url = https://github.com/zaphoyd/websocketpp.git
 [submodule "lib/rapidjson"]
 	path = lib/rapidjson
-	url = https://github.com/miloyip/rapidjson.git
+	url = https://github.com/Tencent/rapidjson.git
 [submodule "lib/asio"]
 	path = lib/asio
 	url = https://github.com/chriskohlhoff/asio.git
