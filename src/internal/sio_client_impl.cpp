@@ -13,7 +13,7 @@
 #include <cmath>
 // Comment this out to disable handshake logging to stdout
 #if DEBUG || _DEBUG
-#define LOG(x) std::cout << x
+#define LOG(x) OutputDebugStringW((wstring(L"[socket.io]") + x).c_str())
 #else
 #define LOG(x)
 #endif
@@ -215,7 +215,7 @@ namespace sio
             } else {
                 ss<<uo.get_host();
             }
-            ss<<":"<<uo.get_port()<<"/socket.io/?EIO=4&transport=websocket";
+            ss<<":"<<uo.get_port()<<"/socket.io/?EIO=3&transport=websocket";
             if(m_sid.size()>0){
                 ss<<"&sid="<<m_sid;
             }
@@ -244,7 +244,9 @@ namespace sio
 
     void client_impl::close_impl(close::status::value const& code,string const& reason)
     {
-        LOG("Close by reason:"<<reason << endl);
+        std::wstringstream logStr;
+        logStr << L"Close by reason:" << std::wstring(reason.begin(), reason.end()) << endl;
+        LOG(logStr.str());
         if(m_reconn_timer)
         {
             m_reconn_timer->cancel();
@@ -278,8 +280,11 @@ namespace sio
     {
         if(ec || m_con.expired())
         {
-            if (ec != boost::asio::error::operation_aborted)
-                LOG("ping exit,con is expired?"<<m_con.expired()<<",ec:"<<ec.message()<<endl){};
+            if (ec != boost::asio::error::operation_aborted) {
+                std::wstringstream logStr;
+                logStr << L"ping exit,con is expired?" << m_con.expired() << L",ec:" << wstring(ec.message().begin(), ec.message().end()) << endl;
+                LOG(logStr.str());
+            }
             return;
         }
         packet p(packet::frame_ping);
@@ -309,7 +314,7 @@ namespace sio
         {
             return;
         }
-        LOG("Pong timeout"<<endl);
+        LOG(L"Pong timeout\n");
         m_client.get_io_service().dispatch(lib::bind(&client_impl::close_impl, this,close::status::policy_violation,"Pong timeout"));
     }
 
@@ -324,7 +329,7 @@ namespace sio
             m_con_state = con_opening;
             m_reconn_made++;
             this->reset_states();
-            LOG("Reconnecting..."<<endl);
+            LOG(L"Reconnecting...\n");
             if(m_reconnecting_listener) m_reconnecting_listener();
             m_client.get_io_service().dispatch(lib::bind(&client_impl::connect_impl,this,m_base_url,m_query_string));
         }
@@ -368,10 +373,12 @@ namespace sio
         m_con.reset();
         m_con_state = con_closed;
         this->sockets_invoke_void(&sio::socket::on_disconnect);
-        LOG("Connection failed." << endl);
+        LOG(L"Connection failed.\n");
         if(m_reconn_made<m_reconn_attempts)
         {
-            LOG("Reconnect for attempt:"<<m_reconn_made<<endl);
+            std::wostringstream logStr;
+            logStr << L"Reconnect for attempt:" << m_reconn_made << endl;
+            LOG(logStr.str());
             unsigned delay = this->next_delay();
             if(m_reconnect_listener) m_reconnect_listener(m_reconn_made,delay);
             m_reconn_timer.reset(new boost::asio::deadline_timer(m_client.get_io_service()));
@@ -387,7 +394,7 @@ namespace sio
     
     void client_impl::on_open(connection_hdl con)
     {
-        LOG("Connected." << endl);
+        LOG(L"Connected.\n");
         m_con_state = con_opened;
         m_con = con;
         m_reconn_made = 0;
@@ -398,14 +405,14 @@ namespace sio
     
     void client_impl::on_close(connection_hdl con)
     {
-        LOG("Client Disconnected." << endl);
+        LOG(L"Client Disconnected.\n");
         con_state m_con_state_was = m_con_state;
         m_con_state = con_closed;
         lib::error_code ec;
         close::status::value code = close::status::normal;
         client_type::connection_ptr conn_ptr  = m_client.get_con_from_hdl(con, ec);
         if (ec) {
-            LOG("OnClose get conn failed"<<ec<<endl);
+            LOG(L"OnClose get conn failed\n");
         }
         else
         {
@@ -429,7 +436,9 @@ namespace sio
             this->sockets_invoke_void(&sio::socket::on_disconnect);
             if(m_reconn_made<m_reconn_attempts)
             {
-                LOG("Reconnect for attempt:"<<m_reconn_made<<endl);
+                std::wostringstream logStr;
+                logStr << L"Reconnect for attempt:" << m_reconn_made << endl;
+                LOG(logStr.str());
                 unsigned delay = this->next_delay();
                 if(m_reconnect_listener) m_reconnect_listener(m_reconn_made,delay);
                 m_reconn_timer.reset(new boost::asio::deadline_timer(m_client.get_io_service()));
@@ -493,9 +502,15 @@ namespace sio
             m_ping_timer.reset(new boost::asio::deadline_timer(m_client.get_io_service()));
             boost::system::error_code ec;
             m_ping_timer->expires_from_now(milliseconds(m_ping_interval), ec);
-            if(ec)LOG("ec:"<<ec.message()<<endl){};
+            if (ec) {
+                std::wostringstream logStr;
+                logStr << L"ec:" << wstring(ec.message().begin(), ec.message().end()) << endl;
+                LOG(logStr.str());
+            }
             m_ping_timer->async_wait(lib::bind(&client_impl::ping,this,lib::placeholders::_1));
-            LOG("On handshake,sid:"<<m_sid<<",ping interval:"<<m_ping_interval<<",ping timeout"<<m_ping_timeout<<endl);
+            std::wostringstream logStr;
+            logStr << L"On handshake,sid:" << wstring(m_sid.begin(), m_sid.end()) << L",ping interval:" << m_ping_interval << L",ping timeout" << m_ping_timeout << endl;
+            LOG(logStr.str());
             return;
         }
 failed:
@@ -540,13 +555,15 @@ failed:
     
     void client_impl::on_encode(bool isBinary,shared_ptr<const string> const& payload)
     {
-        LOG("encoded payload length:"<<payload->length()<<endl);
+        std::wostringstream logStr;
+        logStr<< L"encoded payload length : "<< payload->length()<<endl;
+        LOG(logStr.str());
         m_client.get_io_service().dispatch(lib::bind(&client_impl::send_impl,this,payload,isBinary?frame::opcode::binary:frame::opcode::text));
     }
     
     void client_impl::clear_timers()
     {
-        LOG("clear timers"<<endl);
+        LOG(L"clear timers\n");
         boost::system::error_code ec;
         if(m_ping_timeout_timer)
         {
@@ -570,14 +587,16 @@ failed:
 #if SIO_TLS
     client_impl::context_ptr client_impl::on_tls_init(connection_hdl conn)
     {
-        context_ptr ctx = context_ptr(new  boost::asio::ssl::context(boost::asio::ssl::context::tlsv1));
+        context_ptr ctx = context_ptr(new  boost::asio::ssl::context(boost::asio::ssl::context::tlsv12));
         boost::system::error_code ec;
         ctx->set_options(boost::asio::ssl::context::default_workarounds |
                              boost::asio::ssl::context::no_sslv2 |
                              boost::asio::ssl::context::single_dh_use,ec);
         if(ec)
         {
-            cerr<<"Init tls failed,reason:"<< ec.message()<<endl;
+            std::wostringstream logStr;
+            logStr << L"Init tls failed,reason:" << wstring(ec.message().begin(), ec.message().end()) << endl;
+            LOG(logStr.str());
         }
         
         return ctx;
