@@ -1,5 +1,6 @@
 # Socket.IO C++ Client
-[![Build Status](https://travis-ci.org/socketio/socket.io-client-cpp.svg)](https://travis-ci.org/socketio/socket.io-client-cpp)
+
+[![Build Status](https://github.com/socketio/socket.io-client-cpp/workflows/CI/badge.svg)](https://github.com/socketio/socket.io-client-cpp/actions)
 
 By virtue of being written in C++, this client works in several different platforms. The [examples](https://github.com/socketio/socket.io-client-cpp/tree/master/examples) folder contains an iPhone, QT and Console example chat client! It depends on [websocket++](https://github.com/zaphoyd/websocketpp) and is inspired by [socket.io-clientpp](https://github.com/ebshimizu/socket.io-clientpp).
 
