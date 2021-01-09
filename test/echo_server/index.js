@@ -1,19 +1,17 @@
 var port = 3000;
 
-var io = require('socket.io').listen(port);
+var io = require('socket.io')().listen(port);
 console.log("Listening on port " + port);
 
 /* Socket.IO events */
 io.on("connection", function(socket){
     console.log("new connection");
-    socket.on('test_text',function()
-    {
-        console.log("test text event received.");
+    socket.on('test_text', (...args) => {
+        console.log("test text event received.", args);
     });
 
-    socket.on('test_binary',function()
-    {
-       var args =Array.prototype.slice.call(arguments);
+    socket.on('test_binary', (...args) => {
+        console.log("test binary event received", args);
       if(args[0] instanceof Buffer)
       {
         console.log("test binary event received,binary length:"+ args[0].length);

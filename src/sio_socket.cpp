@@ -269,10 +269,6 @@ namespace sio
     void socket::impl::send_connect()
     {
         NULL_GUARD(m_client);
-        if(m_nsp == "/")
-        {
-            return;
-        }
         packet p(packet::type_connect,m_nsp);
         m_client->send(p);
         m_connection_timer.reset(new asio::steady_timer(m_client->get_io_service()));

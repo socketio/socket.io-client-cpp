@@ -6,15 +6,23 @@ By virtue of being written in C++, this client works in several different platfo
 
 [![Clients with iPhone, QT, Console and web](https://cldup.com/ukvVVZmvYV.png)](https://github.com/socketio/socket.io-client-cpp/tree/master/examples)
 
+## Compatibility table
+
+| C++ Client version  | Socket.IO server version |
+| ------------------- | ------------------------ |
+| 2.x (`2.x` branch)  | 1.x / 2.x                |
+| 3.x (master branch) | 3.x                      |
+
 ## Features
 
 - 100% written in modern C++11
-- Compatible with socket.io 1.0+ protocol
 - Binary support
 - Automatic JSON encoding
 - Multiplex support
 - Similar API to the Socket.IO JS client
 - Cross platform
+
+Note: Only the WebSocket transport is currently implemented (no fallback to HTTP long-polling)
 
 ## Installation alternatives
 

@@ -118,16 +118,16 @@ TEST_CASE( "test_packet_accept_4" )
     int bin1Num = j["bin1"]["num"].get<int>();
     char numchar[] = {0,0};
     numchar[0] = bin1Num+'0';
-    CHECK(buffers[bin1Num]->length()==101);
+    CHECK(buffers[bin1Num]->length()==100);
     INFO("outputing payload bin1 num:" << numchar)
     CHECK(buffers[bin1Num]->at(50)==0);
-    CHECK(buffers[bin1Num]->at(0) == packet::frame_message);
+    CHECK(buffers[bin1Num]->at(0) == 0);
     int bin2Num = j["bin2"]["num"].get<int>();
     numchar[0] = bin2Num+'0';
-    CHECK(buffers[bin2Num]->length()==51);
+    CHECK(buffers[bin2Num]->length()==50);
     INFO("outputing payload bin2 num:" << numchar)
     CHECK(buffers[bin2Num]->at(25)==1);
-    CHECK(buffers[bin2Num]->at(0) == packet::frame_message);
+    CHECK(buffers[bin2Num]->at(0) == 1);
 }
 #endif
 
@@ -209,12 +209,11 @@ TEST_CASE( "test_packet_parse_4" )
     packet p;
     bool hasbin = p.parse("452-/nsp,101[\"bin_event\",[{\"_placeholder\":true,\"num\":1},{\"_placeholder\":true,\"num\":0},\"text\"]]");
     CHECK(hasbin);
-    char buf[101];
-    buf[0] = packet::frame_message;
-    memset(buf+1,0,100);
+    char buf[100];
+    memset(buf,0,100);
 
-    std::string bufstr(buf,101);
-    std::string bufstr2(buf,51);
+    std::string bufstr(buf,100);
+    std::string bufstr2(buf,50);
     CHECK(p.parse_buffer(bufstr));
     CHECK(!p.parse_buffer(bufstr2));
 

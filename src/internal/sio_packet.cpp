@@ -53,13 +53,7 @@ namespace sio
         Value numVal;
         numVal.SetInt((int)buffers.size());
         val.AddMember("num", numVal, doc.GetAllocator());
-        //FIXME can not avoid binary copy here.
-        shared_ptr<string> write_buffer = make_shared<string>();
-        write_buffer->reserve(msg.get_binary()->size()+1);
-        char frame_char = packet::frame_message;
-        write_buffer->append(&frame_char,1);
-        write_buffer->append(*(msg.get_binary()));
-        buffers.push_back(write_buffer);
+        buffers.push_back(msg.get_binary());
     }
 
     void accept_array_message(array_message const& msg,Value& val,Document& doc,vector<shared_ptr<const string> >& buffers)
@@ -253,7 +247,7 @@ namespace sio
     {
         if (_pending_buffers > 0) {
             assert(is_binary_message(buf_payload));//this is ensured by outside.
-            _buffers.push_back(std::make_shared<string>(buf_payload.data()+1,buf_payload.size()-1));
+            _buffers.push_back(std::make_shared<string>(buf_payload.data(),buf_payload.size()));
             _pending_buffers--;
             if (_pending_buffers == 0) {
 
