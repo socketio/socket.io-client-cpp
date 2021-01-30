@@ -8,11 +8,11 @@
 #include <cstdarg>
 #include <functional>
 
-#if DEBUG || _DEBUG
-#define LOG(x) std::cout << x
-#else
+//#if DEBUG || _DEBUG
+//#define LOG(x) std::cout << x
+//#else
 #define LOG(x)
-#endif
+//#endif
 
 #define NULL_GUARD(_x_)  \
     if(_x_ == NULL) return

@@ -13,11 +13,11 @@
 #include <mutex>
 #include <cmath>
 // Comment this out to disable handshake logging to stdout
-#if DEBUG || _DEBUG
-#define LOG(x) std::cout << x
-#else
+//#if DEBUG || _DEBUG
+//#define LOG(x) std::cout << x
+//#else
 #define LOG(x)
-#endif
+//#endif
 
 #if SIO_TLS
 // If using Asio's SSL support, you will also need to add this #include.
