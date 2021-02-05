@@ -382,6 +382,12 @@ namespace sio
 
     void client_impl::on_fail(connection_hdl)
     {
+        if (m_con_state == con_closing) {
+            LOG("Connection failed while closing." << endl);
+            this->close();
+            return;
+        }
+
         m_con.reset();
         m_con_state = con_closed;
         this->sockets_invoke_void(&sio::socket::on_disconnect);
@@ -404,6 +410,12 @@ namespace sio
     
     void client_impl::on_open(connection_hdl con)
     {
+        if (m_con_state == con_closing) {
+            LOG("Connection opened while closing." << endl);
+            this->close();
+            return;
+        }
+
         LOG("Connected." << endl);
         m_con_state = con_opened;
         m_con = con;
