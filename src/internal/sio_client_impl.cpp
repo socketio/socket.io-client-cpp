@@ -302,7 +302,7 @@ namespace sio
         if(ec || m_con.expired())
         {
             if (ec != asio::error::operation_aborted)
-                LOG("ping exit,con is expired?"<<m_con.expired()<<",ec:"<<ec.message()<<endl){};
+                LOG("ping exit,con is expired?"<<m_con.expired()<<",ec:"<<ec.message()<<endl);
             return;
         }
         packet p(packet::frame_ping);
