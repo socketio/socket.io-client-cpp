@@ -2,7 +2,7 @@
 
 In this tutorial we’ll learn how to create a QT chat application that communicates with a [Socket.IO Node.JS chat server](https://github.com/Automattic/socket.io/tree/master/examples/chat).
 
-###Introduction
+### Introduction
 To follow along, start by cloning the repository: [socket.io-client-cpp](https://github.com/socketio/socket.io-client-cpp).
 Using:
 
@@ -39,7 +39,7 @@ SioChatDemo
         |__mainwindow.ui
 ```
 
-###Import SioClient and config compile options.
+### Import SioClient and config compile options.
 Let's copy the SioClient into the QT project as a subfolder `sioclient`.
 
 Edit `SioChatDemo.pro` to config paths and compile options, simply add:
@@ -82,7 +82,7 @@ else:win32:CONFIG(debug, debug|release): LIBS += -L`our Win32 boost static lib f
 else:unix: LIBS += -L`our osx boost static lib folder` -lboost
 ```
 
-###Make up mainwindow ui.
+### Make up mainwindow ui.
 Make up a simple ui by drag and drop widget from `Widget box` in left side.
 
 We finally end up with this:
@@ -101,7 +101,7 @@ It contains:
 
 * a `QPushButton` at the bottomright for sending message, named `sendBtn`
 
-###Add Slots in mainwindow
+### Add Slots in mainwindow
 Slots need to be added in `mainwindow` class to handle UI events.They are
 
 * click login button
@@ -122,7 +122,7 @@ public Q_SLOTS:
     void OnMessageReturn();
 ```
 
-###Connect UI event signal and slots together
+### Connect UI event signal and slots together
 Open `mainwindow.ui` in Design mode. switch to `signals/slots` mode by check `Menu->Edit->Edit Signals/Slots`
 
 By press left mouse on widget and drag on to the window (cursor will become a sign of electrical ground), to open the connection editor.
@@ -135,7 +135,7 @@ We finally end up with this:
 
 ![QT signals&slots](https://cldup.com/Vsb-UXG3FC.jpg)
 
-###Adding UI refresh Signals/Slots
+### Adding UI refresh Signals/Slots
 `sio::client`'s callbacks are not in UI thread. However, UI is required to be updated by those callbacks, so we need some `Signal` for non-UI thread to "request" `Slots` functions been called in UI thread. Say if we want to signal `QListWidgetItem` being added, add:
 
 ```C++
@@ -160,7 +160,7 @@ Then connect them in `MainWindow` constructor.
     connect(this,SIGNAL(RequestAddListItem(QListWidgetItem*)),this,SLOT(AddListItem(QListWidgetItem*)));
 ```
 
-###Init sio::client in MainWindow
+### Init sio::client in MainWindow
 For single window applications, simply let `MainWindow` class holding the `sio::client` object:
 
 declare a `unique_ptr` member of `sio::client` and Several event handling functions in `mainwindow.h`
@@ -214,7 +214,7 @@ MainWindow::MainWindow(QWidget *parent) :
 }
 ```
 
-###Managing connection state
+### Managing connection state
 We have several connection listeners for connection events.
 
 First we want to send login message once we're connected, get the default `socket` from `client` to do that.
@@ -256,7 +256,7 @@ MainWindow::~MainWindow()
 }
 ```
 
-###Handle socket.io events
+### Handle socket.io events
 We'll need to handle socket.io events in our functions bind to socket.io events.
 For example, we need to show received messages to the `listView`
 
@@ -278,7 +278,7 @@ void MainWindow::OnNewMessage(std::string const& name,message::ptr const& data,b
 }
 ```
 
-###Sending chat message
+### Sending chat message
 When `sendBtn` is clicked, we need to send the text in `messageEdit` to chatroom.
 Add code to `SendBtnClicked()`:
 
@@ -301,7 +301,7 @@ void MainWindow::SendBtnClicked()
 }
 ```
 
-###Further reading
+### Further reading
 You can run [Demo project](https://github.com/socketio/socket.io-client-cpp/tree/master/examples/QT/SioChatDemo) to have a closer look. 
 Before running, please follow the [instructions](../../README.md#with_cmake) to make the sioclient library.
 
