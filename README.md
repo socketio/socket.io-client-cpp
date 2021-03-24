@@ -8,10 +8,26 @@ By virtue of being written in C++, this client works in several different platfo
 
 ## Compatibility table
 
-| C++ Client version  | Socket.IO server version |
-| ------------------- | ------------------------ |
-| 2.x (`2.x` branch)  | 1.x / 2.x                |
-| 3.x (master branch) | 3.x                      |
+<table>
+  <tr>
+    <th rowspan="2">C++ Client version</th>
+    <th colspan="2">Socket.IO server version</th>
+  </tr>
+  <tr>
+    <td align="center">1.x / 2.x</td>
+    <td align="center">3.x / 4.x</td>
+  </tr>
+  <tr>
+    <td>2.x (<code>2.x</code> branch)</td>
+    <td align="center">YES</td>
+    <td align="center">YES, with <code><a href="https://socket.io/docs/v4/server-initialization/#allowEIO3">allowEIO3: true</a></code></td>
+  </tr>
+  <tr>
+    <td>3.x (<code>master</code> branch)</td>
+    <td align="center">NO</td>
+    <td align="center">YES</td>
+  </tr>
+</table>
 
 ## Features
 
