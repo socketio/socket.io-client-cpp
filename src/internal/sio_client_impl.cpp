@@ -323,6 +323,10 @@ namespace sio
             m_ping_timeout_timer->expires_from_now(milliseconds(m_ping_timeout), timeout_ec);
             m_ping_timeout_timer->async_wait(std::bind(&client_impl::timeout_pong, this, std::placeholders::_1));
         }
+        if(m_ping_sent_listener)
+        {
+            m_ping_sent_listener();
+        }
     }
 
     void client_impl::timeout_pong(const asio::error_code &ec)
@@ -543,6 +547,10 @@ failed:
         {
             m_ping_timeout_timer->cancel();
             m_ping_timeout_timer.reset();
+        }
+        if(m_pong_received_listener)
+        {
+            m_pong_received_listener();
         }
     }
 

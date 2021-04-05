@@ -35,6 +35,10 @@ namespace sio
         ~client();
         
         //set listeners and event bindings.
+        void set_ping_sent_listener(con_listener const& l);
+        
+        void set_pong_received_listener(con_listener const& l);
+        
         void set_open_listener(con_listener const& l);
         
         void set_fail_listener(con_listener const& l);
