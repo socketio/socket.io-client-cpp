@@ -577,10 +577,9 @@ failed:
 #if SIO_TLS
     client_impl::context_ptr client_impl::on_tls_init(connection_hdl conn)
     {
-        context_ptr ctx = context_ptr(new  asio::ssl::context(asio::ssl::context::tlsv1));
+        context_ptr ctx = context_ptr(new  asio::ssl::context(asio::ssl::context::tlsv12));
         asio::error_code ec;
         ctx->set_options(asio::ssl::context::default_workarounds |
-                             asio::ssl::context::no_sslv2 |
                              asio::ssl::context::single_dh_use,ec);
         if(ec)
         {
