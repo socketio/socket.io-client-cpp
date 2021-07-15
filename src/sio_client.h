@@ -13,8 +13,8 @@
 
 namespace sio
 {
-    class client_impl;
-    
+    class client_impl_base;
+
     class client {
     public:
         enum close_reason
@@ -22,37 +22,37 @@ namespace sio
             close_reason_normal,
             close_reason_drop
         };
-        
+
         typedef std::function<void(void)> con_listener;
-        
+
         typedef std::function<void(close_reason const& reason)> close_listener;
 
         typedef std::function<void(unsigned, unsigned)> reconnect_listener;
-        
+
         typedef std::function<void(std::string const& nsp)> socket_listener;
-        
+
         client();
         ~client();
-        
+
         //set listeners and event bindings.
         void set_open_listener(con_listener const& l);
-        
+
         void set_fail_listener(con_listener const& l);
-        
+
         void set_reconnecting_listener(con_listener const& l);
 
         void set_reconnect_listener(reconnect_listener const& l);
 
         void set_close_listener(close_listener const& l);
-        
+
         void set_socket_open_listener(socket_listener const& l);
-        
+
         void set_socket_close_listener(socket_listener const& l);
-        
+
         void clear_con_listeners();
-        
+
         void clear_socket_listeners();
-        
+
         // Client Functions - such as send, etc.
         void connect(const std::string& uri);
 
@@ -66,26 +66,26 @@ namespace sio
         void set_reconnect_delay(unsigned millis);
 
         void set_reconnect_delay_max(unsigned millis);
-        
+
         sio::socket::ptr const& socket(const std::string& nsp = "");
-        
+
         // Closes the connection
         void close();
-        
+
         void sync_close();
-        
+
         bool opened() const;
-        
+
         std::string const& get_sessionid() const;
-        
+
     private:
         //disable copy constructor and assign operator.
-        client(client const&){}
-        void operator=(client const&){}
-        
-        client_impl* m_impl;
+        client(client const&) = delete;
+        void operator=(client const&) = delete;
+
+        std::unique_ptr<client_impl_base> m_impl;
     };
-    
+
 }
 
 

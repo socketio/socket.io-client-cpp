@@ -13,35 +13,32 @@ using std::stringstream;
 namespace sio
 {
     client::client():
-        m_impl(new client_impl())
+        m_impl(nullptr)
     {
     }
-    
-    client::~client()
-    {
-        delete m_impl;
-    }
-    
+
+    client::~client() = default;
+
     void client::set_open_listener(con_listener const& l)
     {
         m_impl->set_open_listener(l);
     }
-    
+
     void client::set_fail_listener(con_listener const& l)
     {
         m_impl->set_fail_listener(l);
     }
-    
+
     void client::set_close_listener(close_listener const& l)
     {
         m_impl->set_close_listener(l);
     }
-    
+
     void client::set_socket_open_listener(socket_listener const& l)
     {
         m_impl->set_socket_open_listener(l);
     }
-    
+
     void client::set_reconnect_listener(reconnect_listener const& l)
     {
         m_impl->set_reconnect_listener(l);
@@ -56,12 +53,12 @@ namespace sio
     {
         m_impl->set_socket_close_listener(l);
     }
-    
+
     void client::clear_con_listeners()
     {
         m_impl->clear_con_listeners();
     }
-    
+
     void client::clear_socket_listeners()
     {
         m_impl->clear_socket_listeners();
@@ -69,41 +66,49 @@ namespace sio
 
     void client::connect(const std::string& uri)
     {
-        m_impl->connect(uri, {}, {});
+        connect(uri, {}, {});
     }
 
     void client::connect(const std::string& uri, const std::map<string,string>& query)
     {
-        m_impl->connect(uri, query, {});
+        connect(uri, query, {});
     }
 
-    void client::connect(const std::string& uri, const std::map<std::string,std::string>& query,
-                         const std::map<std::string,std::string>& http_extra_headers)
+    void client::connect(const std::string& uri, const std::map<std::string,std::string>& query, const std::map<std::string,std::string>& http_extra_headers)
     {
+#ifdef HAVE_OPENSSL
+        if ((uri.length() > 8 && memcmp(uri.c_str(), "https://", 8) == 0)
+        ||  (uri.length() > 6 && memcmp(uri.c_str(), "wss://", 6) == 0)) {
+            m_impl.reset(new client_impl<tls_client_config>());
+        } else
+#endif
+        {
+            m_impl.reset(new client_impl<non_tls_client_config>());
+        }
         m_impl->connect(uri, query, http_extra_headers);
     }
-    
+
     socket::ptr const& client::socket(const std::string& nsp)
     {
         return m_impl->socket(nsp);
     }
-    
+
     // Closes the connection
     void client::close()
     {
         m_impl->close();
     }
-    
+
     void client::sync_close()
     {
         m_impl->sync_close();
     }
-    
+
     bool client::opened() const
     {
         return m_impl->opened();
     }
-    
+
     std::string const& client::get_sessionid() const
     {
         return m_impl->get_sessionid();
@@ -123,5 +128,5 @@ namespace sio
     {
         m_impl->set_reconnect_delay_max(millis);
     }
-    
+
 }

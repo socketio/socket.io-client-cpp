@@ -7,6 +7,11 @@ CONFIG += staticlib
 
 include(socket.io-client.pri)
 
+!isEmpty(OPENSSL_INCLUDE_DIR):!isEmpty(OPENSSL_LIB_DIR) {
+    DEFINES += HAVE_OPENSSL
+    INCLUDEPATH += $$OPENSSL_INCLUDE_DIR
+}
+
 CONFIG += c++11 warn_off
 
 unix|win32-g++ {
@@ -31,6 +36,7 @@ HEADERS += \
     $$SOCKET_IO_CLIENT_SRC/sio_client.h \
     $$SOCKET_IO_CLIENT_SRC/sio_message.h \
     $$SOCKET_IO_CLIENT_SRC/sio_socket.h \
+    $$SOCKET_IO_CLIENT_SRC/internal/sio_client_config.h \
     $$SOCKET_IO_CLIENT_SRC/internal/sio_client_impl.h \
     $$SOCKET_IO_CLIENT_SRC/internal/sio_packet.h
 
