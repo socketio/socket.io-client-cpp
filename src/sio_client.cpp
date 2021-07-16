@@ -13,7 +13,7 @@ using std::stringstream;
 namespace sio
 {
     client::client():
-        m_impl(nullptr)
+        m_impl(new client_impl<non_tls_client_config>())
     {
     }
 
@@ -78,13 +78,18 @@ namespace sio
     {
 #ifdef HAVE_OPENSSL
         if ((uri.length() > 8 && memcmp(uri.c_str(), "https://", 8) == 0)
-        ||  (uri.length() > 6 && memcmp(uri.c_str(), "wss://", 6) == 0)) {
-            m_impl.reset(new client_impl<tls_client_config>());
-        } else
-#endif
+        ||  (uri.length() > 6 && memcmp(uri.c_str(), "wss://", 6) == 0))
         {
-            m_impl.reset(new client_impl<non_tls_client_config>());
+            if (!dynamic_cast<client_impl<tls_client_config>*>(m_impl.get()))
+            {
+                m_impl.reset(new client_impl<tls_client_config>(*m_impl));
+            }
+        } else
+        if (!dynamic_cast<client_impl<non_tls_client_config>*>(m_impl.get()))
+        {
+            m_impl.reset(new client_impl<non_tls_client_config>(*m_impl));
         }
+#endif
         m_impl->connect(uri, query, http_extra_headers);
     }
 

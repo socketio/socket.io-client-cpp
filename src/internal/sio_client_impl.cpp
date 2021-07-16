@@ -35,6 +35,21 @@ namespace sio
         m_packet_mgr.set_encode_callback(std::bind(&client_impl_base::on_encode,this,_1,_2));
     }
 
+    client_impl_base::client_impl_base(const client_impl_base &other)
+        : client_impl_base()
+    {
+        m_open_listener = other.m_open_listener;
+        m_fail_listener = other.m_fail_listener;
+        m_reconnecting_listener = other.m_reconnecting_listener;
+        m_reconnect_listener = other.m_reconnect_listener;
+        m_close_listener = other.m_close_listener;
+        m_socket_open_listener = other.m_socket_open_listener;
+        m_socket_close_listener = other.m_socket_close_listener;
+        m_reconn_delay = other.m_reconn_delay;
+        m_reconn_delay_max = other.m_reconn_delay_max;
+        m_reconn_attempts = other.m_reconn_attempts;
+    }
+
     void client_impl_base::clear_con_listeners()
     {
         m_open_listener = nullptr;

@@ -72,6 +72,7 @@ namespace sio
 
     protected:
         client_impl_base();
+        client_impl_base(const client_impl_base& other);
 
         enum con_state
         {
@@ -232,10 +233,8 @@ namespace sio
 
     template<typename CONFIG>
     class client_impl : public client_impl_base {
-    public:
-        using client_type = websocketpp::client<CONFIG>;
-
-        client_impl()
+    private:
+        void init_client()
         {
 #ifndef DEBUG
             using websocketpp::log::alevel;
@@ -255,6 +254,21 @@ namespace sio
 #ifdef HAVE_OPENSSL
             init_tls_handler(m_client);
 #endif
+        }
+
+    public:
+        using client_type = websocketpp::client<CONFIG>;
+
+        client_impl(const client_impl_base& other)
+            : client_impl_base(other)
+        {
+            init_client();
+        }
+
+        client_impl()
+            : client_impl_base()
+        {
+            init_client();
         }
 
         virtual ~client_impl() override
