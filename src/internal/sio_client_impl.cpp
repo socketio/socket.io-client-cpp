@@ -485,7 +485,7 @@ namespace sio
     {
         if (m_ping_timeout_timer) {
             asio::error_code ec;
-            m_ping_timeout_timer->expires_from_now(milliseconds(m_ping_timeout),ec);
+            m_ping_timeout_timer->expires_from_now(milliseconds(m_ping_interval + m_ping_timeout),ec);
             m_ping_timeout_timer->async_wait(std::bind(&client_impl::timeout_pong, this, std::placeholders::_1));
         }
         // Parse the incoming message according to socket.IO rules
@@ -524,6 +524,14 @@ namespace sio
                 m_ping_timeout = 60000;
             }
 
+            if (!m_ping_timeout_timer)
+            {
+                m_ping_timeout_timer.reset(new asio::steady_timer(m_client.get_io_service()));
+                std::error_code timeout_ec;
+                m_ping_timeout_timer->expires_from_now(milliseconds(m_ping_interval + m_ping_timeout), timeout_ec);
+                m_ping_timeout_timer->async_wait(std::bind(&client_impl::timeout_pong, this, std::placeholders::_1));
+            }
+
             return;
         }
 failed:
@@ -539,11 +547,11 @@ failed:
             this->m_client.send(this->m_con, *payload, frame::opcode::text);
         });
 
-        if(m_ping_timeout_timer)
+        /*if(m_ping_timeout_timer)
         {
             m_ping_timeout_timer->cancel();
             m_ping_timeout_timer.reset();
-        }
+        }*/
     }
 
     void client_impl::on_decode(packet const& p)
