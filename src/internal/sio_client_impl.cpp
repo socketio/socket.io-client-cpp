@@ -547,6 +547,12 @@ failed:
             this->m_client.send(this->m_con, *payload, frame::opcode::text);
         });
 
+        if (m_ping_timeout_timer) {
+            asio::error_code ec;
+            m_ping_timeout_timer->expires_from_now(milliseconds(m_ping_interval + m_ping_timeout),ec);
+            m_ping_timeout_timer->async_wait(std::bind(&client_impl::timeout_pong, this, std::placeholders::_1));
+        }
+
         /*if(m_ping_timeout_timer)
         {
             m_ping_timeout_timer->cancel();
