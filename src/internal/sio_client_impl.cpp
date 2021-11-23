@@ -70,7 +70,7 @@ namespace sio
         sync_close();
     }
     
-    void client_impl::connect(const string& uri, const map<string,string>& query, const map<string, string>& headers)
+    void client_impl::connect(const string& uri, const map<string,string>& query, const map<string, string>& headers, const message::ptr& auth)
     {
         if(m_reconn_timer)
         {
@@ -108,6 +108,7 @@ namespace sio
         m_query_string=move(query_str);
 
         m_http_headers = headers;
+        m_auth = auth;
 
         this->reset_states();
         m_client.get_io_service().dispatch(std::bind(&client_impl::connect_impl,this,uri,m_query_string));
@@ -140,7 +141,7 @@ namespace sio
         }
         else
         {
-            pair<const string, socket::ptr> p(aux,shared_ptr<sio::socket>(new sio::socket(this,aux)));
+            pair<const string, socket::ptr> p(aux,shared_ptr<sio::socket>(new sio::socket(this,aux,m_auth)));
             return (m_sockets.insert(p).first)->second;
         }
     }
