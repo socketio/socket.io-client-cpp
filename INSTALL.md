@@ -2,9 +2,10 @@
 
 ### With CMake
 1. Use `git clone --recurse-submodules https://github.com/socketio/socket.io-client-cpp.git` to clone your local repo.
-2. Run `cmake  ./`
-3. Run `make install`(if makefile generated) or open generated project (if project file generated) to build.
-4. Outputs is under `./build`, link with the all static libs under `./build/lib` and  include headers under `./build/include` in your client code where you want to use it.
+2. Run `cd socket.io-client-cpp` to change to the cloned repo directory.
+3. Run `cmake  ./`
+4. Run `make install`(if makefile generated) or open generated project (if project file generated) to build. You might have to run this command with elevated or administrative permissions (For example, `sudo make install`)
+5. Outputs is under `./build`, link with the all static libs under `./build/lib` and  include headers under `./build/include` in your client code where you want to use it.
 
 ### Without CMake
 1. Use `git clone --recurse-submodules https://github.com/socketio/socket.io-client-cpp.git` to clone your local repo.
