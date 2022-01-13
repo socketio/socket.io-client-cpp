@@ -1,0 +1,5 @@
+socket.io-client-cpp (3.1.0-1) unstable; urgency=medium
+
+  * Initial porting of project to Debian
+
+ -- Federico Fuga <fuga@studiofuga.com>  Wed, 12 Jan 2022 16:18:30 +0100
