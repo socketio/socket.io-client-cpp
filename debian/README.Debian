@@ -1,6 +1,7 @@
 socket.io-client-cpp for Debian
 ------------------------------
 
-<possible notes regarding this package - if none, delete this file>
+The source of this library is managed through git, and depends on a few submodules.
+This porting includes all those modules, that are statically linked.
 
  -- Federico Fuga <fuga@studiofuga.com>  Wed, 12 Jan 2022 16:18:30 +0100

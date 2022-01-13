@@ -13,6 +13,6 @@ Section: libdevel
 Architecture: any
 Multi-Arch: same
 Depends: ${misc:Depends}
-Description: Development files for the Socket.io-client-cpp library, a C++11 library for Socket.io
+Description: Development files for the Socket.io-client-cpp library
  Socket.IO is a bidirectional and low-latency communication for every platform.
  This package contains the development files for a C++11 client library.
