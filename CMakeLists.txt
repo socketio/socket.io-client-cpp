@@ -1,25 +1,22 @@
 cmake_minimum_required(VERSION 3.4 FATAL_ERROR)
-PROJECT(sioclient)
+PROJECT(sioclient
+        VERSION 3.1.0
+        )
 
 option(BUILD_SHARED_LIBS "Build the shared library" OFF)
-option(BUILD_UNIT_TESTS  "Builds unit tests target" OFF)
+option(BUILD_UNIT_TESTS "Builds unit tests target" OFF)
 
-set(MAJOR 1)
-set(MINOR 6)
-set(PATCH 0)
-
-if(NOT CMAKE_BUILD_TYPE )
-MESSAGE(STATUS "not define build type, set to release" )
-set(CMAKE_BUILD_TYPE Release )
-elseif(NOT (${CMAKE_BUILD_TYPE} STREQUAL "Release" OR ${CMAKE_BUILD_TYPE} STREQUAL "Debug" ))
-MESSAGE(SEND_ERROR "CMAKE_BUILD_TYPE must be either Release or Debug")
-return()
-endif()
+if (NOT EXISTS ${CMAKE_SOURCE_DIR}/lib/asio/asio/README)
+    message("Updating submodules")
+    execute_process(
+            COMMAND git submodule update --init
+            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+endif ()
 
 aux_source_directory(${CMAKE_CURRENT_LIST_DIR}/src ALL_SRC)
 aux_source_directory(${CMAKE_CURRENT_LIST_DIR}/src/internal ALL_SRC)
-file(GLOB ALL_HEADERS ${CMAKE_CURRENT_LIST_DIR}/src/*.h )
-set(SIO_INCLUDEDIR ${CMAKE_CURRENT_LIST_DIR})
+
+file(GLOB ALL_HEADERS ${CMAKE_CURRENT_LIST_DIR}/src/*.h)
 
 add_definitions(
     # These will force ASIO to compile without Boost
@@ -32,10 +29,10 @@ add_definitions(
 )
 
 add_library(sioclient ${ALL_SRC})
-target_include_directories(sioclient PUBLIC 
+target_include_directories(sioclient PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/src 
     PRIVATE
-    ${CMAKE_CURRENT_LIST_DIR}/lib/websocketpp 
+    ${CMAKE_CURRENT_LIST_DIR}/lib/websocketpp
     ${CMAKE_CURRENT_LIST_DIR}/lib/rapidjson/include
     ${CMAKE_CURRENT_LIST_DIR}/lib/asio/asio/include
 )
@@ -61,7 +58,7 @@ add_library(sioclient_tls ${ALL_SRC})
 target_include_directories(sioclient_tls PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/src 
     PRIVATE
-    ${CMAKE_CURRENT_LIST_DIR}/lib/websocketpp 
+    ${CMAKE_CURRENT_LIST_DIR}/lib/websocketpp
     ${CMAKE_CURRENT_LIST_DIR}/lib/rapidjson/include
     ${CMAKE_CURRENT_LIST_DIR}/lib/asio/asio/include
     ${OPENSSL_INCLUDE_DIR}
