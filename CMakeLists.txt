@@ -13,6 +13,13 @@ if (NOT EXISTS ${CMAKE_SOURCE_DIR}/lib/asio/asio/README)
             WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 endif ()
 
+if (NOT EXISTS ${CMAKE_SOURCE_DIR}/lib/asio/asio/README)
+	message("Updating submodules")
+	execute_process(
+        COMMAND git submodule update --init
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+endif()
+
 aux_source_directory(${CMAKE_CURRENT_LIST_DIR}/src ALL_SRC)
 aux_source_directory(${CMAKE_CURRENT_LIST_DIR}/src/internal ALL_SRC)
 
