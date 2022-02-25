@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.4 FATAL_ERROR)
 PROJECT(sioclient)
 
 option(BUILD_SHARED_LIBS "Build the shared library" OFF)
@@ -32,8 +32,9 @@ add_definitions(
 )
 
 add_library(sioclient ${ALL_SRC})
-target_include_directories(sioclient PRIVATE 
+target_include_directories(sioclient PUBLIC 
     ${CMAKE_CURRENT_LIST_DIR}/src 
+    PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/lib/websocketpp 
     ${CMAKE_CURRENT_LIST_DIR}/lib/rapidjson/include
     ${CMAKE_CURRENT_LIST_DIR}/lib/asio/asio/include
@@ -57,8 +58,9 @@ list(APPEND TARGET_LIBRARIES sioclient)
 find_package(OpenSSL)
 if(OPENSSL_FOUND)
 add_library(sioclient_tls ${ALL_SRC})
-target_include_directories(sioclient_tls PRIVATE
+target_include_directories(sioclient_tls PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/src 
+    PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/lib/websocketpp 
     ${CMAKE_CURRENT_LIST_DIR}/lib/rapidjson/include
     ${CMAKE_CURRENT_LIST_DIR}/lib/asio/asio/include
