@@ -310,7 +310,7 @@ namespace sio
             return;
         }
         LOG("Ping timeout"<<endl);
-        m_client.get_io_service().dispatch(std::bind(&client_impl::close_impl, this,close::status::policy_violation,"Pong timeout"));
+        m_client.get_io_service().dispatch(std::bind(&client_impl::close_impl, this,close::status::policy_violation,"Ping timeout"));
     }
 
     void client_impl::timeout_reconnect(asio::error_code const& ec)
