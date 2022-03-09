@@ -309,7 +309,6 @@ namespace sio
         {
             return;
         }
-        std::cout << "Ping timed out" << std::endl;
         LOG("Ping timeout"<<endl);
         m_client.get_io_service().dispatch(std::bind(&client_impl::close_impl, this,close::status::policy_violation,"Pong timeout"));
     }
@@ -510,7 +509,6 @@ failed:
 
     void client_impl::on_ping()
     {
-        std::cout << "Got ping " << std::endl;
         // Reply with pong packet.
         packet p(packet::frame_pong);
         m_packet_mgr.encode(p, [&](bool /*isBin*/,shared_ptr<const string> payload)
