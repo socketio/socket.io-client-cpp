@@ -151,7 +151,7 @@ namespace sio
         
         void ping(const asio::error_code& ec);
         
-        void timeout_pong(const asio::error_code& ec);
+        void timeout_ping(const asio::error_code& ec);
 
         void timeout_reconnect(asio::error_code const& ec);
 
@@ -181,6 +181,8 @@ namespace sio
         void reset_states();
 
         void clear_timers();
+
+        void update_ping_timeout_timer();
         
         #if SIO_TLS
         typedef websocketpp::lib::shared_ptr<asio::ssl::context> context_ptr;
