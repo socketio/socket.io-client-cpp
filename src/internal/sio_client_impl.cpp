@@ -111,6 +111,7 @@ namespace sio
         m_auth = auth;
 
         this->reset_states();
+        m_abort_retries = false;
         m_client.get_io_service().dispatch(std::bind(&client_impl::connect_impl,this,uri,m_query_string));
         m_network_thread.reset(new thread(std::bind(&client_impl::run_loop,this)));//uri lifecycle?
 
@@ -149,6 +150,7 @@ namespace sio
     void client_impl::close()
     {
         m_con_state = con_closing;
+        m_abort_retries = true;
         this->sockets_invoke_void(&sio::socket::close);
         m_client.get_io_service().dispatch(std::bind(&client_impl::close_impl, this,close::status::normal,"End by user"));
     }
@@ -156,6 +158,7 @@ namespace sio
     void client_impl::sync_close()
     {
         m_con_state = con_closing;
+        m_abort_retries = true;
         this->sockets_invoke_void(&sio::socket::close);
         m_client.get_io_service().dispatch(std::bind(&client_impl::close_impl, this,close::status::normal,"End by user"));
         if(m_network_thread)
@@ -375,7 +378,7 @@ namespace sio
         m_con_state = con_closed;
         this->sockets_invoke_void(&sio::socket::on_disconnect);
         LOG("Connection failed." << endl);
-        if(m_reconn_made<m_reconn_attempts)
+        if(m_reconn_made<m_reconn_attempts && !m_abort_retries)
         {
             LOG("Reconnect for attempt:"<<m_reconn_made<<endl);
             unsigned delay = this->next_delay();
@@ -439,7 +442,7 @@ namespace sio
         else
         {
             this->sockets_invoke_void(&sio::socket::on_disconnect);
-            if(m_reconn_made<m_reconn_attempts)
+            if(m_reconn_made<m_reconn_attempts && !m_abort_retries)
             {
                 LOG("Reconnect for attempt:"<<m_reconn_made<<endl);
                 unsigned delay = this->next_delay();

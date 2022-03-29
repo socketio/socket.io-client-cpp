@@ -38,6 +38,7 @@ typedef websocketpp::config::asio_client client_config;
 #include <asio/error_code.hpp>
 #include <asio/io_service.hpp>
 
+#include <atomic>
 #include <memory>
 #include <map>
 #include <thread>
@@ -236,7 +237,9 @@ namespace sio
         unsigned m_reconn_attempts;
 
         unsigned m_reconn_made;
-        
+
+        std::atomic<bool> m_abort_retries { false };
+
         friend class sio::client;
         friend class sio::socket;
     };
