@@ -9,8 +9,9 @@ msvc {
 LIBS += -L$$SOCKET_IO_CLIENT_BIN
 LIBS += -lsocket.io-client
 
-!isEmpty(OPENSSL_INCLUDE_DIR):!isEmpty(OPENSSL_LIB_DIR) {
-        
+!isEmpty(USE_SYSTEM_OPENSSL) {
+    LIBS += -lcrypto -lssl
+} else:!isEmpty(OPENSSL_INCLUDE_DIR):!isEmpty(OPENSSL_LIB_DIR) {
     LIBS += -L$$OPENSSL_LIB_DIR    
     
     msvc {
@@ -25,4 +26,3 @@ LIBS += -lsocket.io-client
             $$OPENSSL_LIB_DIR/libssl.a
     }
 }
-

@@ -7,23 +7,25 @@ CONFIG += staticlib
 
 include(socket.io-client.pri)
 
-!isEmpty(OPENSSL_INCLUDE_DIR):!isEmpty(OPENSSL_LIB_DIR) {
+!isEmpty(USE_SYSTEM_OPENSSL) {
+    DEFINES += HAVE_OPENSSL
+} else:!isEmpty(OPENSSL_INCLUDE_DIR):!isEmpty(OPENSSL_LIB_DIR) {
     DEFINES += HAVE_OPENSSL
     INCLUDEPATH += $$OPENSSL_INCLUDE_DIR
 }
 
-CONFIG += c++11 warn_off
+CONFIG += c++11
 
-unix|win32-g++ {
-    QMAKE_CXXFLAGS_WARN_OFF -= -w
-    QMAKE_CXXFLAGS += -Wall
-} else {
-    win32 {
-        QMAKE_CXXFLAGS_WARN_OFF -= -W0
-        QMAKE_CXXFLAGS += -W3 /wd4267
-        DEFINES += _CRT_SECURE_NO_WARNINGS
-        DEFINES += _SCL_SECURE_NO_WARNINGS
-    }
+msvc {
+    QMAKE_CXXFLAGS_WARN_ON += /wd4267
+    DEFINES += _CRT_SECURE_NO_WARNINGS
+    DEFINES += _SCL_SECURE_NO_WARNINGS
+} else:clang|gcc {
+    QMAKE_CXXFLAGS_WARN_ON += \
+        -Wno-null-pointer-subtraction \
+        -Wno-unknown-warning-option \
+        -Wno-unknown-warning \
+        -Wno-unused-command-line-argument
 }
 
 CONFIG(debug, debug|release) {
