@@ -1,8 +1,5 @@
 cmake_minimum_required(VERSION 3.4 FATAL_ERROR)
 
-set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
-    CACHE STRING "Autodetect vcpkg toolchain")
-
 PROJECT(sioclient
     VERSION 3.1.0
 )
