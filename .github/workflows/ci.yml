@@ -23,4 +23,4 @@ jobs:
         submodule_update: ON
         run_tests: ON
         unit_test_build: -DBUILD_UNIT_TESTS=ON
-        cmake_args: -DCMAKE_CXX_FLAGS=-std=c++11
+        cmake_args: -DCMAKE_CXX_FLAGS=-std=c++11 -DUSE_SUBMODULES=ON
