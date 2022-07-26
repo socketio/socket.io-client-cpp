@@ -87,6 +87,8 @@ namespace sio
         
         void sync_close();
         
+        void set_proxy_basic_auth(const std::string& uri, const std::string& username, const std::string& password);
+		
         bool opened() const;
         
         std::string const& get_sessionid() const;

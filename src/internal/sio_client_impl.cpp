@@ -69,6 +69,13 @@ namespace sio
         this->sockets_invoke_void(&sio::socket::on_close);
         sync_close();
     }
+	
+    void client_impl::set_proxy_basic_auth(const std::string& uri, const std::string& username, const std::string& password)
+    {
+        m_proxy_base_url = uri;
+        m_proxy_basic_username = username;
+        m_proxy_basic_password = password;
+    }
     
     void client_impl::connect(const string& uri, const map<string,string>& query, const map<string, string>& headers, const message::ptr& auth)
     {
@@ -262,6 +269,23 @@ namespace sio
 
             for( auto&& header: m_http_headers ) {
                 con->replace_header(header.first, header.second);
+            }
+			
+            if (!m_proxy_base_url.empty()) {
+                con->set_proxy(m_proxy_base_url, ec);
+                if (ec) {
+                    m_client.get_alog().write(websocketpp::log::alevel::app,
+                                    "Set Proxy Error: " + ec.message());
+                    break;
+                }
+                if (!m_proxy_basic_username.empty()) {
+                    con->set_proxy_basic_auth(m_proxy_basic_username, m_proxy_basic_password, ec);
+                    if (ec) {
+                        m_client.get_alog().write(websocketpp::log::alevel::app,
+                                    "Set Proxy Basic Auth Error: " + ec.message());
+                        break;
+                    }
+                }
             }
 
             m_client.connect(con);
