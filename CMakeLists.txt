@@ -94,10 +94,9 @@ if(OPENSSL_FOUND)
     set_property(TARGET sioclient_tls PROPERTY CXX_STANDARD 11)
     set_property(TARGET sioclient_tls PROPERTY CXX_STANDARD_REQUIRED ON)
 
-    if(NOT USE_SUBMODULES)
-        target_link_libraries(sioclient_tls PRIVATE OpenSSL::SSL OpenSSL::Crypto websocketpp::websocketpp asio asio::asio rapidjson)
-    else()
-        target_link_libraries(sioclient_tls PRIVATE ${OPENSSL_LIBRARIES})
+    target_link_libraries(sioclient_tls PRIVATE OpenSSL::SSL OpenSSL::Crypto)
+    if (NOT USE_SUBMODULES) 
+        target_link_libraries(sioclient_tls PRIVATE websocketpp::websocketpp asio asio::asio rapidjson)
     endif()
 
     target_compile_definitions(sioclient_tls PRIVATE -DSIO_TLS)
