@@ -6,7 +6,7 @@ PROJECT(sioclient
 
 option(BUILD_SHARED_LIBS "Build the shared library" OFF)
 option(BUILD_UNIT_TESTS "Builds unit tests target" OFF)
-option(USE_SUBMODULES "Use source in local submodules instead of system libraries" OFF)
+option(USE_SUBMODULES "Use source in local submodules instead of system libraries" ON)
 
 set(MAJOR 1)
 set(MINOR 6)
@@ -158,7 +158,7 @@ install(
     FILES
     "${CMAKE_CURRENT_BINARY_DIR}/sioclient/sioclientConfig.cmake"
     "${CMAKE_CURRENT_BINARY_DIR}/sioclient/sioclientConfigVersion.cmake"
-    "${CMAKE_CURRENT_BINARY_DIR}/sioclient/sioclientConfigTargets.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/sioclient/sioclientTargets.cmake"
     DESTINATION
     ${ConfigPackageLocation}
 )
