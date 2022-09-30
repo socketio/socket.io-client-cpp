@@ -129,6 +129,8 @@ namespace sio
         void set_logs_quiet();
 
         void set_logs_verbose();
+		
+        void set_proxy_basic_auth(const std::string& uri, const std::string& username, const std::string& password);
 
     protected:
         void send(packet& p);
@@ -203,6 +205,9 @@ namespace sio
         std::string m_query_string;
         std::map<std::string, std::string> m_http_headers;
         message::ptr m_auth;
+        std::string m_proxy_base_url;
+        std::string m_proxy_basic_username;
+        std::string m_proxy_basic_password;
 
         unsigned int m_ping_interval;
         unsigned int m_ping_timeout;
