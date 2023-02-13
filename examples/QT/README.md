@@ -65,23 +65,6 @@ CONFIG+=c++11
 `no_keywords` is for preventing qmake treat some function's name `emit` as the keyword of signal-slot mechanism.
 `c++11` ask for C++11 support.
 
-##Import boost
-Suppose we now have our boost `headers` and a fat boost `static lib` named `libboost.a`(non-win32) or `boost.lib`(win32) ready.
-
-To import them we need to edit `SioChatDemo.pro` again,add header include:
-
-```bash
-INCLUDEPATH += `our boost headers folder`
-```
-
-also linker options:
-
-```bash
-win32:CONFIG(release, debug|release): LIBS += -L`our Win32 boost static lib folder` -lboost
-else:win32:CONFIG(debug, debug|release): LIBS += -L`our Win32 boost static lib folder` -lboost
-else:unix: LIBS += -L`our osx boost static lib folder` -lboost
-```
-
 ### Make up mainwindow ui.
 Make up a simple ui by drag and drop widget from `Widget box` in left side.
 
