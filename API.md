@@ -91,6 +91,16 @@ Get current namespace name which the client is inside.
 #### Constructors
 `client()` default constructor.
 
+`client(const std::string& uri)`
+
+Constructor with URI. This form of the constructor will select automatically
+between TLS and non-TLS versions of the client if you are linking with the
+TLS build. To use TLS, provide a URI with the `https://` or `wss://` scheme,
+otherwise use 'http://' or 'ws://'. If an unsupported scheme is given, an
+exception will be thrown.
+
+After constructing with this URI, you may call `connect()` with no arguments.
+
 #### Connection Listeners
 `void set_open_listener(con_listener const& l)`
 
@@ -130,6 +140,10 @@ Set listener for socket close event, called when any sockets being closed, after
 ```
 
 #### Connect and Close
+`void connect()`
+
+Connect to socket.io server URI previously given to the constructor.
+
 `void connect(const std::string& uri)`
 
 Connect to socket.io server, e.g., `client.connect("ws://localhost:3000");`

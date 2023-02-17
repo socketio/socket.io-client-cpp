@@ -15,19 +15,17 @@
 #if _DEBUG || DEBUG
 #if SIO_TLS
 #include <websocketpp/config/debug_asio.hpp>
-typedef websocketpp::config::debug_asio_tls client_config;
-#else
+typedef websocketpp::config::debug_asio_tls client_config_tls;
+#endif //SIO_TLS
 #include <websocketpp/config/debug_asio_no_tls.hpp>
 typedef websocketpp::config::debug_asio client_config;
-#endif //SIO_TLS
 #else
 #if SIO_TLS
 #include <websocketpp/config/asio_client.hpp>
-typedef websocketpp::config::asio_tls_client client_config;
-#else
+typedef websocketpp::config::asio_tls_client client_config_tls;
+#endif //SIO_TLS
 #include <websocketpp/config/asio_no_tls_client.hpp>
 typedef websocketpp::config::asio_client client_config;
-#endif //SIO_TLS
 #endif //DEBUG
 
 #if SIO_TLS
@@ -48,11 +46,13 @@ namespace sio
 {
     using namespace websocketpp;
     
-    typedef websocketpp::client<client_config> client_type;
-    
-    class client_impl {
-        
-    protected:
+    typedef websocketpp::client<client_config> client_type_no_tls;
+#if SIO_TLS
+    typedef websocketpp::client<client_config_tls> client_type_tls;
+#endif
+
+    class client_impl_base {
+    public:
         enum con_state
         {
             con_opening,
@@ -60,9 +60,61 @@ namespace sio
             con_closing,
             con_closed
         };
-        
-        client_impl();
-        
+
+        client_impl_base() {}
+        virtual ~client_impl_base() {}
+
+        // listeners and event bindings. (see SYNTHESIS_SETTER below)
+        virtual void set_open_listener(client::con_listener const&)=0;
+        virtual void set_fail_listener(client::con_listener const&)=0;
+        virtual void set_reconnect_listener(client::reconnect_listener const&)=0;
+        virtual void set_reconnecting_listener(client::con_listener const&)=0;
+        virtual void set_close_listener(client::close_listener const&)=0;
+        virtual void set_socket_open_listener(client::socket_listener const&)=0;
+        virtual void set_socket_close_listener(client::socket_listener const&)=0;
+
+        // used by sio::client
+        virtual void clear_con_listeners()=0;
+        virtual void clear_socket_listeners()=0;
+        virtual void connect(const std::string& uri, const std::map<std::string, std::string>& queryString,
+                             const std::map<std::string, std::string>& httpExtraHeaders)=0;
+        virtual sio::socket::ptr const& socket(const std::string& nsp)=0;
+        virtual void close()=0;
+        virtual void sync_close()=0;
+        virtual bool opened() const=0;
+        virtual std::string const& get_sessionid() const=0;
+        virtual void set_reconnect_attempts(unsigned attempts)=0;
+        virtual void set_reconnect_delay(unsigned millis)=0;
+        virtual void set_reconnect_delay_max(unsigned millis)=0;
+
+        // used by sio::socket
+        virtual void send(packet& p)=0;
+        virtual void remove_socket(std::string const& nsp)=0;
+        virtual asio::io_service& get_io_service()=0;
+        virtual void on_socket_closed(std::string const& nsp)=0;
+        virtual void on_socket_opened(std::string const& nsp)=0;
+
+        // used for selecting whether or not to use TLS
+        static bool is_tls(const std::string& uri);
+
+    protected:
+        // Wrap protected member functions of sio::socket because only client_impl_base is friended.
+        sio::socket* new_socket(std::string const&);
+        void socket_on_message_packet(sio::socket::ptr&, packet const&);
+        typedef void (sio::socket::*socket_void_fn)(void);
+        inline socket_void_fn socket_on_close() { return &sio::socket::on_close; }
+        inline socket_void_fn socket_on_disconnect() { return &sio::socket::on_disconnect; }
+        inline socket_void_fn socket_on_open() { return &sio::socket::on_open; }
+    };
+
+    template<typename client_type>
+    class client_impl: public client_impl_base {
+    public:
+        typedef typename client_type::message_ptr message_ptr;
+
+        client_impl(const std::string& uri = std::string());
+        void template_init(); // template-specific initialization
+
         ~client_impl();
         
         //set listeners and event bindings.
@@ -123,7 +175,7 @@ namespace sio
 
         void set_reconnect_delay_max(unsigned millis) {m_reconn_delay_max = millis;if(m_reconn_delay>millis) m_reconn_delay = millis;}
         
-    protected:
+    public:
         void send(packet& p);
         
         void remove_socket(std::string const& nsp);
@@ -165,7 +217,7 @@ namespace sio
 
         void on_close(connection_hdl con);
 
-        void on_message(connection_hdl con, client_type::message_ptr msg);
+        void on_message(connection_hdl con, message_ptr msg);
 
         //socketio callbacks
         void on_handshake(message::ptr const& message);
@@ -176,15 +228,9 @@ namespace sio
 
         void clear_timers();
         
-        #if SIO_TLS
-        typedef websocketpp::lib::shared_ptr<asio::ssl::context> context_ptr;
-        
-        context_ptr on_tls_init(connection_hdl con);
-        #endif
-        
         // Percent encode query string
         std::string encode_query_string(const std::string &query);
-
+        
         // Connection pointer for client functions.
         connection_hdl m_con;
         client_type m_client;
