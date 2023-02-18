@@ -392,15 +392,16 @@ namespace sio
 
     void client_impl::on_fail(connection_hdl)
     {
-        if (m_con_state == con_closing) {
-            LOG("Connection failed while closing." << endl);
-            this->close();
-            return;
-        }
-
+        con_state m_con_state_was = m_con_state;
         m_con.reset();
         m_con_state = con_closed;
         this->sockets_invoke_void(&sio::socket::on_disconnect);
+
+        if (m_con_state_was == con_closing) {
+            LOG("Connection failed while closing." << endl);
+            return;
+        }
+
         LOG("Connection failed." << endl);
         if(m_reconn_made<m_reconn_attempts && !m_abort_retries)
         {
@@ -420,16 +421,18 @@ namespace sio
     
     void client_impl::on_open(connection_hdl con)
     {
-        if (m_con_state == con_closing) {
+        con_state m_con_state_was = m_con_state;
+        LOG("Connected." << endl);
+        m_con_state = con_opened;
+        m_con = con;
+        m_reconn_made = 0;
+
+        if (m_con_state_was == con_closing) {
             LOG("Connection opened while closing." << endl);
             this->close();
             return;
         }
 
-        LOG("Connected." << endl);
-        m_con_state = con_opened;
-        m_con = con;
-        m_reconn_made = 0;
         this->sockets_invoke_void(&sio::socket::on_open);
         this->socket("");
         if(m_open_listener)m_open_listener();
