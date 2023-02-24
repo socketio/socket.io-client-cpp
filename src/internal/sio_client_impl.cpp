@@ -31,7 +31,7 @@ using namespace std;
 namespace sio
 {
     /*************************public:*************************/
-    client_impl::client_impl() :
+    client_impl::client_impl(client_options const& options) :
         m_ping_interval(0),
         m_ping_timeout(0),
         m_network_thread(),
@@ -47,7 +47,11 @@ namespace sio
         m_client.set_access_channels(alevel::connect|alevel::disconnect|alevel::app);
 #endif
         // Initialize the Asio transport policy
-        m_client.init_asio();
+        if (options.io_service != nullptr) {
+            m_client.init_asio(options.io_service);
+        } else {
+            m_client.init_asio();
+        }
 
         // Bind the clients we are using
         using std::placeholders::_1;

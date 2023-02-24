@@ -8,12 +8,17 @@
 #define SIO_CLIENT_H
 #include <string>
 #include <functional>
+#include <asio/io_service.hpp>
 #include "sio_message.h"
 #include "sio_socket.h"
 
 namespace sio
 {
     class client_impl;
+
+    struct client_options {
+        asio::io_service* io_service = nullptr;
+    };
     
     class client {
     public:
@@ -31,7 +36,7 @@ namespace sio
         
         typedef std::function<void(std::string const& nsp)> socket_listener;
         
-        client();
+        client(client_options const& options);
         ~client();
         
         //set listeners and event bindings.
