@@ -471,7 +471,7 @@ namespace sio
 
         context_ptr on_tls_init(connection_hdl)
         {
-            context_ptr ctx = context_ptr(new  asio::ssl::context(asio::ssl::context::tlsv1));
+            context_ptr ctx = context_ptr(new  asio::ssl::context(asio::ssl::context::tlsv12));
             asio::error_code ec;
             ctx->set_options(asio::ssl::context::default_workarounds |
                                  asio::ssl::context::no_sslv2 |
