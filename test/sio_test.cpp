@@ -209,7 +209,8 @@ TEST_CASE( "test_packet_parse_4" )
     bool hasbin = p.parse("452-/nsp,101[\"bin_event\",[{\"_placeholder\":true,\"num\":1},{\"_placeholder\":true,\"num\":0},\"text\"]]");
     CHECK(hasbin);
     char buf[100];
-    memset(buf,0,100);
+    buf[0] = packet::frame_message;
+    memset(buf + 1,0,99);
 
     std::string bufstr(buf,100);
     std::string bufstr2(buf,50);
