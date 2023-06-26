@@ -7,6 +7,7 @@ PROJECT(sioclient
 option(BUILD_SHARED_LIBS "Build the shared library" OFF)
 option(BUILD_UNIT_TESTS "Builds unit tests target" OFF)
 option(USE_SUBMODULES "Use source in local submodules instead of system libraries" ON)
+option(DISABLE_LOGGING "Do not print logging messages" OFF)
 
 set(MAJOR 1)
 set(MINOR 6)
@@ -27,7 +28,6 @@ aux_source_directory(${CMAKE_CURRENT_LIST_DIR}/src/internal ALL_SRC)
 file(GLOB ALL_HEADERS ${CMAKE_CURRENT_LIST_DIR}/src/*.h)
 
 add_definitions(
-
     # These will force ASIO to compile without Boost
     -DBOOST_DATE_TIME_NO_LIB
     -DBOOST_REGEX_NO_LIB
@@ -39,6 +39,10 @@ add_definitions(
     -D_WEBSOCKETPP_CPP11_TYPE_TRAITS_
     -D_WEBSOCKETPP_CPP11_CHRONO_
 )
+
+if (DISABLE_LOGGING)
+    add_definitions(-DSIO_DISABLE_LOGGING)
+endif()
 
 add_library(sioclient ${ALL_SRC})
 

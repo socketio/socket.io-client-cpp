@@ -13,7 +13,7 @@
 #include <mutex>
 #include <cmath>
 // Comment this out to disable handshake logging to stdout
-#if DEBUG || _DEBUG
+#if (DEBUG || _DEBUG) && !defined(SIO_DISABLE_LOGGING)
 #define LOG(x) std::cout << x
 #else
 #define LOG(x)
