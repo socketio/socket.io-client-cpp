@@ -10,8 +10,7 @@
 #include <iostream>
 #include <thread>
 
-#define CATCH_CONFIG_MAIN  // This tells Catch to provide a main() - only do this in one cpp file
-#include "catch.hpp"
+#include <catch2/catch_test_macros.hpp>
 
 #ifndef _WIN32
 #include "json.hpp" //nlohmann::json cannot build in MSVC
@@ -55,7 +54,7 @@ TEST_CASE( "test_packet_accept_1" )
     p.accept(payload,buffers);
     CHECK(buffers.size() == 0);
     CHECK(payload == "40/nsp");
-    INFO("outputing payload:" << payload)
+    INFO("outputing payload:" << payload);
 }
 
 TEST_CASE( "test_packet_accept_2" )
@@ -66,7 +65,7 @@ TEST_CASE( "test_packet_accept_2" )
     p.accept(payload,buffers);
     CHECK(buffers.size() == 0);
     CHECK(payload == "2");
-    INFO("outputing payload:" << payload)
+    INFO("outputing payload:" << payload);
 }
 
 TEST_CASE( "test_packet_accept_3" )
@@ -81,7 +80,7 @@ TEST_CASE( "test_packet_accept_3" )
     CHECK(p.get_type() == packet::type_ack);
     CHECK(buffers.size() == 0);
     CHECK(payload == "43/nsp,1001[\"event\",\"text\"]");
-    INFO("outputing payload:" << payload)
+    INFO("outputing payload:" << payload);
 }
 
 #ifndef _WIN32
@@ -106,26 +105,26 @@ TEST_CASE( "test_packet_accept_4" )
     REQUIRE(json_start!=std::string::npos);
     std::string header = payload.substr(0,json_start);
     CHECK(header=="452-/nsp,1001");
-    INFO("outputing payload:" << payload)
+    INFO("outputing payload:" << payload);
     std::string json = payload.substr(json_start);
     nlohmann::json j = nlohmann::json::parse(json);
     CHECK(j["desc"].get<std::string>() == "Bin of 100 bytes");
-    INFO("outputing payload desc::" << j["desc"].get<std::string>())
+    INFO("outputing payload desc::" << j["desc"].get<std::string>());
     CHECK((bool)j["bin1"]["_placeholder"]);
-    INFO("outputing payload bin1:" << j["bin1"].dump())
+    INFO("outputing payload bin1:" << j["bin1"].dump());
     CHECK((bool)j["bin2"]["_placeholder"]);
-    INFO("outputing payload bin2:" << j["bin2"].dump())
+    INFO("outputing payload bin2:" << j["bin2"].dump());
     int bin1Num = j["bin1"]["num"].get<int>();
     char numchar[] = {0,0};
     numchar[0] = bin1Num+'0';
     CHECK(buffers[bin1Num]->length()==100);
-    INFO("outputing payload bin1 num:" << numchar)
+    INFO("outputing payload bin1 num:" << numchar);
     CHECK(buffers[bin1Num]->at(50)==0);
     CHECK(buffers[bin1Num]->at(0) == 0);
     int bin2Num = j["bin2"]["num"].get<int>();
     numchar[0] = bin2Num+'0';
     CHECK(buffers[bin2Num]->length()==50);
-    INFO("outputing payload bin2 num:" << numchar)
+    INFO("outputing payload bin2 num:" << numchar);
     CHECK(buffers[bin2Num]->at(25)==1);
     CHECK(buffers[bin2Num]->at(0) == 1);
 }
@@ -210,7 +209,8 @@ TEST_CASE( "test_packet_parse_4" )
     bool hasbin = p.parse("452-/nsp,101[\"bin_event\",[{\"_placeholder\":true,\"num\":1},{\"_placeholder\":true,\"num\":0},\"text\"]]");
     CHECK(hasbin);
     char buf[100];
-    memset(buf,0,100);
+    buf[0] = packet::frame_message;
+    memset(buf + 1,0,99);
 
     std::string bufstr(buf,100);
     std::string bufstr2(buf,50);
