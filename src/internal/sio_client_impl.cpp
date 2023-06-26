@@ -47,8 +47,8 @@ namespace sio
         m_client.set_access_channels(alevel::connect|alevel::disconnect|alevel::app);
 #endif
         // Initialize the Asio transport policy
-        if (options.io_service != nullptr) {
-            m_client.init_asio(options.io_service);
+        if (options.io_context != nullptr) {
+            m_client.init_asio(options.io_context);
         } else {
             m_client.init_asio();
         }
