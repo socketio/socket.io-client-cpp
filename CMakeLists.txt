@@ -7,6 +7,7 @@ PROJECT(sioclient
 option(BUILD_SHARED_LIBS "Build the shared library" OFF)
 option(BUILD_UNIT_TESTS "Builds unit tests target" OFF)
 option(USE_SUBMODULES "Use source in local submodules instead of system libraries" ON)
+option(DISABLE_LOGGING "Do not print logging messages" OFF)
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     set(DEFAULT_BUILD_TYPE "Release")
@@ -38,6 +39,10 @@ add_definitions(
     -D_WEBSOCKETPP_CPP11_TYPE_TRAITS_
     -D_WEBSOCKETPP_CPP11_CHRONO_
 )
+
+if (DISABLE_LOGGING)
+    add_definitions(-DSIO_DISABLE_LOGGING)
+endif()
 
 set(ALL_SRC 
     "src/sio_client.cpp"
