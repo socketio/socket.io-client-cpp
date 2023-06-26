@@ -9,10 +9,6 @@ option(BUILD_UNIT_TESTS "Builds unit tests target" OFF)
 option(USE_SUBMODULES "Use source in local submodules instead of system libraries" ON)
 option(DISABLE_LOGGING "Do not print logging messages" OFF)
 
-set(MAJOR 1)
-set(MINOR 6)
-set(PATCH 0)
-
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     set(DEFAULT_BUILD_TYPE "Release")
     message(STATUS "Setting build type to '${DEFAULT_BUILD_TYPE}' as none was specified.")
@@ -22,10 +18,14 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
 
-aux_source_directory(${CMAKE_CURRENT_LIST_DIR}/src ALL_SRC)
-aux_source_directory(${CMAKE_CURRENT_LIST_DIR}/src/internal ALL_SRC)
-
-file(GLOB ALL_HEADERS ${CMAKE_CURRENT_LIST_DIR}/src/*.h)
+# Only do these if this is the main project, and not if it is included through add_subdirectory
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+    # Testing only available if this is the main app
+    # Note this needs to be done in the main CMakeLists
+    # since it calls enable_testing, which must be in the
+    # main CMakeLists.
+    include(CTest)
+endif()
 
 add_definitions(
     # These will force ASIO to compile without Boost
@@ -44,6 +44,12 @@ if (DISABLE_LOGGING)
     add_definitions(-DSIO_DISABLE_LOGGING)
 endif()
 
+set(ALL_SRC 
+    "src/sio_client.cpp"
+    "src/sio_socket.cpp"
+    "src/internal/sio_client_impl.cpp"
+    "src/internal/sio_packet.cpp"
+)
 add_library(sioclient ${ALL_SRC})
 
 if(USE_SUBMODULES)
@@ -59,25 +65,22 @@ else()
     target_link_libraries(sioclient PRIVATE websocketpp::websocketpp asio asio::asio rapidjson)
 endif()
 
-target_include_directories(sioclient PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+target_include_directories(sioclient 
+    PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
     PRIVATE
     ${MODULE_INCLUDE_DIRS}
 )
 
-if(CMAKE_VERSION VERSION_GREATER "3.1")
-    set_property(TARGET sioclient PROPERTY CXX_STANDARD 11)
-    set_property(TARGET sioclient PROPERTY CXX_STANDARD_REQUIRED ON)
-else()
-    set_property(TARGET sioclient APPEND_STRING PROPERTY COMPILE_FLAGS "-std=c++11")
-endif()
+set_property(TARGET sioclient PROPERTY CXX_STANDARD 11)
+set_property(TARGET sioclient PROPERTY CXX_STANDARD_REQUIRED ON)
 
 if(BUILD_SHARED_LIBS)
     set_target_properties(sioclient
         PROPERTIES
-        SOVERSION ${MAJOR}
-        VERSION ${MAJOR}.${MINOR}.${PATCH}
+        SOVERSION ${PROJECT_VERSION_MAJOR}
+        VERSION ${PROJECT_VERSION}
     )
 endif()
 
@@ -88,7 +91,7 @@ find_package(OpenSSL)
 if(OPENSSL_FOUND)
     add_library(sioclient_tls ${ALL_SRC})
     target_include_directories(sioclient_tls PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
         PRIVATE
         ${MODULE_INCLUDE_DIRS}
@@ -108,8 +111,8 @@ if(OPENSSL_FOUND)
     if(BUILD_SHARED_LIBS)
         set_target_properties(sioclient_tls
             PROPERTIES
-            SOVERSION ${MAJOR}
-            VERSION ${MAJOR}.${MINOR}.${PATCH}
+            SOVERSION ${PROJECT_VERSION_MAJOR}
+            VERSION ${PROJECT_VERSION}
         )
     endif()
 
@@ -120,6 +123,7 @@ export(PACKAGE sioclient)
 
 include(GNUInstallDirs)
 
+file(GLOB ALL_HEADERS ${CMAKE_CURRENT_LIST_DIR}/src/*.h)
 install(FILES ${ALL_HEADERS}
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
@@ -167,8 +171,6 @@ install(
     ${ConfigPackageLocation}
 )
 
-if(BUILD_UNIT_TESTS)
-    message(STATUS "Building with unit test support.")
-    enable_testing()
+if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING) OR BUILD_UNIT_TESTS)
     add_subdirectory(test)
 endif()
