@@ -62,7 +62,7 @@ namespace sio
             con_closed
         };
         
-        client_impl();
+        client_impl(client_options const& options);
         
         ~client_impl();
         
