@@ -8,7 +8,7 @@
 #include <cstdarg>
 #include <functional>
 
-#if DEBUG || _DEBUG
+#if (DEBUG || _DEBUG) && !defined(SIO_DISABLE_LOGGING)
 #define LOG(x) std::cout << x
 #else
 #define LOG(x)
