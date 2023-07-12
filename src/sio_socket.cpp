@@ -115,6 +115,10 @@ namespace sio
         
         void on(std::string const& event_name,event_listener const& func);
         
+        void on_any(event_listener_aux const& func);
+
+        void on_any(event_listener const& func);
+
         void off(std::string const& event_name);
         
         void off_all();
@@ -179,6 +183,8 @@ namespace sio
         
         std::map<std::string, event_listener> m_event_binding;
         
+        event_listener m_event_listener;
+
         error_listener m_error_listener;
         
         std::unique_ptr<asio::steady_timer> m_connection_timer;
@@ -203,6 +209,16 @@ namespace sio
         m_event_binding[event_name] = func;
     }
     
+    void socket::impl::on_any(event_listener_aux const& func)
+    {
+        m_event_listener = event_adapter::do_adapt(func);
+    }
+    
+    void socket::impl::on_any(event_listener const& func)
+    {
+        m_event_listener = func;
+    }
+
     void socket::impl::off(std::string const& event_name)
     {
         std::lock_guard<std::mutex> guard(m_event_mutex);
@@ -443,6 +459,8 @@ namespace sio
         event ev = event_adapter::create_event(nsp,name, std::move(message),needAck);
         event_listener func = this->get_bind_listener_locked(name);
         if(func)func(ev);
+        if (m_event_listener)
+            m_event_listener(ev);
         if(needAck)
         {
             this->ack(msgId, name, ev.get_ack_message());
@@ -545,6 +563,16 @@ namespace sio
         m_impl->on(event_name, func);
     }
     
+    void socket::on_any(event_listener_aux const& func)
+    {
+        m_impl->on_any(func);
+    }
+    
+    void socket::on_any(event_listener const& func)
+    {
+        m_impl->on_any(func);
+    }
+
     void socket::off(std::string const& event_name)
     {
         m_impl->off(event_name);

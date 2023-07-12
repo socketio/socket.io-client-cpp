@@ -62,6 +62,10 @@ namespace sio
         
         void off(std::string const& event_name);
         
+        void on_any(event_listener const& func);
+
+        void on_any(event_listener_aux const& func);
+
         void off_all();
         
         void close();
