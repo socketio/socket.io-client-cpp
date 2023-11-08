@@ -459,8 +459,7 @@ namespace sio
         event ev = event_adapter::create_event(nsp,name, std::move(message),needAck);
         event_listener func = this->get_bind_listener_locked(name);
         if(func)func(ev);
-        if (m_event_listener)
-            m_event_listener(ev);
+        if (m_event_listener) m_event_listener(ev);
         if(needAck)
         {
             this->ack(msgId, name, ev.get_ack_message());
