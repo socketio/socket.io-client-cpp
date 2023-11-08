@@ -557,6 +557,19 @@ failed:
         {
         case packet::frame_message:
         {
+	    // Special event for sid sync
+            if (p.get_type() == packet::type_connect) {
+                auto message = p.get_message();
+                if (message && message->get_flag() == message::flag_object)
+                {
+                    const object_message* obj_ptr = static_cast<object_message*>(message.get());
+                    const std::map<std::string, message::ptr>* values = &(obj_ptr->get_map());
+                    auto it = values->find("sid");
+                    if (it != values->end()) {
+                        m_sid = std::static_pointer_cast<string_message>(it->second)->get_string();
+                    }
+                }
+            }
             socket::ptr so_ptr = get_socket_locked(p.get_nsp());
             if(so_ptr)so_ptr->on_message_packet(p);
             break;
