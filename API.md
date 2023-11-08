@@ -21,7 +21,7 @@ You can get it's pointer by `client.socket(namespace)`.
 #### Event Emitter
 `void emit(std::string const& name, message::list const& msglist, std::function<void (message::ptr const&)> const& ack)`
 
-Universal event emition interface, by applying implicit conversion magic, it is backward compatible with all previous `emit` interfaces.
+Universal event emission interface, by applying implicit conversion magic, it is backward compatible with all previous `emit` interfaces.
 
 #### Event Bindings
 `void on(std::string const& event_name,event_listener const& func)`
