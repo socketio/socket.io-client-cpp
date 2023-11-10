@@ -140,7 +140,7 @@ Close the client, return immediately.
 
 `void sync_close()`
 
-Close the client, return until it is really closed.
+Close the client, don't return until it is really closed.
 
 `bool opened() const`
 
