@@ -19,7 +19,7 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 # Only do these if this is the main project, and not if it is included through add_subdirectory
-if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING) OR BUILD_UNIT_TESTS)
     # Testing only available if this is the main app
     # Note this needs to be done in the main CMakeLists
     # since it calls enable_testing, which must be in the
