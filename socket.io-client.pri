@@ -45,7 +45,18 @@ win32 {
 clang:SOCKET_IO_CLIENT_BIN = $$SOCKET_IO_CLIENT_BIN-clang
 else::gcc:SOCKET_IO_CLIENT_BIN = $$SOCKET_IO_CLIENT_BIN-gcc
 
-SOCKET_IO_CLIENT_BIN = $$SOCKET_IO_CLIENT_BIN-$$QT_ARCH
+ARCH = $$QT_ARCH
+macx {
+    isEqual(QMAKE_APPLE_DEVICE_ARCHS, "x86_64") {
+        ARCH = $$QMAKE_APPLE_DEVICE_ARCHS
+    } else:isEqual(QMAKE_APPLE_DEVICE_ARCHS, "arm64") {
+        ARCH = $$QMAKE_APPLE_DEVICE_ARCHS
+    } else:contains(QMAKE_APPLE_DEVICE_ARCHS, "x86_64"):contains(QMAKE_APPLE_DEVICE_ARCHS, "arm64") {
+        ARCH = "universal"
+    }
+}
+
+SOCKET_IO_CLIENT_BIN = $$SOCKET_IO_CLIENT_BIN-$$ARCH
 
 CONFIG(debug, debug|release) {
     SOCKET_IO_CLIENT_BIN = $$SOCKET_IO_CLIENT_BIN/debug
