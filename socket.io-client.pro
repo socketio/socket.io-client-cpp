@@ -23,6 +23,7 @@ msvc {
 } else:clang|gcc {
     QMAKE_CXXFLAGS_WARN_ON += \
         -Wno-null-pointer-subtraction \
+        -Wno-deprecated-declarations \
         -Wno-unknown-warning-option \
         -Wno-unknown-warning \
         -Wno-unused-command-line-argument

@@ -100,7 +100,7 @@ namespace sio
             string query_str_value=encode_query_string(it->second);
             query_str.append(query_str_value);
         }
-        m_query_string=move(query_str);
+        m_query_string = std::move(query_str);
 
         m_http_headers = headers;
 
