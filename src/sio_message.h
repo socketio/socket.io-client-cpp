@@ -204,7 +204,7 @@ namespace sio
         }
 
         string_message(std::string&& v)
-            :message(flag_string),_v(move(v))
+            :message(flag_string),_v(std::move(v))
         {
         }
     public:
@@ -215,7 +215,7 @@ namespace sio
 
         static message::ptr create(std::string&& v)
         {
-            return ptr(new string_message(move(v)));
+            return ptr(new string_message(std::move(v)));
         }
 
         std::string const& get_string() const
@@ -269,7 +269,7 @@ namespace sio
 
         void push(std::string&& text)
         {
-            _v.push_back(string_message::create(move(text)));
+            _v.push_back(string_message::create(std::move(text)));
         }
 
         void push(std::shared_ptr<std::string> const& binary)
@@ -296,7 +296,7 @@ namespace sio
 
         void insert(size_t pos,std::string&& text)
         {
-            _v.insert(_v.begin()+pos, string_message::create(move(text)));
+            _v.insert(_v.begin()+pos, string_message::create(std::move(text)));
         }
 
         void insert(size_t pos,std::shared_ptr<std::string> const& binary)
@@ -361,7 +361,7 @@ namespace sio
 
         void insert(const std::string & key,std::string&& text)
         {
-            _v[key] = string_message::create(move(text));
+            _v[key] = string_message::create(std::move(text));
         }
 
         void insert(const std::string & key,std::shared_ptr<std::string> const& binary)
@@ -461,7 +461,7 @@ namespace sio
 
         list(std::string&& text)
         {
-            m_vector.push_back(string_message::create(move(text)));
+            m_vector.push_back(string_message::create(std::move(text)));
         }
 
         list(std::shared_ptr<std::string> const& binary)
@@ -489,7 +489,7 @@ namespace sio
 
         void push(std::string&& text)
         {
-            m_vector.push_back(string_message::create(move(text)));
+            m_vector.push_back(string_message::create(std::move(text)));
         }
 
         void push(std::shared_ptr<std::string> const& binary)
@@ -516,7 +516,7 @@ namespace sio
 
         void insert(size_t pos,std::string&& text)
         {
-            m_vector.insert(m_vector.begin()+pos, string_message::create(move(text)));
+            m_vector.insert(m_vector.begin()+pos, string_message::create(std::move(text)));
         }
 
         void insert(size_t pos,std::shared_ptr<std::string> const& binary)
