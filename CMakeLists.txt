@@ -65,6 +65,8 @@ else()
     target_link_libraries(sioclient PRIVATE websocketpp::websocketpp asio asio::asio rapidjson)
 endif()
 
+include(GNUInstallDirs)
+
 target_include_directories(sioclient 
     PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
@@ -120,8 +122,6 @@ if(OPENSSL_FOUND)
 endif()
 
 export(PACKAGE sioclient)
-
-include(GNUInstallDirs)
 
 file(GLOB ALL_HEADERS ${CMAKE_CURRENT_LIST_DIR}/src/*.h)
 install(FILES ${ALL_HEADERS}
