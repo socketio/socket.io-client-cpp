@@ -119,7 +119,7 @@ namespace sio
         void clear_socket_listeners();
 
         // opens connection
-        void connect(const std::string& uri, const std::map<std::string, std::string>& queryString, const std::map<std::string, std::string>& httpExtraHeaders);
+        void connect(const std::string& uri, const std::map<std::string, std::string>& queryString, std::map<std::string, std::string> httpExtraHeaders);
 
         sio::socket::ptr const& socket(const std::string& nsp);
 

@@ -74,7 +74,7 @@ namespace sio
         connect(uri, query, {});
     }
 
-    void client::connect(const std::string& uri, const std::map<std::string,std::string>& query, const std::map<std::string,std::string>& http_extra_headers)
+    void client::connect(const std::string& uri, const std::map<std::string,std::string>& query, std::map<std::string,std::string> http_extra_headers)
     {
 #ifdef HAVE_OPENSSL
         if ((uri.length() > 8 && memcmp(uri.c_str(), "https://", 8) == 0)
@@ -90,7 +90,7 @@ namespace sio
             m_impl.reset(new client_impl<non_tls_client_config>(*m_impl));
         }
 #endif
-        m_impl->connect(uri, query, http_extra_headers);
+        m_impl->connect(uri, query, std::move(http_extra_headers));
     }
 
     socket::ptr const& client::socket(const std::string& nsp)

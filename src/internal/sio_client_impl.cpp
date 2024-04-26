@@ -65,7 +65,7 @@ namespace sio
         m_socket_close_listener = nullptr;
     }
 
-    void client_impl_base::connect(const string& uri, const map<string,string>& query, const map<string, string>& headers)
+    void client_impl_base::connect(const string& uri, const map<string,string>& query, map<string, string> headers)
     {
         if(m_reconn_timer)
         {
@@ -93,7 +93,7 @@ namespace sio
         m_reconn_made = 0;
 
         string query_str;
-        for(map<string,string>::const_iterator it=query.begin();it!=query.end();++it){
+        for(auto it=query.begin();it!=query.end();++it){
             query_str.append("&");
             query_str.append(it->first);
             query_str.append("=");
@@ -102,7 +102,7 @@ namespace sio
         }
         m_query_string = std::move(query_str);
 
-        m_http_headers = headers;
+        m_http_headers = std::move(headers);
 
         reset_states();
         get_io_service().dispatch(std::bind(&client_impl_base::connect_impl,this,uri,m_query_string));
