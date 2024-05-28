@@ -78,7 +78,7 @@ target_include_directories(sioclient
 target_compile_features(sioclient PUBLIC cxx_std_11)
 
 find_package(Threads REQUIRED)
-target_link_libraries(sioclient PRIVATE Threads::Threads)
+target_link_libraries(sioclient PUBLIC Threads::Threads)
 
 if(BUILD_SHARED_LIBS)
     set_target_properties(sioclient
@@ -109,7 +109,7 @@ if(OPENSSL_FOUND)
     endif()
 
     target_compile_definitions(sioclient_tls PRIVATE -DSIO_TLS)
-    target_link_libraries(sioclient_tls PRIVATE Threads::Threads)
+    target_link_libraries(sioclient_tls PUBLIC Threads::Threads)
 
     if(BUILD_SHARED_LIBS)
         set_target_properties(sioclient_tls
