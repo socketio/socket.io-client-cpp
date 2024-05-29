@@ -7,8 +7,8 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(Catch2)
 
+find_package(Threads REQUIRED)
+
 add_executable(sio_test sio_test.cpp)
-set_property(TARGET sio_test PROPERTY CXX_STANDARD 11)
-set_property(TARGET sio_test PROPERTY CXX_STANDARD_REQUIRED ON)
-target_link_libraries(sio_test PRIVATE Catch2::Catch2WithMain sioclient)
+target_link_libraries(sio_test PRIVATE Catch2::Catch2WithMain sioclient Threads::Threads)
 add_test(sioclient_test sio_test)

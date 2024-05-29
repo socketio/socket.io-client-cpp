@@ -44,7 +44,7 @@ if (DISABLE_LOGGING)
     add_definitions(-DSIO_DISABLE_LOGGING)
 endif()
 
-set(ALL_SRC 
+set(ALL_SRC
     "src/sio_client.cpp"
     "src/sio_socket.cpp"
     "src/internal/sio_client_impl.cpp"
@@ -67,7 +67,7 @@ endif()
 
 include(GNUInstallDirs)
 
-target_include_directories(sioclient 
+target_include_directories(sioclient
     PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
@@ -75,8 +75,10 @@ target_include_directories(sioclient
     ${MODULE_INCLUDE_DIRS}
 )
 
-set_property(TARGET sioclient PROPERTY CXX_STANDARD 11)
-set_property(TARGET sioclient PROPERTY CXX_STANDARD_REQUIRED ON)
+target_compile_features(sioclient PUBLIC cxx_std_11)
+
+find_package(Threads REQUIRED)
+target_link_libraries(sioclient PUBLIC Threads::Threads)
 
 if(BUILD_SHARED_LIBS)
     set_target_properties(sioclient
@@ -100,15 +102,14 @@ if(OPENSSL_FOUND)
         ${OPENSSL_INCLUDE_DIR}
     )
 
-    set_property(TARGET sioclient_tls PROPERTY CXX_STANDARD 11)
-    set_property(TARGET sioclient_tls PROPERTY CXX_STANDARD_REQUIRED ON)
-
+    target_compile_features(sioclient_tls PUBLIC cxx_std_11)
     target_link_libraries(sioclient_tls PRIVATE OpenSSL::SSL OpenSSL::Crypto)
-    if (NOT USE_SUBMODULES) 
+    if (NOT USE_SUBMODULES)
         target_link_libraries(sioclient_tls PRIVATE websocketpp::websocketpp asio asio::asio rapidjson)
     endif()
 
     target_compile_definitions(sioclient_tls PRIVATE -DSIO_TLS)
+    target_link_libraries(sioclient_tls PUBLIC Threads::Threads)
 
     if(BUILD_SHARED_LIBS)
         set_target_properties(sioclient_tls
