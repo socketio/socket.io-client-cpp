@@ -7,5 +7,6 @@ Makefile
 cmake_install.cmake
 install_manifest.txt
 libsioclient.a
+sio_test
 .DS_Store
 .cache/
