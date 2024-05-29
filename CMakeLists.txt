@@ -102,7 +102,7 @@ if(OPENSSL_FOUND)
         ${OPENSSL_INCLUDE_DIR}
     )
 
-    targeet_compile_features(sioclient_tls PUBLIC cxx_std_11)
+    target_compile_features(sioclient_tls PUBLIC cxx_std_11)
     target_link_libraries(sioclient_tls PRIVATE OpenSSL::SSL OpenSSL::Crypto)
     if (NOT USE_SUBMODULES)
         target_link_libraries(sioclient_tls PRIVATE websocketpp::websocketpp asio asio::asio rapidjson)
