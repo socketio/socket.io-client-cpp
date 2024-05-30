@@ -45,6 +45,7 @@ Note: Only the WebSocket transport is currently implemented (no fallback to HTTP
 * [With CMAKE](./INSTALL.md#with-cmake)
 * [Without CMAKE](./INSTALL.md#without-cmake)
 * [With VCPKG](./INSTALL.md#with-vcpkg)
+* [With Conan](./INSTALL.md#with-conan)
 * [iOS and OS X](./INSTALL_IOS.md)
  * Option 1: Cocoapods
  * Option 2: Create a static library
