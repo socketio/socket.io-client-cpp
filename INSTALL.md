@@ -26,3 +26,14 @@ vcpkg install socket-io-client
 ```
 
 The Socket.IO client port in vcpkg is kept up to date by Microsoft team members and community contributors. If the version is out of date, please [create an issue or pull request](https://github.com/Microsoft/vcpkg) on the vcpkg repository.
+
+### With Conan
+
+You can install pre-built binaries for Socket.IO C++ client or build it from source using [Conan](https://conan.io/). Use the following command:
+
+```
+conan install --requires="sioclient/[*]" --build=missing
+```
+
+The Socket.IO client Conan recipe is kept up to date by Conan maintainers and community contributors.
+If the version is out of date, please [create an issue or pull request](https://github.com/conan-io/conan-center-index) on the ConanCenterIndex repository.

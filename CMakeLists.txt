@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.12...3.27 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.12...3.27)
 
 PROJECT(sioclient
     VERSION 3.1.0
@@ -62,7 +62,7 @@ else()
     find_package(websocketpp CONFIG REQUIRED)
     find_package(asio CONFIG REQUIRED)
     find_package(RapidJSON CONFIG REQUIRED)
-    target_link_libraries(sioclient PRIVATE websocketpp::websocketpp asio asio::asio rapidjson)
+    target_link_libraries(sioclient PRIVATE websocketpp::websocketpp asio::asio rapidjson)
 endif()
 
 include(GNUInstallDirs)
