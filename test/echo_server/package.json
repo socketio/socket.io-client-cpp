@@ -3,6 +3,6 @@
     "author": "Melo Yao",
     "version": "0.0.0",
     "dependencies": {
-        "socket.io": "^3.0.5"
+        "socket.io": "^4.6.1"
     }
 }
