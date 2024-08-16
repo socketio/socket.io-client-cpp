@@ -339,6 +339,7 @@ namespace sio
         virtual void close_impl(websocketpp::close::status::value const& code,std::string const& reason) override
         {
             LOG("Close by reason:"<<reason << endl);
+            clear_timers();
             if(m_reconn_timer)
             {
                 m_reconn_timer->cancel();
