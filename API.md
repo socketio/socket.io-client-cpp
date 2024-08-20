@@ -21,7 +21,7 @@ You can get it's pointer by `client.socket(namespace)`.
 #### Event Emitter
 `void emit(std::string const& name, message::list const& msglist, std::function<void (message::ptr const&)> const& ack)`
 
-Universal event emition interface, by applying implicit conversion magic, it is backward compatible with all previous `emit` interfaces.
+Universal event emission interface, by applying implicit conversion magic, it is backward compatible with all previous `emit` interfaces.
 
 #### Event Bindings
 `void on(std::string const& event_name,event_listener const& func)`
@@ -140,7 +140,7 @@ Close the client, return immediately.
 
 `void sync_close()`
 
-Close the client, return until it is really closed.
+Close the client, don't return until it is really closed.
 
 `bool opened() const`
 
@@ -167,6 +167,19 @@ Set listener for reconnecting is in process.
 `void set_reconnect_listener(reconnect_listener const& l)`
 
 Set listener for reconnecting event, called once a delayed connecting is scheduled.
+
+#### Logs
+`void set_logs_default()`
+
+Configure logs to the default level (connect, disconnect, app)
+
+`void set_logs_quiet()`
+
+Configure logs to the quiet level
+
+`void set_logs_verbose()`
+
+Configure logs to the verbose level
 
 #### Namespace
 `socket::ptr socket(std::string const& nsp)`

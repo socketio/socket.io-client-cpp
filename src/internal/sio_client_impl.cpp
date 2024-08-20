@@ -7,32 +7,39 @@
 //
 
 #include "sio_client_impl.h"
+#include <functional>
 #include <sstream>
-#include <boost/date_time/posix_time/posix_time.hpp>
+#include <chrono>
 #include <mutex>
 #include <cmath>
 // Comment this out to disable handshake logging to stdout
-#if DEBUG || _DEBUG
+#if (DEBUG || _DEBUG) && !defined(SIO_DISABLE_LOGGING)
 #define LOG(x) std::cout << x
 #else
 #define LOG(x)
 #endif
 
-using boost::posix_time::milliseconds;
+#if SIO_TLS
+// If using Asio's SSL support, you will also need to add this #include.
+// Source: http://think-async.com/Asio/asio-1.10.6/doc/asio/using.html
+// #include <asio/ssl/impl/src.hpp>
+#endif
+
+using std::chrono::milliseconds;
 using namespace std;
 
 namespace sio
 {
     /*************************public:*************************/
-    client_impl::client_impl() :
-        m_con_state(con_closed),
+    client_impl::client_impl(client_options const& options) :
         m_ping_interval(0),
         m_ping_timeout(0),
         m_network_thread(),
-        m_reconn_attempts(0xFFFFFFFF),
-        m_reconn_made(0),
+        m_con_state(con_closed),
         m_reconn_delay(5000),
-        m_reconn_delay_max(25000)
+        m_reconn_delay_max(25000),
+        m_reconn_attempts(0xFFFFFFFF),
+        m_reconn_made(0)
     {
         using websocketpp::log::alevel;
 #ifndef DEBUG
@@ -40,21 +47,25 @@ namespace sio
         m_client.set_access_channels(alevel::connect|alevel::disconnect|alevel::app);
 #endif
         // Initialize the Asio transport policy
-        m_client.init_asio();
+        if (options.io_context != nullptr) {
+            m_client.init_asio(options.io_context);
+        } else {
+            m_client.init_asio();
+        }
 
         // Bind the clients we are using
-        using websocketpp::lib::placeholders::_1;
-        using websocketpp::lib::placeholders::_2;
-        m_client.set_open_handler(lib::bind(&client_impl::on_open,this,_1));
-        m_client.set_close_handler(lib::bind(&client_impl::on_close,this,_1));
-        m_client.set_fail_handler(lib::bind(&client_impl::on_fail,this,_1));
-        m_client.set_message_handler(lib::bind(&client_impl::on_message,this,_1,_2));
+        using std::placeholders::_1;
+        using std::placeholders::_2;
+        m_client.set_open_handler(std::bind(&client_impl::on_open,this,_1));
+        m_client.set_close_handler(std::bind(&client_impl::on_close,this,_1));
+        m_client.set_fail_handler(std::bind(&client_impl::on_fail,this,_1));
+        m_client.set_message_handler(std::bind(&client_impl::on_message,this,_1,_2));
 #if SIO_TLS
-        m_client.set_tls_init_handler(lib::bind(&client_impl::on_tls_init,this,_1));
+        m_client.set_tls_init_handler(std::bind(&client_impl::on_tls_init,this,_1));
 #endif
-        m_packet_mgr.set_decode_callback(lib::bind(&client_impl::on_decode,this,_1));
+        m_packet_mgr.set_decode_callback(std::bind(&client_impl::on_decode,this,_1));
 
-        m_packet_mgr.set_encode_callback(lib::bind(&client_impl::on_encode,this,_1,_2));
+        m_packet_mgr.set_encode_callback(std::bind(&client_impl::on_encode,this,_1,_2));
     }
     
     client_impl::~client_impl()
@@ -62,8 +73,15 @@ namespace sio
         this->sockets_invoke_void(&sio::socket::on_close);
         sync_close();
     }
+	
+    void client_impl::set_proxy_basic_auth(const std::string& uri, const std::string& username, const std::string& password)
+    {
+        m_proxy_base_url = uri;
+        m_proxy_basic_username = username;
+        m_proxy_basic_password = password;
+    }
     
-    void client_impl::connect(const string& uri, const map<string,string>& query, const map<string, string>& headers)
+    void client_impl::connect(const string& uri, const map<string,string>& query, const map<string, string>& headers, const message::ptr& auth)
     {
         if(m_reconn_timer)
         {
@@ -95,15 +113,18 @@ namespace sio
             query_str.append("&");
             query_str.append(it->first);
             query_str.append("=");
-            query_str.append(it->second);
+            string query_str_value=encode_query_string(it->second);
+            query_str.append(query_str_value);
         }
         m_query_string=move(query_str);
 
         m_http_headers = headers;
+        m_auth = auth;
 
         this->reset_states();
-        m_client.get_io_service().dispatch(lib::bind(&client_impl::connect_impl,this,uri,m_query_string));
-        m_network_thread.reset(new thread(lib::bind(&client_impl::run_loop,this)));//uri lifecycle?
+        m_abort_retries = false;
+        m_client.get_io_service().dispatch(std::bind(&client_impl::connect_impl,this,uri,m_query_string));
+        m_network_thread.reset(new thread(std::bind(&client_impl::run_loop,this)));//uri lifecycle?
 
     }
 
@@ -132,7 +153,7 @@ namespace sio
         }
         else
         {
-            pair<const string, socket::ptr> p(aux,shared_ptr<sio::socket>(new sio::socket(this,aux)));
+            pair<const string, socket::ptr> p(aux,shared_ptr<sio::socket>(new sio::socket(this,aux,m_auth)));
             return (m_sockets.insert(p).first)->second;
         }
     }
@@ -140,20 +161,38 @@ namespace sio
     void client_impl::close()
     {
         m_con_state = con_closing;
+        m_abort_retries = true;
         this->sockets_invoke_void(&sio::socket::close);
-        m_client.get_io_service().dispatch(lib::bind(&client_impl::close_impl, this,close::status::normal,"End by user"));
+        m_client.get_io_service().dispatch(std::bind(&client_impl::close_impl, this,close::status::normal,"End by user"));
     }
 
     void client_impl::sync_close()
     {
         m_con_state = con_closing;
+        m_abort_retries = true;
         this->sockets_invoke_void(&sio::socket::close);
-        m_client.get_io_service().dispatch(lib::bind(&client_impl::close_impl, this,close::status::normal,"End by user"));
+        m_client.get_io_service().dispatch(std::bind(&client_impl::close_impl, this,close::status::normal,"End by user"));
         if(m_network_thread)
         {
             m_network_thread->join();
             m_network_thread.reset();
         }
+    }
+
+    void client_impl::set_logs_default()
+    {
+        m_client.clear_access_channels(websocketpp::log::alevel::all);
+        m_client.set_access_channels(websocketpp::log::alevel::connect | websocketpp::log::alevel::disconnect | websocketpp::log::alevel::app);
+    }
+
+    void client_impl::set_logs_quiet()
+    {
+        m_client.clear_access_channels(websocketpp::log::alevel::all);
+    }
+
+    void client_impl::set_logs_verbose()
+    {
+        m_client.set_access_channels(websocketpp::log::alevel::all);
     }
 
     /*************************protected:*************************/
@@ -172,7 +211,7 @@ namespace sio
         }
     }
 
-    boost::asio::io_service& client_impl::get_io_service()
+    asio::io_service& client_impl::get_io_service()
     {
         return m_client.get_io_service();
     }
@@ -214,7 +253,12 @@ namespace sio
             } else {
                 ss<<uo.get_host();
             }
-            ss<<":"<<uo.get_port()<<"/socket.io/?EIO=4&transport=websocket";
+
+            // If a resource path was included in the URI, use that, otherwise
+            // use the default /socket.io/.
+            const std::string path(uo.get_resource() == "/" ? "/socket.io/" : uo.get_resource());
+
+            ss<<":"<<uo.get_port()<<path<<"?EIO=4&transport=websocket";
             if(m_sid.size()>0){
                 ss<<"&sid="<<m_sid;
             }
@@ -229,6 +273,23 @@ namespace sio
 
             for( auto&& header: m_http_headers ) {
                 con->replace_header(header.first, header.second);
+            }
+			
+            if (!m_proxy_base_url.empty()) {
+                con->set_proxy(m_proxy_base_url, ec);
+                if (ec) {
+                    m_client.get_alog().write(websocketpp::log::alevel::app,
+                                    "Set Proxy Error: " + ec.message());
+                    break;
+                }
+                if (!m_proxy_basic_username.empty()) {
+                    con->set_proxy_basic_auth(m_proxy_basic_username, m_proxy_basic_password, ec);
+                    if (ec) {
+                        m_client.get_alog().write(websocketpp::log::alevel::app,
+                                    "Set Proxy Basic Auth Error: " + ec.message());
+                        break;
+                    }
+                }
             }
 
             m_client.connect(con);
@@ -273,47 +334,17 @@ namespace sio
         }
     }
 
-    void client_impl::ping(const boost::system::error_code& ec)
-    {
-        if(ec || m_con.expired())
-        {
-            if (ec != boost::asio::error::operation_aborted)
-                LOG("ping exit,con is expired?"<<m_con.expired()<<",ec:"<<ec.message()<<endl);
-            return;
-        }
-        packet p(packet::frame_ping);
-        m_packet_mgr.encode(p,
-                            [&](bool isBin,shared_ptr<const string> payload)
-        {
-            lib::error_code ec;
-            this->m_client.send(this->m_con, *payload, frame::opcode::text, ec);
-        });
-        if(m_ping_timer)
-        {
-            boost::system::error_code e_code;
-            m_ping_timer->expires_from_now(milliseconds(m_ping_interval), e_code);
-            m_ping_timer->async_wait(lib::bind(&client_impl::ping,this,lib::placeholders::_1));
-        }
-        if(!m_ping_timeout_timer)
-        {
-            m_ping_timeout_timer.reset(new boost::asio::deadline_timer(m_client.get_io_service()));
-            boost::system::error_code timeout_ec;
-            m_ping_timeout_timer->expires_from_now(milliseconds(m_ping_timeout), timeout_ec);
-            m_ping_timeout_timer->async_wait(lib::bind(&client_impl::timeout_pong, this,lib::placeholders::_1));
-        }
-    }
-
-    void client_impl::timeout_pong(const boost::system::error_code &ec)
+    void client_impl::timeout_ping(const asio::error_code &ec)
     {
         if(ec)
         {
             return;
         }
-        LOG("Pong timeout"<<endl);
-        m_client.get_io_service().dispatch(lib::bind(&client_impl::close_impl, this,close::status::policy_violation,"Pong timeout"));
+        LOG("Ping timeout"<<endl);
+        m_client.get_io_service().dispatch(std::bind(&client_impl::close_impl, this,close::status::policy_violation,"Ping timeout"));
     }
 
-    void client_impl::timeout_reconnect(boost::system::error_code const& ec)
+    void client_impl::timeout_reconnect(asio::error_code const& ec)
     {
         if(ec)
         {
@@ -326,7 +357,7 @@ namespace sio
             this->reset_states();
             LOG("Reconnecting..."<<endl);
             if(m_reconnecting_listener) m_reconnecting_listener();
-            m_client.get_io_service().dispatch(lib::bind(&client_impl::connect_impl,this,m_base_url,m_query_string));
+            m_client.get_io_service().dispatch(std::bind(&client_impl::connect_impl,this,m_base_url,m_query_string));
         }
     }
 
@@ -363,21 +394,27 @@ namespace sio
         }
     }
 
-    void client_impl::on_fail(connection_hdl con)
+    void client_impl::on_fail(connection_hdl)
     {
+        if (m_con_state == con_closing) {
+            LOG("Connection failed while closing." << endl);
+            this->close();
+            return;
+        }
+
         m_con.reset();
         m_con_state = con_closed;
         this->sockets_invoke_void(&sio::socket::on_disconnect);
         LOG("Connection failed." << endl);
-        if(m_reconn_made<m_reconn_attempts)
+        if(m_reconn_made<m_reconn_attempts && !m_abort_retries)
         {
             LOG("Reconnect for attempt:"<<m_reconn_made<<endl);
             unsigned delay = this->next_delay();
             if(m_reconnect_listener) m_reconnect_listener(m_reconn_made,delay);
-            m_reconn_timer.reset(new boost::asio::deadline_timer(m_client.get_io_service()));
-            boost::system::error_code ec;
+            m_reconn_timer.reset(new asio::steady_timer(m_client.get_io_service()));
+            asio::error_code ec;
             m_reconn_timer->expires_from_now(milliseconds(delay), ec);
-            m_reconn_timer->async_wait(lib::bind(&client_impl::timeout_reconnect,this,lib::placeholders::_1));
+            m_reconn_timer->async_wait(std::bind(&client_impl::timeout_reconnect,this, std::placeholders::_1));
         }
         else
         {
@@ -387,6 +424,12 @@ namespace sio
     
     void client_impl::on_open(connection_hdl con)
     {
+        if (m_con_state == con_closing) {
+            LOG("Connection opened while closing." << endl);
+            this->close();
+            return;
+        }
+
         LOG("Connected." << endl);
         m_con_state = con_opened;
         m_con = con;
@@ -399,6 +442,7 @@ namespace sio
     void client_impl::on_close(connection_hdl con)
     {
         LOG("Client Disconnected." << endl);
+        con_state m_con_state_was = m_con_state;
         m_con_state = con_closed;
         lib::error_code ec;
         close::status::value code = close::status::normal;
@@ -414,7 +458,11 @@ namespace sio
         m_con.reset();
         this->clear_timers();
         client::close_reason reason;
-        if(code == close::status::normal)
+
+        // If we initiated the close, no matter what the close status was,
+        // we'll consider it a normal close. (When using TLS, we can
+        // sometimes get a TLS Short Read error when closing.)
+        if(code == close::status::normal || m_con_state_was == con_closing)
         {
             this->sockets_invoke_void(&sio::socket::on_disconnect);
             reason = client::close_reason_normal;
@@ -422,15 +470,15 @@ namespace sio
         else
         {
             this->sockets_invoke_void(&sio::socket::on_disconnect);
-            if(m_reconn_made<m_reconn_attempts)
+            if(m_reconn_made<m_reconn_attempts && !m_abort_retries)
             {
                 LOG("Reconnect for attempt:"<<m_reconn_made<<endl);
                 unsigned delay = this->next_delay();
                 if(m_reconnect_listener) m_reconnect_listener(m_reconn_made,delay);
-                m_reconn_timer.reset(new boost::asio::deadline_timer(m_client.get_io_service()));
-                boost::system::error_code ec;
+                m_reconn_timer.reset(new asio::steady_timer(m_client.get_io_service()));
+                asio::error_code ec;
                 m_reconn_timer->expires_from_now(milliseconds(delay), ec);
-                m_reconn_timer->async_wait(lib::bind(&client_impl::timeout_reconnect,this,lib::placeholders::_1));
+                m_reconn_timer->async_wait(std::bind(&client_impl::timeout_reconnect,this, std::placeholders::_1));
                 return;
             }
             reason = client::close_reason_drop;
@@ -442,13 +490,8 @@ namespace sio
         }
     }
     
-    void client_impl::on_message(connection_hdl con, client_type::message_ptr msg)
+    void client_impl::on_message(connection_hdl, client_type::message_ptr msg)
     {
-        if (m_ping_timeout_timer) {
-            boost::system::error_code ec;
-            m_ping_timeout_timer->expires_from_now(milliseconds(m_ping_timeout),ec);
-            m_ping_timeout_timer->async_wait(lib::bind(&client_impl::timeout_pong, this,lib::placeholders::_1));
-        }
         // Parse the incoming message according to socket.IO rules
         m_packet_mgr.put_payload(msg->get_payload());
     }
@@ -485,26 +528,27 @@ namespace sio
                 m_ping_timeout = 60000;
             }
 
-            m_ping_timer.reset(new boost::asio::deadline_timer(m_client.get_io_service()));
-            boost::system::error_code ec;
-            m_ping_timer->expires_from_now(milliseconds(m_ping_interval), ec);
-            if(ec)LOG("ec:"<<ec.message()<<endl);
-            m_ping_timer->async_wait(lib::bind(&client_impl::ping,this,lib::placeholders::_1));
-            LOG("On handshake,sid:"<<m_sid<<",ping interval:"<<m_ping_interval<<",ping timeout"<<m_ping_timeout<<endl);
+            // Start ping timeout
+            update_ping_timeout_timer();
+
             return;
         }
 failed:
         //just close it.
-        m_client.get_io_service().dispatch(lib::bind(&client_impl::close_impl, this,close::status::policy_violation,"Handshake error"));
+        m_client.get_io_service().dispatch(std::bind(&client_impl::close_impl, this,close::status::policy_violation,"Handshake error"));
     }
 
-    void client_impl::on_pong()
+    void client_impl::on_ping()
     {
-        if(m_ping_timeout_timer)
+        // Reply with pong packet.
+        packet p(packet::frame_pong);
+        m_packet_mgr.encode(p, [&](bool /*isBin*/,shared_ptr<const string> payload)
         {
-            m_ping_timeout_timer->cancel();
-            m_ping_timeout_timer.reset();
-        }
+            this->m_client.send(this->m_con, *payload, frame::opcode::text);
+        });
+
+        // Reset the ping timeout.
+        update_ping_timeout_timer();
     }
 
     void client_impl::on_decode(packet const& p)
@@ -513,6 +557,19 @@ failed:
         {
         case packet::frame_message:
         {
+	    // Special event for sid sync
+            if (p.get_type() == packet::type_connect) {
+                auto message = p.get_message();
+                if (message && message->get_flag() == message::flag_object)
+                {
+                    const object_message* obj_ptr = static_cast<object_message*>(message.get());
+                    const std::map<std::string, message::ptr>* values = &(obj_ptr->get_map());
+                    auto it = values->find("sid");
+                    if (it != values->end()) {
+                        m_sid = std::static_pointer_cast<string_message>(it->second)->get_string();
+                    }
+                }
+            }
             socket::ptr so_ptr = get_socket_locked(p.get_nsp());
             if(so_ptr)so_ptr->on_message_packet(p);
             break;
@@ -524,8 +581,8 @@ failed:
             //FIXME how to deal?
             this->close_impl(close::status::abnormal_close, "End by server");
             break;
-        case packet::frame_pong:
-            this->on_pong();
+        case packet::frame_ping:
+            this->on_ping();
             break;
 
         default:
@@ -536,23 +593,28 @@ failed:
     void client_impl::on_encode(bool isBinary,shared_ptr<const string> const& payload)
     {
         LOG("encoded payload length:"<<payload->length()<<endl);
-        m_client.get_io_service().dispatch(lib::bind(&client_impl::send_impl,this,payload,isBinary?frame::opcode::binary:frame::opcode::text));
+        m_client.get_io_service().dispatch(std::bind(&client_impl::send_impl,this,payload,isBinary?frame::opcode::binary:frame::opcode::text));
     }
     
     void client_impl::clear_timers()
     {
         LOG("clear timers"<<endl);
-        boost::system::error_code ec;
+        asio::error_code ec;
         if(m_ping_timeout_timer)
         {
             m_ping_timeout_timer->cancel(ec);
             m_ping_timeout_timer.reset();
         }
-        if(m_ping_timer)
-        {
-            m_ping_timer->cancel(ec);
-            m_ping_timer.reset();
+    }
+
+    void client_impl::update_ping_timeout_timer() {
+        if (!m_ping_timeout_timer) {
+            m_ping_timeout_timer = std::unique_ptr<asio::steady_timer>(new asio::steady_timer(get_io_service()));
         }
+
+        asio::error_code ec;
+        m_ping_timeout_timer->expires_from_now(milliseconds(m_ping_interval + m_ping_timeout), ec);
+        m_ping_timeout_timer->async_wait(std::bind(&client_impl::timeout_ping, this, std::placeholders::_1));
     }
     
     void client_impl::reset_states()
@@ -565,11 +627,12 @@ failed:
 #if SIO_TLS
     client_impl::context_ptr client_impl::on_tls_init(connection_hdl conn)
     {
-        context_ptr ctx = context_ptr(new  boost::asio::ssl::context(boost::asio::ssl::context::tlsv1));
-        boost::system::error_code ec;
-        ctx->set_options(boost::asio::ssl::context::default_workarounds |
-                             boost::asio::ssl::context::no_sslv2 |
-                             boost::asio::ssl::context::single_dh_use,ec);
+        context_ptr ctx = context_ptr(new  asio::ssl::context(asio::ssl::context::tls));
+        asio::error_code ec;
+        ctx->set_options(asio::ssl::context::default_workarounds |
+                         asio::ssl::context::no_tlsv1 |
+                         asio::ssl::context::no_tlsv1_1 |
+                         asio::ssl::context::single_dh_use,ec);
         if(ec)
         {
             cerr<<"Init tls failed,reason:"<< ec.message()<<endl;
@@ -578,4 +641,19 @@ failed:
         return ctx;
     }
 #endif
+
+    std::string client_impl::encode_query_string(const std::string &query){
+        ostringstream ss;
+        ss << std::hex;
+        // Percent-encode (RFC3986) non-alphanumeric characters.
+        for(const char c : query){
+            if((c >= 'a' && c <= 'z') || (c>= 'A' && c<= 'Z') || (c >= '0' && c<= '9')){
+                ss << c;
+            } else {
+                ss << '%' << std::uppercase << std::setw(2) << int((unsigned char) c) << std::nouppercase;
+            }
+        }
+        ss << std::dec;
+        return ss.str();
+    }
 }

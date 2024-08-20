@@ -1,12 +1,14 @@
 #include "sio_socket.h"
 #include "internal/sio_packet.h"
 #include "internal/sio_client_impl.h"
-#include <boost/asio/deadline_timer.hpp>
-#include <boost/system/error_code.hpp>
+#include <asio/steady_timer.hpp>
+#include <asio/error_code.hpp>
 #include <queue>
+#include <chrono>
 #include <cstdarg>
+#include <functional>
 
-#if DEBUG || _DEBUG
+#if (DEBUG || _DEBUG) && !defined(SIO_DISABLE_LOGGING)
 #define LOG(x) std::cout << x
 #else
 #define LOG(x)
@@ -106,13 +108,17 @@ namespace sio
     {
     public:
         
-        impl(client_impl *,std::string const&);
+        impl(client_impl *, std::string const&, message::ptr const&);
         ~impl();
         
         void on(std::string const& event_name,event_listener_aux const& func);
         
         void on(std::string const& event_name,event_listener const& func);
         
+        void on_any(event_listener_aux const& func);
+
+        void on_any(event_listener const& func);
+
         void off(std::string const& event_name);
         
         void off_all();
@@ -157,7 +163,7 @@ namespace sio
         
         void ack(int msgId,string const& name,message::list const& ack_message);
         
-        void timeout_connection(const boost::system::error_code &ec);
+        void timeout_connection(const asio::error_code &ec);
         
         void send_connect();
         
@@ -171,14 +177,17 @@ namespace sio
         
         bool m_connected;
         std::string m_nsp;
+        message::ptr m_auth;
         
         std::map<unsigned int, std::function<void (message::list const&)> > m_acks;
         
         std::map<std::string, event_listener> m_event_binding;
         
+        event_listener m_event_listener;
+
         error_listener m_error_listener;
         
-        std::unique_ptr<boost::asio::deadline_timer> m_connection_timer;
+        std::unique_ptr<asio::steady_timer> m_connection_timer;
         
         std::queue<packet> m_packet_queue;
         
@@ -200,6 +209,16 @@ namespace sio
         m_event_binding[event_name] = func;
     }
     
+    void socket::impl::on_any(event_listener_aux const& func)
+    {
+        m_event_listener = event_adapter::do_adapt(func);
+    }
+    
+    void socket::impl::on_any(event_listener const& func)
+    {
+        m_event_listener = func;
+    }
+
     void socket::impl::off(std::string const& event_name)
     {
         std::lock_guard<std::mutex> guard(m_event_mutex);
@@ -226,10 +245,11 @@ namespace sio
         m_error_listener = nullptr;
     }
     
-    socket::impl::impl(client_impl *client,std::string const& nsp):
+    socket::impl::impl(client_impl *client, std::string const& nsp, message::ptr const& auth):
         m_client(client),
+        m_connected(false),
         m_nsp(nsp),
-        m_connected(false)
+        m_auth(auth)
     {
         NULL_GUARD(client);
         if(m_client->opened())
@@ -267,15 +287,11 @@ namespace sio
     void socket::impl::send_connect()
     {
         NULL_GUARD(m_client);
-        if(m_nsp == "/")
-        {
-            return;
-        }
-        packet p(packet::type_connect,m_nsp);
+        packet p(packet::type_connect, m_nsp, m_auth);
         m_client->send(p);
-        m_connection_timer.reset(new boost::asio::deadline_timer(m_client->get_io_service()));
-        boost::system::error_code ec;
-        m_connection_timer->expires_from_now(boost::posix_time::milliseconds(20000), ec);
+        m_connection_timer.reset(new asio::steady_timer(m_client->get_io_service()));
+        asio::error_code ec;
+        m_connection_timer->expires_from_now(std::chrono::milliseconds(20000), ec);
         m_connection_timer->async_wait(std::bind(&socket::impl::timeout_connection,this, std::placeholders::_1));
     }
     
@@ -289,11 +305,11 @@ namespace sio
             
             if(!m_connection_timer)
             {
-                m_connection_timer.reset(new boost::asio::deadline_timer(m_client->get_io_service()));
+                m_connection_timer.reset(new asio::steady_timer(m_client->get_io_service()));
             }
-            boost::system::error_code ec;
-            m_connection_timer->expires_from_now(boost::posix_time::milliseconds(3000), ec);
-            m_connection_timer->async_wait(lib::bind(&socket::impl::on_close, this));
+            asio::error_code ec;
+            m_connection_timer->expires_from_now(std::chrono::milliseconds(3000), ec);
+            m_connection_timer->async_wait(std::bind(&socket::impl::on_close, this));
         }
     }
     
@@ -443,13 +459,14 @@ namespace sio
         event ev = event_adapter::create_event(nsp,name, std::move(message),needAck);
         event_listener func = this->get_bind_listener_locked(name);
         if(func)func(ev);
+        if (m_event_listener) m_event_listener(ev);
         if(needAck)
         {
             this->ack(msgId, name, ev.get_ack_message());
         }
     }
     
-    void socket::impl::ack(int msgId, const string &name, const message::list &ack_message)
+    void socket::impl::ack(int msgId, const string &, const message::list &ack_message)
     {
         packet p(m_nsp, ack_message.to_array_message(),msgId,true);
         send_packet(p);
@@ -475,7 +492,7 @@ namespace sio
         if(m_error_listener)m_error_listener(err_message);
     }
     
-    void socket::impl::timeout_connection(const boost::system::error_code &ec)
+    void socket::impl::timeout_connection(const asio::error_code &ec)
     {
         NULL_GUARD(m_client);
         if(ec)
@@ -525,8 +542,8 @@ namespace sio
         return socket::event_listener();
     }
     
-    socket::socket(client_impl* client,std::string const& nsp):
-        m_impl(new impl(client,nsp))
+    socket::socket(client_impl* client,std::string const& nsp,message::ptr const& auth):
+        m_impl(new impl(client,nsp,auth))
     {
     }
     
@@ -545,6 +562,16 @@ namespace sio
         m_impl->on(event_name, func);
     }
     
+    void socket::on_any(event_listener_aux const& func)
+    {
+        m_impl->on_any(func);
+    }
+    
+    void socket::on_any(event_listener const& func)
+    {
+        m_impl->on_any(func);
+    }
+
     void socket::off(std::string const& event_name)
     {
         m_impl->off(event_name);

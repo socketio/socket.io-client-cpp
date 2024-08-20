@@ -62,6 +62,10 @@ namespace sio
         
         void off(std::string const& event_name);
         
+        void on_any(event_listener const& func);
+
+        void on_any(event_listener_aux const& func);
+
         void off_all();
         
         void close();
@@ -75,7 +79,7 @@ namespace sio
         std::string const& get_namespace() const;
         
     protected:
-        socket(client_impl*,std::string const&);
+        socket(client_impl*,std::string const&,message::ptr const&);
 
         void on_connected();
         
@@ -91,8 +95,8 @@ namespace sio
         
     private:
         //disable copy constructor and assign operator.
-        socket(socket const& sock){}
-        void operator=(socket const& sock){}
+        socket(socket const&){}
+        void operator=(socket const&){}
 
         class impl;
         impl *m_impl;

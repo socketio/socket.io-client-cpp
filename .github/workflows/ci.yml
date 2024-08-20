@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: '0 0 * * 0'
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+      fail-fast: false
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2.0.0
+
+    - name: Build project
+      uses: nicledomaS/cmake_build_action@v1.3
+      with:
+        submodule_update: ON
+        run_tests: ON
+        unit_test_build: -DBUILD_UNIT_TESTS=ON
+        cmake_args: -DCMAKE_CXX_FLAGS=-std=c++11

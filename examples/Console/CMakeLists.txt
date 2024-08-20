@@ -1,10 +1,9 @@
 cmake_minimum_required(VERSION 3.1.0 FATAL_ERROR)
+find_package(Threads REQUIRED)
 include(${CMAKE_CURRENT_SOURCE_DIR}/../../CMakeLists.txt)
 add_executable(sio_console_demo main.cpp)
-set_property(TARGET sio_console_demo PROPERTY CXX_STANDARD 11)
-set_property(TARGET sio_console_demo PROPERTY CXX_STANDARD_REQUIRED ON)
 target_link_libraries(sio_console_demo sioclient)
-target_link_libraries(sio_console_demo pthread )
+target_link_libraries(sio_console_demo Threads::Threads)
+target_compile_features(sio_console_demo PRIVATE cxx_std_11)
 message(STATUS ${Boost_INCLUDE_DIRS} )
 #target_include_directories(sio_console_demo PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../src" ${Boost_INCLUDE_DIRS} )
-

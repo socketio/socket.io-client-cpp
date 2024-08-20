@@ -69,7 +69,7 @@ int participants = -1;
 
 socket::ptr current_socket;
 
-void bind_events(socket::ptr &socket)
+void bind_events()
 {
 	current_socket->on("new message", sio::socket::event_listener_aux([&](string const& name, message::ptr const& data, bool isAck,message::list &ack_resp)
                        {
@@ -141,7 +141,7 @@ Login:
         _cond.wait(_lock);
     }
     _lock.unlock();
-    bind_events(current_socket);
+    bind_events();
     
     HIGHLIGHT("Start to chat,commands:\n'$exit' : exit chat\n'$nsp <namespace>' : change namespace");
     for (std::string line; std::getline(std::cin, line);) {
@@ -166,7 +166,7 @@ Login:
                     current_socket->close();
                 }
                 current_socket = h.socket(new_nsp);
-                bind_events(current_socket);
+                bind_events();
                 //if change to default nsp, we do not need to login again (since it is not closed).
                 if(current_socket->get_namespace() == "/")
                 {

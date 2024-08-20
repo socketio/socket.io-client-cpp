@@ -9,7 +9,6 @@
 #include <rapidjson/encodedstream.h>
 #include <rapidjson/writer.h>
 #include <cassert>
-#include <boost/lexical_cast.hpp>
 
 #define kBIN_PLACE_HOLDER "_placeholder"
 
@@ -54,13 +53,7 @@ namespace sio
         Value numVal;
         numVal.SetInt((int)buffers.size());
         val.AddMember("num", numVal, doc.GetAllocator());
-        //FIXME can not avoid binary copy here.
-        shared_ptr<string> write_buffer = make_shared<string>();
-        write_buffer->reserve(msg.get_binary()->size()+1);
-        char frame_char = packet::frame_message;
-        write_buffer->append(&frame_char,1);
-        write_buffer->append(*(msg.get_binary()));
-        buffers.push_back(write_buffer);
+        buffers.push_back(msg.get_binary());
     }
 
     void accept_array_message(array_message const& msg,Value& val,Document& doc,vector<shared_ptr<const string> >& buffers)
@@ -202,8 +195,8 @@ namespace sio
         _frame(frame_message),
         _type((isAck?type_ack : type_event) | type_undetermined),
         _nsp(nsp),
-        _message(msg),
         _pack_id(pack_id),
+        _message(msg),
         _pending_buffers(0)
     {
         assert((!isAck
@@ -214,8 +207,8 @@ namespace sio
         _frame(frame_message),
         _type(type),
         _nsp(nsp),
-        _message(msg),
         _pack_id(-1),
+        _message(msg),
         _pending_buffers(0)
     {
 
@@ -258,7 +251,7 @@ namespace sio
     {
         if (_pending_buffers > 0) {
             assert(is_binary_message(buf_payload));//this is ensured by outside.
-            _buffers.push_back(std::make_shared<string>(buf_payload.data()+1,buf_payload.size()-1));
+            _buffers.push_back(std::make_shared<string>(buf_payload.data(),buf_payload.size()));
             _pending_buffers--;
             if (_pending_buffers == 0) {
 
@@ -292,7 +285,7 @@ namespace sio
             pos++;
             if (_type == type_binary_event || _type == type_binary_ack) {
                 size_t score_pos = payload_ptr.find('-');
-                _pending_buffers = boost::lexical_cast<unsigned>(payload_ptr.substr(pos,score_pos - pos));
+                _pending_buffers = static_cast<unsigned>(std::stoul(payload_ptr.substr(pos, score_pos - pos)));
                 pos = score_pos+1;
             }
         }
@@ -332,7 +325,7 @@ namespace sio
 
         if(pos<json_pos)//we've got pack id.
         {
-            _pack_id = boost::lexical_cast<int>(payload_ptr.substr(pos,json_pos - pos));
+            _pack_id = std::stoi(payload_ptr.substr(pos,json_pos - pos));
         }
         if (_frame == frame_message && (_type == type_binary_event || _type == type_binary_ack)) {
             //parse later when all buffers are arrived.
