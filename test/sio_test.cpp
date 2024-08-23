@@ -238,7 +238,7 @@ TEST_CASE( "test_packet_parse_4" )
 /*
  * Test parsing of UInt64 values. See #174.
  */
-TEST_CASE( test_packet_parse_5 )
+TEST_CASE( "test_packet_parse_5" )
 {
     packet p;
     bool hasbin = p.parse("42/nsp,1001[\"event\",17657333360744292000]");
