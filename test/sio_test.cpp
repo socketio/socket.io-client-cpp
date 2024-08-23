@@ -234,3 +234,23 @@ TEST_CASE( "test_packet_parse_4" )
     CHECK(array->get_vector()[2]->get_string() == "text");
 
 }
+
+/*
+ * Test parsing of UInt64 values. See #174.
+ */
+TEST_CASE( "test_packet_parse_5" )
+{
+    packet p;
+    bool hasbin = p.parse("42/nsp,1001[\"event\",17657333360744292000]");
+    CHECK(!hasbin);
+    CHECK(p.get_frame() == packet::frame_message);
+    CHECK(p.get_type() == packet::type_event);
+    CHECK(p.get_nsp() == "/nsp");
+    CHECK(p.get_pack_id() == 1001);
+    CHECK(p.get_message()->get_flag() == message::flag_array);
+    REQUIRE(p.get_message()->get_vector().size() == 2);
+    REQUIRE(p.get_message()->get_vector()[0]->get_flag() == message::flag_string);
+    CHECK(p.get_message()->get_vector()[0]->get_string() == "event");
+    REQUIRE(p.get_message()->get_vector()[1]->get_flag() == message::flag_integer);
+    CHECK(p.get_message()->get_vector()[1]->get_int() == 17657333360744292000U);
+}
