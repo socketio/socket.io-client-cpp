@@ -351,6 +351,7 @@ namespace sio
             m_connection_timer->cancel();
             m_connection_timer.reset();
         }
+
         m_connected = false;
 		{
 			std::lock_guard<std::mutex> guard(m_packet_mutex);
@@ -377,6 +378,7 @@ namespace sio
             while (!m_packet_queue.empty()) {
                 m_packet_queue.pop();
             }
+            m_client->on_client_disconnect(m_connected);
         }
     }
     

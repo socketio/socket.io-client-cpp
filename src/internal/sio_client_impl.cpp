@@ -226,6 +226,11 @@ namespace sio
         if(m_socket_open_listener)m_socket_open_listener(nsp);
     }
 
+    void client_impl::on_client_disconnect(bool const& wasDisconnected)
+    {
+        if(m_connection_listener)m_connection_listener(wasDisconnected);
+    }
+
     /*************************private:*************************/
     void client_impl::run_loop()
     {
