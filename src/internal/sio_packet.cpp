@@ -321,7 +321,14 @@ namespace sio
 
         if(pos<json_pos)//we've got pack id.
         {
-            _pack_id = std::stoi(payload_ptr.substr(pos,json_pos - pos));
+	    std::string pack_id_str = payload_ptr.substr(pos, json_pos - pos);
+
+            if (std::all_of(pack_id_str.begin(), pack_id_str.end(), ::isdigit)) {
+                _pack_id = std::stoi(pack_id_str);
+            } 
+            else {
+                _pack_id = -1;
+            }
         }
         if (_frame == frame_message && (_type == type_binary_event || _type == type_binary_ack)) {
             //parse later when all buffers are arrived.
