@@ -9,6 +9,7 @@
 #include <rapidjson/encodedstream.h>
 #include <rapidjson/writer.h>
 #include <cassert>
+#include <algorithm>
 
 #define kBIN_PLACE_HOLDER "_placeholder"
 
