@@ -11,6 +11,10 @@
 #include "sio_message.h"
 #include "sio_socket.h"
 
+#if SIO_TLS
+#include "websocketpp/config/asio_client.hpp"
+#endif
+
 namespace asio {
     class io_context;
 }
@@ -61,6 +65,10 @@ namespace sio
         void clear_con_listeners();
         
         void clear_socket_listeners();
+
+        #if SIO_TLS
+        void set_tls_verify_callback(std::function<bool(bool, websocketpp::lib::asio::ssl::verify_context&)> callback);
+        #endif
         
         // Client Functions - such as send, etc.
         void connect(const std::string& uri);

@@ -87,6 +87,7 @@ namespace sio
         
 #undef SYNTHESIS_SETTER
         
+
         
         void clear_con_listeners()
         {
@@ -188,6 +189,14 @@ namespace sio
         void update_ping_timeout_timer();
         
         #if SIO_TLS
+        std::function<bool(bool, websocketpp::lib::asio::ssl::verify_context&)> verify_callback_cb;
+
+        template <typename VerifyCallback>
+        void set_tls_verify_callback(VerifyCallback callback)
+        {
+            verify_callback_cb = callback;
+        }
+
         typedef websocketpp::lib::shared_ptr<asio::ssl::context> context_ptr;
         
         context_ptr on_tls_init(connection_hdl con);

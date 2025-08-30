@@ -74,6 +74,15 @@ namespace sio
         m_impl->set_proxy_basic_auth(uri, username, password);
     }
 
+    #if SIO_TLS
+    void client::set_tls_verify_callback(std::function<bool(bool, websocketpp::lib::asio::ssl::verify_context&)> callback)
+    {
+        if (m_impl) {
+            m_impl->set_tls_verify_callback(callback);
+        }
+    }
+    #endif
+
     void client::connect(const std::string& uri)
     {
         m_impl->connect(uri, {}, {}, {});
