@@ -30,6 +30,8 @@ namespace sio
             close_reason_normal,
             close_reason_drop
         };
+
+        typedef std::function<void(bool)> connection_listener;
         
         typedef std::function<void(void)> con_listener;
         
@@ -57,6 +59,8 @@ namespace sio
         void set_socket_open_listener(socket_listener const& l);
         
         void set_socket_close_listener(socket_listener const& l);
+
+        void set_connection_listener(connection_listener const& l);
         
         void clear_con_listeners();
         

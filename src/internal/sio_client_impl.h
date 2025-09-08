@@ -84,6 +84,8 @@ namespace sio
         SYNTHESIS_SETTER(client::socket_listener,socket_open_listener)
         
         SYNTHESIS_SETTER(client::socket_listener,socket_close_listener)
+
+        SYNTHESIS_SETTER(client::connection_listener,connection_listener)
         
 #undef SYNTHESIS_SETTER
         
@@ -95,6 +97,7 @@ namespace sio
             m_fail_listener = nullptr;
             m_reconnect_listener = nullptr;
             m_reconnecting_listener = nullptr;
+            m_connection_listener = nullptr;
         }
         
         void clear_socket_listeners()
@@ -142,6 +145,8 @@ namespace sio
         void on_socket_closed(std::string const& nsp);
         
         void on_socket_opened(std::string const& nsp);
+
+        void on_client_disconnect(bool const& wasDisconnected);
         
     private:
         void run_loop();
@@ -227,6 +232,7 @@ namespace sio
         client::con_listener m_reconnecting_listener;
         client::reconnect_listener m_reconnect_listener;
         client::close_listener m_close_listener;
+        client::connection_listener m_connection_listener;
         
         client::socket_listener m_socket_open_listener;
         client::socket_listener m_socket_close_listener;
