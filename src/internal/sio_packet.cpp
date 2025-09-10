@@ -135,6 +135,10 @@ namespace sio
         {
             return int_message::create(value.GetInt64());
         }
+        else if (value.IsUint64())
+        {
+          return int_message::create(static_cast<int64_t>(value.GetUint64()));
+        }
         else if(value.IsDouble())
         {
             return double_message::create(value.GetDouble());
@@ -177,14 +181,14 @@ namespace sio
             }
             return ptr;
         }
-		else if(value.IsBool())
-		{
-			return bool_message::create(value.GetBool());
-		}
-		else if(value.IsNull())
-		{
-			return null_message::create();
-		}
+        else if(value.IsBool())
+        {
+            return bool_message::create(value.GetBool());
+        }
+        else if(value.IsNull())
+        {
+            return null_message::create();
+        }
         return message::ptr();
     }
 
